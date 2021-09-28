@@ -261,21 +261,17 @@ knitr::include_graphics("Model/Xseq_explained.png", dpi = 100)
 \pagebreak
 ```{r Predicted_PCG_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in BRCA-US, HNSC-US, LIHC-US, and LUSC-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "650px", out.height="550px", fig.align = "center"}
 
-knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_sep_by_cohort_P1.png", dpi = 100)
+knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_sep_by_cohort_P1.jpeg", dpi = 100)
 ```
 
 \pagebreak
-```{r Predicted_PCG_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in LUAD-US and STAD-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "700px", out.height="575px", fig.align = "center"}
+```{r Predicted_PCG_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in LUAD-US, STAD-US, and UCEC-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "700px", out.height="575px", fig.align = "center"}
 
-knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_sep_by_cohort_P2.png", dpi = 100)
+knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_sep_by_cohort_P2.jpeg", dpi = 100)
 ```
 
 
-\pagebreak
-```{r Predicted_PCG_3, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in the UCEC-US TCGA cohort. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "675px", out.height="630px", fig.align = "center"}
 
-knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_sep_by_cohort_P3.png", dpi = 200)
-```
 
 
 <!-- \pagebreak -->
