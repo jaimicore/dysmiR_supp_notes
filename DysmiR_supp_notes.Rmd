@@ -46,6 +46,7 @@ suppressPackageStartupMessages(library(leaflet))
 suppressPackageStartupMessages(library(ggplotify))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(ggsignif))
+suppressPackageStartupMessages(library(ggnetwork))
 
 pdf.options(encoding = 'ISOLatin2')
 options(device = "cairo_pdf")
@@ -355,50 +356,50 @@ suppressMessages(tfbs.vs.exon.mutations )
 \pagebreak
 ```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of all predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"}
 
-# load("Indiv_nets/Nb_subgraphs_individual_samples_all_cohorts.Rdata")
-# subgraphs <- xx
-#
-# load("Indiv_nets/UCEC-US/Aggregated_network_UCEC-US.Rdata")
-# agg.net.ucec <- agg.net + add_space
+load("Aggregated_networks/BRCA/Aggregated_network_BRCA-US.Rdata")
+agg.net.brca <- agg.net.fun(df           = list.agg.net$DF,
+                            project.name = list.agg.net$Project,
+                            clusters     = list.agg.net$Clusters)  + add_space
 
-agg.net.fun(df = NULL, project.name = NULL, clusters     = NULL) 
-
-
-
-
-
-
-load("Indiv_nets/BRCA-US/Aggregated_network_BRCA-US.Rdata")
-agg.net.brca <- agg.net + add_space
-
-load("Indiv_nets/HNSC-US/Aggregated_network_HNSC-US.Rdata")
-agg.net.hnsc <- agg.net + add_space
-
-load("Indiv_nets/LIHC-US/Aggregated_network_LIHC-US.Rdata")
-agg.net.lihc <- agg.net + add_space
-
-load("Indiv_nets/LUAD-US/Aggregated_network_LUAD-US.Rdata")
-agg.net.luad <- agg.net + add_space
-
-load("Indiv_nets/LUSC-US/Aggregated_network_LUSC-US.Rdata")
-agg.net.lusc <- agg.net + add_space
-
-load("Indiv_nets/STAD-US/Aggregated_network_STAD-US.Rdata")
-agg.net.stad <- agg.net + add_space
-
-
-
-
-suppressMessages(plot_grid(agg.net.brca,
-                           agg.net.hnsc,
-
-                           agg.net.lihc,
-                           agg.net.luad,
-
-                           agg.net.lusc,
-                           agg.net.stad,
-                           nrow = 3, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)'),
-                           label_size = 35, vjust = 1, hjust = 0))
+agg.net.brca
+# load("Indiv_nets/HNSC-US/Aggregated_network_HNSC-US.Rdata")
+# agg.net.hnsc <- agg.net.fun(df           = list.agg.net$DF,
+#                             project.name = list.agg.net$Project,
+#                             clusters     = list.agg.net$Clusters)  + add_space
+# 
+# load("Indiv_nets/LIHC-US/Aggregated_network_LIHC-US.Rdata")
+# agg.net.lihc <- agg.net.fun(df           = list.agg.net$DF,
+#                             project.name = list.agg.net$Project,
+#                             clusters     = list.agg.net$Clusters)  + add_space
+# 
+# load("Indiv_nets/LUAD-US/Aggregated_network_LUAD-US.Rdata")
+# agg.net.luad <- agg.net.fun(df           = list.agg.net$DF,
+#                             project.name = list.agg.net$Project,
+#                             clusters     = list.agg.net$Clusters)  + add_space
+# 
+# load("Indiv_nets/LUSC-US/Aggregated_network_LUSC-US.Rdata")
+# agg.net.lusc <- agg.net.fun(df           = list.agg.net$DF,
+#                             project.name = list.agg.net$Project,
+#                             clusters     = list.agg.net$Clusters)  + add_space
+# 
+# load("Indiv_nets/STAD-US/Aggregated_network_STAD-US.Rdata")
+# agg.net.stad <- agg.net.fun(df           = list.agg.net$DF,
+#                             project.name = list.agg.net$Project,
+#                             clusters     = list.agg.net$Clusters)  + add_space
+# 
+# 
+# 
+# 
+# suppressMessages(plot_grid(agg.net.brca,
+#                            agg.net.hnsc,
+# 
+#                            agg.net.lihc,
+#                            agg.net.luad,
+# 
+#                            agg.net.lusc,
+#                            agg.net.stad,
+#                            nrow = 3, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)'),
+#                            label_size = 35, vjust = 1, hjust = 0))
 ```
 
 
