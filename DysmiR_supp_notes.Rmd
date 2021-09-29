@@ -82,6 +82,32 @@ add_space_gg <-   theme(
       size = 1
     ))
 
+
+agg.net.fun <- function(df           = NULL,
+                        project.name = NULL,
+                        clusters     = NULL) {
+
+  ggplot(df, aes(x = x, y = y, xend = xend, yend = yend, color = Nb_samples, fill = TF_gene)) +
+        geom_edges(color = "grey50") +
+        geom_nodelabel_repel(aes(label = vertex.names),
+                             fontface = "plain", box.padding = unit(1, "lines"), color = "black", force = 0.85, size = 6) +
+        scale_fill_manual(values = c("#fdbb84", "white"),
+                          breaks = c("TF", "non_TF")) + ##
+        geom_edges(arrow = arrow(length = unit(7, "pt"), type = "closed")) +
+        geom_nodes(size = 8) +
+        scale_color_distiller(palette = "PuBu", direction = +1, limits = c(1 ,max(df$Nb_samples)), name = "Samples    ") + 
+        theme_blank() +
+        labs(title = paste("Aggregated network ", project.name, " - Genes: ", sum(clusters$csize), " - Subgraphs: ", clusters$no)) +
+        guides(fill = FALSE) +
+        theme(plot.title = element_text(hjust = 0.5, size=12),
+              legend.text=element_text(size=10),
+              legend.title=element_text(size=10),
+              legend.position = "bottom",
+              legend.box = "vertical") +
+        guides(colour = guide_colourbar(barwidth = 7.5, barheight = 2))
+}
+
+
 # Laptop -> Biotin
 # rsync -rptuvl /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Supp_Material jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/Manuscript
 
@@ -132,6 +158,8 @@ plot_grid(wgs.mut.summary.plot, mutated.tfbs.cohorts, ncol = 1, labels = c('A)',
 
 
 
+
+
 \pagebreak
 ```{r Mutation_fraction_in_TFBSs, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Fraction of somatic mutations per sample per cohort categorized as cis-regulatory mutations (i.e. within TFBSs).", fig.height = 5, fig.width = 7, fig.align = "center"}
 
@@ -153,6 +181,7 @@ Fraction.mut.in.tfbs.gg <- Fraction.mut.in.tfbs.gg +
 suppressWarnings(print(Fraction.mut.in.tfbs.gg))
 
 ```
+
 
 
 
@@ -187,6 +216,8 @@ suppressMessages(suppressWarnings(plot_grid(mut.rate.distrib.comp.gg.brca,
 
 
 
+
+
 \pagebreak
 ```{r Mutation_rates_paired_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Paired comparisons (wilcoxon tests) of mutation rates in A) STAD samples (n = 35), B) LUAD (n = 37), and D) LUSC (n = 42) at TFBS, exonic, flanking, and random regions.", fig.height = 19, fig.width = 15, fig.align = "center"}
 
@@ -213,6 +244,8 @@ suppressMessages(suppressWarnings(plot_grid(mut.rate.distrib.comp.gg.stad,
 
 
 
+
+
 \pagebreak
 ```{r TFBS_vs_Exonic_mutation_rate_BRCA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="TFBS versus exonic mutation rates in TCGA cohorts. Both axis are -log$_{10}$ converted. The diagonal line indicates identical mutation rates in TFBS and exonic regions. The blue line represents a linear regression model best fitting the points with a 95\\% confidence interval (grey zone).", fig.height = 12, fig.width = 12, fig.align = "center"}
 
@@ -221,6 +254,8 @@ load("Mutation_rate/TFBS_exonic_mut_rates_facet.Rdata")
 TFBS.exonic.mut.rate.facet
 
 ```
+
+
 
 
 
@@ -233,6 +268,9 @@ tfbs.vs.flanks.gg.all + add_space
 ```
 
 
+
+
+
 \pagebreak
 ```{r Exon_flanks, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Mutation rates in exons and their flanking regions. Left: ±50 bp, center: ±250 bp, right: ±500 bp.", fig.height = 12.5, fig.width = 11, fig.align = "center"}
 
@@ -243,11 +281,16 @@ exons.vs.flanks.gg.all + add_space
 
 
 
+
+
 \pagebreak
 ```{r GeneHancer_associations, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="TFBS-gene associations. When a TFBS (purple box) lies within an GeneHancer-annotated cis-regulatory element (CRE; pink box), the TFBS is linked to its target genes according to GeneHancer, (see TFBS$_B$ and TFBS$_C$). When a TFBS is outside an annotated CRE (see TFBS$_A$, TFBS$_D$, and TFBS$_E$), it is associated with the closest TSS.", out.width = "500px", fig.align = "center"}
 
 knitr::include_graphics("GeneHancer/TFBS_CRE_association-1.png", dpi = 100)
 ```
+
+
+
 
 
 \pagebreak
@@ -258,11 +301,17 @@ knitr::include_graphics("Model/Xseq_explained.png", dpi = 100)
 
 
 
+
+
 \pagebreak
 ```{r Predicted_PCG_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in BRCA-US, HNSC-US, LIHC-US, and LUSC-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "650px", out.height="550px", fig.align = "center"}
 
 knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_sep_by_cohort_P1.jpeg", dpi = 100)
 ```
+
+
+
+
 
 \pagebreak
 ```{r Predicted_PCG_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in LUAD-US, STAD-US, and UCEC-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "700px", out.height="575px", fig.align = "center"}
@@ -274,63 +323,84 @@ knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatma
 
 
 
-<!-- \pagebreak -->
-<!-- ```{r TFBS_vs_Exonic_mutations, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted through cis-regulatory mutations (i.e. within TFBSs) are generally not mutated in their exons in the same patients. A) For each cohort, number of samples where the predicted protein-coding genes through cis-regulatory mutations (TFBSs) also contain a LoF mutation. B) Same as in A) but providing the corresponding number of predicted protein-coding genes per cohort for each category.", fig.height = 15, fig.width = 13, fig.align = "center"} -->
+\pagebreak
+```{r TFBS_vs_Exonic_mutations, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted through cis-regulatory mutations (i.e. within TFBSs) are generally not mutated in their exons in the same patients. A) For each cohort, number of samples where the predicted protein-coding genes through cis-regulatory mutations (TFBSs) also contain a LoF mutation. B) Same as in A) but providing the corresponding number of predicted protein-coding genes per cohort for each category.", fig.height = 15, fig.width = 13, fig.align = "center"}
 
-<!-- load("TFBS_vs_Exonic_mutations/Analysis_samples_w_TFBS_Exonic_mutations.rdata")  -->
-<!-- tfbs.vs.exon.mutations <- aa -->
-
-<!-- font.size <- 100 -->
-<!-- tfbs.vs.exon.mutations <- tfbs.vs.exon.mutations + add_space -->
-
-<!-- suppressMessages(tfbs.vs.exon.mutations ) -->
-<!-- ``` -->
+load("Nb_TFBS_vs_Exonic_mutations/Analysis_samples_w_TFBS_Exonic_mutations.rdata")
 
 
+## The original colors in the legend are inverted when the plots are ecported as Rdata, therefore we have to reset the color scale
+suppressMessages(barplots$A     <- barplots$A + scale_fill_manual(values = c(TFBS_and_Exonic = "#bf812d", TFBS = "#35978f"), labels = c("TFBS only", "TFBS & Exon")))
 
-<!-- \pagebreak -->
-<!-- ```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of all predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"} -->
+suppressMessages(barplots$extra <- barplots$extra + scale_fill_manual(values = c(TFBS_and_Exonic = "#bf812d", TFBS = "#35978f"), labels = c("TFBS only", "TFBS & Exon")))
 
-<!-- # load("Indiv_nets/Nb_subgraphs_individual_samples_all_cohorts.Rdata") -->
-<!-- # subgraphs <- xx -->
-<!-- #  -->
-<!-- # load("Indiv_nets/UCEC-US/Aggregated_network_UCEC-US.Rdata")  -->
-<!-- # agg.net.ucec <- agg.net + add_space -->
+suppressMessages(barplots$B     <- barplots$B + scale_fill_manual(values = c(TFBS_and_Exonic = "#bf812d", TFBS = "#35978f"), labels = c("TFBS only", "TFBS & Exon")))
+  
+font.size <- 100
+
+tfbs.vs.exon.mutations <- plot_grid(barplots$A, barplots$extra, barplots$B,
+                                    nrow = 3, rel_heights = c(1, 0.001, 1),
+                                    labels = c("A)", "", "B)"),
+                                    label_size = 25)
+tfbs.vs.exon.mutations <- tfbs.vs.exon.mutations + add_space
 
 
-
-<!-- load("Indiv_nets/BRCA-US/Aggregated_network_BRCA-US.Rdata")  -->
-<!-- agg.net.brca <- agg.net + add_space -->
-
-<!-- load("Indiv_nets/HNSC-US/Aggregated_network_HNSC-US.Rdata")  -->
-<!-- agg.net.hnsc <- agg.net + add_space -->
-
-<!-- load("Indiv_nets/LIHC-US/Aggregated_network_LIHC-US.Rdata")  -->
-<!-- agg.net.lihc <- agg.net + add_space -->
-
-<!-- load("Indiv_nets/LUAD-US/Aggregated_network_LUAD-US.Rdata")  -->
-<!-- agg.net.luad <- agg.net + add_space -->
-
-<!-- load("Indiv_nets/LUSC-US/Aggregated_network_LUSC-US.Rdata")  -->
-<!-- agg.net.lusc <- agg.net + add_space -->
-
-<!-- load("Indiv_nets/STAD-US/Aggregated_network_STAD-US.Rdata")  -->
-<!-- agg.net.stad <- agg.net + add_space -->
+suppressMessages(tfbs.vs.exon.mutations )
+```
 
 
 
 
-<!-- suppressMessages(plot_grid(agg.net.brca, -->
-<!--                            agg.net.hnsc, -->
 
-<!--                            agg.net.lihc, -->
-<!--                            agg.net.luad, -->
+\pagebreak
+```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of all predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"}
 
-<!--                            agg.net.lusc, -->
-<!--                            agg.net.stad, -->
-<!--                            nrow = 3, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)'), -->
-<!--                            label_size = 35, vjust = 1, hjust = 0)) -->
-<!-- ``` -->
+# load("Indiv_nets/Nb_subgraphs_individual_samples_all_cohorts.Rdata")
+# subgraphs <- xx
+#
+# load("Indiv_nets/UCEC-US/Aggregated_network_UCEC-US.Rdata")
+# agg.net.ucec <- agg.net + add_space
+
+agg.net.fun(df = NULL, project.name = NULL, clusters     = NULL) 
+
+
+
+
+
+
+load("Indiv_nets/BRCA-US/Aggregated_network_BRCA-US.Rdata")
+agg.net.brca <- agg.net + add_space
+
+load("Indiv_nets/HNSC-US/Aggregated_network_HNSC-US.Rdata")
+agg.net.hnsc <- agg.net + add_space
+
+load("Indiv_nets/LIHC-US/Aggregated_network_LIHC-US.Rdata")
+agg.net.lihc <- agg.net + add_space
+
+load("Indiv_nets/LUAD-US/Aggregated_network_LUAD-US.Rdata")
+agg.net.luad <- agg.net + add_space
+
+load("Indiv_nets/LUSC-US/Aggregated_network_LUSC-US.Rdata")
+agg.net.lusc <- agg.net + add_space
+
+load("Indiv_nets/STAD-US/Aggregated_network_STAD-US.Rdata")
+agg.net.stad <- agg.net + add_space
+
+
+
+
+suppressMessages(plot_grid(agg.net.brca,
+                           agg.net.hnsc,
+
+                           agg.net.lihc,
+                           agg.net.luad,
+
+                           agg.net.lusc,
+                           agg.net.stad,
+                           nrow = 3, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)'),
+                           label_size = 35, vjust = 1, hjust = 0))
+```
+
 
 
 <!-- <!-- \pagebreak --> -->
