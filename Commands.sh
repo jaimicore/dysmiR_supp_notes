@@ -14,6 +14,9 @@ rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Mutation_rate_analysis/RData/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Mutation_rate
 
 
+
+
+
 ###################################
 ## Supplementary figures 8 and 9 ##
 ###################################
@@ -23,6 +26,9 @@ rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamon
 ## Fig S8: /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/GeneHancer/TFBS_CRE_association.odp
 ##
 ## Fig S9: /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Model/Xseq_explained.odp
+
+
+
 
 
 #####################################
@@ -46,14 +52,29 @@ convert -density 500 -trim /home/jamondra/Documents/PostDoc/Mathelier_lab/Manusc
 
 
 
+#############################
+## Supplementary figure 12 ##
+#############################
+
+###########################################################################################
+## Fig S12: number of mutation in TFBS and Exons across highlighted genes in all cohorts
+mkdir -p /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_TFBS_vs_Exonic_mutations ;
+rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_TFBS_vs_Exonic_mutations/* ;
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/protein_coding_genes_data/Nb_TFBS_vs_Exonic_mutations/rdata/Analysis_samples_w_TFBS_Exonic_mutations.rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_TFBS_vs_Exonic_mutations/Analysis_samples_w_TFBS_Exonic_mutations.rdata
 
 
 
 
 
+#############################
+## Supplementary figure 13 ##
+#############################
 
-
-
+###########################################################
+## Fig S13: Aggregated networks with all predicted genes 
+mkdir -p /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/BRCA ;
+rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/BRCA/* ;
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/BRCA-US/premiRNA/xseq/trans/Rdata/Aggregated_network_BRCA-US.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/BRCA/Aggregated_network_BRCA-US.Rdata
 
 
 
