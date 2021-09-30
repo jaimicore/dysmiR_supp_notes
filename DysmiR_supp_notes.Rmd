@@ -356,50 +356,33 @@ suppressMessages(tfbs.vs.exon.mutations )
 \pagebreak
 ```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of all predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"}
 
-load("Aggregated_networks/BRCA/Aggregated_network_BRCA-US.Rdata")
-agg.net.brca <- agg.net.fun(df           = list.agg.net$DF,
-                            project.name = list.agg.net$Project,
-                            clusters     = list.agg.net$Clusters)  + add_space
+cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD")
 
-agg.net.brca
-# load("Indiv_nets/HNSC-US/Aggregated_network_HNSC-US.Rdata")
-# agg.net.hnsc <- agg.net.fun(df           = list.agg.net$DF,
-#                             project.name = list.agg.net$Project,
-#                             clusters     = list.agg.net$Clusters)  + add_space
-# 
-# load("Indiv_nets/LIHC-US/Aggregated_network_LIHC-US.Rdata")
-# agg.net.lihc <- agg.net.fun(df           = list.agg.net$DF,
-#                             project.name = list.agg.net$Project,
-#                             clusters     = list.agg.net$Clusters)  + add_space
-# 
-# load("Indiv_nets/LUAD-US/Aggregated_network_LUAD-US.Rdata")
-# agg.net.luad <- agg.net.fun(df           = list.agg.net$DF,
-#                             project.name = list.agg.net$Project,
-#                             clusters     = list.agg.net$Clusters)  + add_space
-# 
-# load("Indiv_nets/LUSC-US/Aggregated_network_LUSC-US.Rdata")
-# agg.net.lusc <- agg.net.fun(df           = list.agg.net$DF,
-#                             project.name = list.agg.net$Project,
-#                             clusters     = list.agg.net$Clusters)  + add_space
-# 
-# load("Indiv_nets/STAD-US/Aggregated_network_STAD-US.Rdata")
-# agg.net.stad <- agg.net.fun(df           = list.agg.net$DF,
-#                             project.name = list.agg.net$Project,
-#                             clusters     = list.agg.net$Clusters)  + add_space
-# 
-# 
-# 
-# 
-# suppressMessages(plot_grid(agg.net.brca,
-#                            agg.net.hnsc,
-# 
-#                            agg.net.lihc,
-#                            agg.net.luad,
-# 
-#                            agg.net.lusc,
-#                            agg.net.stad,
-#                            nrow = 3, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)'),
-#                            label_size = 35, vjust = 1, hjust = 0))
+net.list <- vector(mode = "list", length = length(cohorts))
+for (co in cohorts) {
+  
+  load(paste0("Aggregated_networks/", co, "/Aggregated_network_", co, "-US.Rdata"))
+  agg.net <- agg.net.fun(df           = list.agg.net$DF,
+                         project.name = list.agg.net$Project,
+                         clusters     = list.agg.net$Clusters)  + add_space
+  
+  net.list[[co]] <- agg.net
+  
+}
+
+
+
+
+suppressMessages(plot_grid(net.list[["BRCA"]],
+                           net.list[["HNSC"]],
+
+                           net.list[["LIHC"]],
+                           net.list[["LUAD"]],
+
+                           net.list[["LUSC"]],
+                           net.list[["STAD"]],
+                           nrow = 3, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)'),
+                           label_size = 35, vjust = 1, hjust = 0))
 ```
 
 
