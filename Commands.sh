@@ -72,9 +72,14 @@ rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamon
 
 ###########################################################
 ## Fig S13: Aggregated networks with all predicted genes 
-mkdir -p /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/BRCA ;
-rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/BRCA/* ;
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/BRCA-US/premiRNA/xseq/trans/Rdata/Aggregated_network_BRCA-US.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/BRCA/Aggregated_network_BRCA-US.Rdata
+
+for COHORT in BRCA HNSC LIHC LUAD LUSC STAD UCEC
+do
+	echo $COHORT
+	mkdir -p /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/$COHORT ;
+	rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/$COHORT/* ;
+	rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/$COHORT-US/premiRNA/xseq/trans/Rdata/Aggregated_network_$COHORT-US.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Aggregated_networks/$COHORT/Aggregated_network_$COHORT-US.Rdata
+done
 
 
 
