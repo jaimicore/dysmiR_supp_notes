@@ -85,6 +85,17 @@ done
 
 
 
+####################################
+## Supplementary figures 14 to 17 ##
+####################################
+
+## S14: GO Biological Process 2018 enrichR heatmaps
+## S15: KEGG 2019 enrichR heatmaps
+## S16: WikiPathways human 2019 enrichR heatmaps
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/enrichR_analysis/RData/*.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_10000_minW_0.8_minscore_0.8/enrichR_analysis/RData/Enriched_terms_plots_BASIS.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
 
 
 
@@ -287,15 +298,6 @@ rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamon
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_vs_Nb_cohorts.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData
 
 
-######################
-## enrichR heatmaps ##
-######################
-
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/enrichR_analysis/RData/*.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
-
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_10000_minW_0.8_minscore_0.8/enrichR_analysis/RData/Enriched_terms_plots_BASIS.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
-
-
 ##############################################################
 ## dysregulated networks intersection among miRNAs and PCGs ##
 ##############################################################
@@ -314,14 +316,6 @@ mv /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp
 
 mv /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/UCEC-US/Dysreg_networks_intersection_UCEC-US.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Dysreg_net_intersection/Dysreg_networks_intersection_UCEC-US.Rdata
 
-
-########################################################
-## Heatmap highlighted PCGs (in at least two cohorts) ##
-########################################################
-
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot.RData
-
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/xseq_trans_pancancer_heatmap_PCG_all_mutation_types.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_all_mutation_types.Rdata
 
 
 ###################################
