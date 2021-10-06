@@ -387,334 +387,338 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
 
 
 
-<!-- <!-- \pagebreak --> -->
-<!-- <!-- ```{r Dysregulation_HeatMaps_PCGs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Examples of dysregulated networks for predicted protein-coding driver genes through cis-regulatory mutations: GATA3 in BRCA-US (left), GATA3 in LUAD-US (center), and LA2G4A in BRCA-US (right). Each heatmap column corresponds to a sample where TFBSs associated to the predicted drivers are found with a somatic mutation. Each row corresponds to dysregulated genes in the network of the predicted driver. The color scale represents the gene regulatory status (red: up-regulation; blue: down-regulation). The horizontal bars on top of the heatmaps show the patient-specific driver posterior probability; the darker the higher the probability. Note patient stratification based on this probability.", fig.height = 28, fig.width = 25, fig.align = "center"} --> -->
-
-<!-- <!-- ## Load the heatmap objects --> -->
-<!-- <!-- load("Dysreg_heatmaps_examples/PCG/Dysregulation_heatmaps_BRCA-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.brca <- all.heatmaps.list --> -->
-
-<!-- <!-- load("Dysreg_heatmaps_examples/PCG/Dysregulation_heatmaps_LUAD-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.luad <- all.heatmaps.list --> -->
-
-<!-- <!-- load("Dysreg_heatmaps_examples/PCG/Dysregulation_heatmaps_LUSC-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.lusc <- all.heatmaps.list --> -->
-
-<!-- <!-- ht1 <- all.heatmaps.list.brca[["GATA3_LoF"]] --> -->
-<!-- <!-- ht2 <- all.heatmaps.list.luad[["GATA3_TFBS"]] --> -->
-<!-- <!-- ht3 <- all.heatmaps.list.brca[["PLA2G4A_TFBS"]] --> -->
-<!-- <!-- # ht3 <- all.heatmaps.list.lusc[["PLA2G4A_TFBS"]] --> -->
-
-
-<!-- <!-- ht11 <- as.ggplot(grid.grabExpr(draw(ht1))) + add_space --> -->
-<!-- <!-- ht22 <- as.ggplot(grid.grabExpr(draw(ht2))) + add_space --> -->
-<!-- <!-- ht33 <- as.ggplot(grid.grabExpr(draw(ht3))) + add_space --> -->
-
-<!-- <!-- plot_grid(ht11, ht22, ht33, --> -->
-<!-- <!--           nrow =  1) --> -->
-
-<!-- <!-- rm(ht1) --> -->
-<!-- <!-- rm(ht2) --> -->
-<!-- <!-- rm(ht3) --> -->
-<!-- <!-- rm(ht11) --> -->
-<!-- <!-- rm(ht22) --> -->
-<!-- <!-- rm(ht33) --> -->
-<!-- <!-- rm(all.heatmaps.list) --> -->
-<!-- <!-- rm(all.heatmaps.list.brca) --> -->
-<!-- <!-- rm(all.heatmaps.list.luad) --> -->
-<!-- <!-- rm(all.heatmaps.list.lusc) --> -->
-<!-- <!-- ``` --> -->
-
-
 <!-- \pagebreak -->
-<!-- ```{r FEA_GO_BP, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment (GO Biological Process 2018) analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes. The heatmaps represent the significance (-log$_{10}$(P-value)) of the most enriched terms (rows) associated to the dysregulated genes found on the seven analyzed cohorts (columns) when considering protein-coding genes with LoF mutations (PCGs::LoF; top-left), protein-coding genes with cis-regulatory mutations (PCG::TFBS; top-right), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; bottom-right). The terms are ordered by their mean ranks across the cohorts.", fig.height = 110, fig.width = 97, fig.align = "center"} -->
+<!-- ```{r Dysregulation_HeatMaps_PCGs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Examples of dysregulated networks for predicted protein-coding driver genes through cis-regulatory mutations: GATA3 in BRCA-US (left), GATA3 in LUAD-US (center), and LA2G4A in BRCA-US (right). Each heatmap column corresponds to a sample where TFBSs associated to the predicted drivers are found with a somatic mutation. Each row corresponds to dysregulated genes in the network of the predicted driver. The color scale represents the gene regulatory status (red: up-regulation; blue: down-regulation). The horizontal bars on top of the heatmaps show the patient-specific driver posterior probability; the darker the higher the probability. Note patient stratification based on this probability.", fig.height = 28, fig.width = 25, fig.align = "center"} -->
 
-<!-- types <- c("PCG::TFBS", -->
-<!--            "premiRNA::TFBS", -->
-<!--            "PCG::LoF") -->
+<!-- ## Load the heatmap objects -->
+<!-- load("Dysreg_heatmaps_examples/PCG/Dysregulation_heatmaps_BRCA-US.Rdata") ## all.heatmaps.list -->
+<!-- all.heatmaps.list.brca <- all.heatmaps.list -->
 
-<!-- load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list -->
+<!-- load("Dysreg_heatmaps_examples/PCG/Dysregulation_heatmaps_LUAD-US.Rdata") ## all.heatmaps.list -->
+<!-- all.heatmaps.list.luad <- all.heatmaps.list -->
 
+<!-- load("Dysreg_heatmaps_examples/PCG/Dysregulation_heatmaps_LUSC-US.Rdata") ## all.heatmaps.list -->
+<!-- all.heatmaps.list.lusc <- all.heatmaps.list -->
 
-<!-- db <- "GO_Biological_Process_2018" -->
-<!-- font.size <- 70 -->
-<!-- # co <- "PCG::TFBS" -->
-<!-- heatmap.GSEA.list <- list() -->
-<!-- for(co in types){ -->
-
-<!--   fea.df <- heatmap.GSEA.axis.list[[db]][[co]][["df"]] -->
-
-<!--   cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["x_axis"]] -->
-<!--   terms.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["y_axis"]] -->
-<!--   ti = co -->
-<!--   if(co=="premiRNA::TFBS") -->
-<!--     ti = "miRNA::TFBS" -->
-
-<!--   heatmap.GSEA.list[[co]] <- -->
-<!--     ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) + -->
-<!--         geom_tile(width = 0.95, height = 0.95) + -->
-<!--         # coord_equal() + -->
-<!--         theme_bw() + -->
-<!--         theme(legend.position = "bottom", legend.title=element_text(size=font.size)) + -->
-<!--         scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75) -->
-<!--         # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) + -->
-<!--         theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"), -->
-<!--               axis.text.y = element_text(size=font.size, colour = "black"), -->
-<!--               axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12), -->
-<!--               axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12), -->
-<!--               legend.text=element_text(size=font.size), -->
-<!--               plot.title = element_text(size=font.size)) + -->
-<!--         scale_x_discrete(limits = cohorts.sorted) + -->
-<!--         scale_y_discrete(limits = terms.sorted) + -->
-<!--         labs(title = paste0(db, "\n", ti), x = "", y = "") + -->
-<!--         guides(fill = guide_colourbar(barwidth = 23, barheight = 6)) + -->
-<!--         guides(color = guide_legend(title.position = "top", -->
-<!--                                     title.hjust = 0.5, -->
-<!--                                     label.position = "left")) + -->
-<!--     ## Add a border to avoid trunked axis legends -->
-<!--       theme( -->
-<!--         panel.background = element_rect(fill = "white"), -->
-<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
-<!--         plot.background = element_rect( -->
-<!--           fill = "#fefefe", -->
-<!--           colour = "white", -->
-<!--           size = 1)) -->
-<!-- } -->
+<!-- ht1 <- all.heatmaps.list.brca[["GATA3_LoF"]] -->
+<!-- ht2 <- all.heatmaps.list.luad[["GATA3_TFBS"]] -->
+<!-- ht3 <- all.heatmaps.list.brca[["PLA2G4A_TFBS"]] -->
+<!-- # ht3 <- all.heatmaps.list.lusc[["PLA2G4A_TFBS"]] -->
 
 
-<!-- enriched.terms.gg <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]], -->
-<!--                                heatmap.GSEA.list[["PCG::TFBS"]], NULL, -->
-<!--                                heatmap.GSEA.list[["premiRNA::TFBS"]], -->
-<!--                                ncol = 2, align = "hv", labels = c('', '', ''), label_size = 30, -->
-<!--                                label_colour = "black", hjust = -2, vjust = 3, -->
-<!--                                rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1)) -->
+<!-- ht11 <- as.ggplot(grid.grabExpr(draw(ht1))) + add_space -->
+<!-- ht22 <- as.ggplot(grid.grabExpr(draw(ht2))) + add_space -->
+<!-- ht33 <- as.ggplot(grid.grabExpr(draw(ht3))) + add_space -->
 
-<!-- ## Combine plots -->
-<!-- enriched.terms.gg -->
+<!-- plot_grid(ht11, ht22, ht33, -->
+<!--           nrow =  1) -->
 
-<!-- rm(heatmap.GSEA.list) -->
-<!-- rm(enriched.terms.gg) -->
-<!-- ``` -->
-
-
-<!-- \pagebreak -->
-<!-- ```{r FEA_KEGG_2019, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment (KEGG 2019) analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes. The heatmaps represent the significance (-log$_{10}$(P-value)) of the most enriched terms (rows) associated to the dysregulated genes found on the seven analyzed cohorts (columns) when considering protein-coding genes with LoF mutations (PCGs::LoF; top-left), protein-coding genes with cis-regulatory mutations (PCG::TFBS; top-right), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; bottom-right). The terms are ordered by their mean ranks across the cohorts.", fig.height = 70, fig.width = 60, fig.align = "center"} -->
-
-<!-- # plot.list <- list() -->
-<!-- # load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap.RData")  ## heatmap.GSEA.list -->
-<!-- # plot.list[["PCG::TFBS"]] <- heatmap.GSEA.list[["KEGG_2019_Human"]][["PCG::TFBS"]] -->
-<!-- # plot.list[["premiRNA::TFBS"]] <- heatmap.GSEA.list[["KEGG_2019_Human"]][["premiRNA::TFBS"]] -->
-<!-- # plot.list[["PCG::LoF"]] <- heatmap.GSEA.list[["KEGG_2019_Human"]][["PCG::LoF"]] -->
-
-<!-- types <- c("PCG::TFBS", -->
-<!--            "premiRNA::TFBS", -->
-<!--            "PCG::LoF") -->
-
-<!-- load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list -->
-
-
-<!-- db <- "KEGG_2019_Human" -->
-<!-- font.size <- 55 -->
-<!-- # co <- "PCG::TFBS" -->
-
-<!-- heatmap.GSEA.list <- list() -->
-<!-- for(co in types){ -->
-<!--   ti = co -->
-<!--   if(co=="premiRNA::TFBS") -->
-<!--     ti = "miRNA::TFBS" -->
-<!--   fea.df <- heatmap.GSEA.axis.list[[db]][[co]][["df"]] -->
-
-<!--   cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["x_axis"]] -->
-<!--   terms.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["y_axis"]] -->
-
-<!--   heatmap.GSEA.list[[co]] <- -->
-<!--     ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) + -->
-<!--         geom_tile(width = 0.95, height = 0.95) + -->
-<!--         # coord_equal() + -->
-<!--         theme_bw() + -->
-<!--         theme(legend.position = "bottom", legend.title=element_text(size=font.size)) + -->
-<!--         scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75) -->
-<!--         # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) + -->
-<!--         theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"), -->
-<!--               axis.text.y = element_text(size=font.size, colour = "black"), -->
-<!--               axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12), -->
-<!--               axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12), -->
-<!--               legend.text=element_text(size=font.size), -->
-<!--               plot.title = element_text(size=font.size)) + -->
-<!--         scale_x_discrete(limits = cohorts.sorted) + -->
-<!--         scale_y_discrete(limits = terms.sorted) + -->
-<!--         labs(title = paste0(db, "\n", ti), x = "", y = "") + -->
-<!--         guides(fill = guide_colourbar(barwidth = 17, barheight = 6)) + -->
-<!--         guides(color = guide_legend(title.position = "top", -->
-<!--                                     title.hjust = 0.5, -->
-<!--                                     label.position = "left")) + -->
-<!--     ## Add a border to avoid trunked axis legends -->
-<!--       theme( -->
-<!--         panel.background = element_rect(fill = "white"), -->
-<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
-<!--         plot.background = element_rect( -->
-<!--           fill = "#fefefe", -->
-<!--           colour = "white", -->
-<!--           size = 1)) -->
-<!-- } -->
-
-
-<!-- enriched.terms.gg <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]], -->
-<!--                                heatmap.GSEA.list[["PCG::TFBS"]], NULL, -->
-<!--                                heatmap.GSEA.list[["premiRNA::TFBS"]], -->
-<!--                                ncol = 2, align = "hv", labels = c('', '', ''), label_size = 30, -->
-<!--                                label_colour = "black", hjust = -2, vjust = 3, -->
-<!--                                rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1)) -->
-
-<!-- ## Combine plots -->
-<!-- enriched.terms.gg -->
-
-<!-- rm(heatmap.GSEA.list) -->
-<!-- rm(enriched.terms.gg) -->
+<!-- rm(ht1) -->
+<!-- rm(ht2) -->
+<!-- rm(ht3) -->
+<!-- rm(ht11) -->
+<!-- rm(ht22) -->
+<!-- rm(ht33) -->
+<!-- rm(all.heatmaps.list) -->
+<!-- rm(all.heatmaps.list.brca) -->
+<!-- rm(all.heatmaps.list.luad) -->
+<!-- rm(all.heatmaps.list.lusc) -->
 <!-- ``` -->
 
 
 
-<!-- \pagebreak -->
-<!-- ```{r FEA_WIKIPATH, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment (WikiPathways 2019 human) analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes. The heatmaps represent the significance (-log$_{10}$(P-value)) of the most enriched terms (rows) associated to the dysregulated genes found on the seven analyzed cohorts (columns) when considering protein-coding genes with LoF mutations (PCGs::LoF; top-left), protein-coding genes with cis-regulatory mutations (PCG::TFBS; top-right), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; bottom-right). The terms are ordered by their mean ranks across the cohorts.", fig.height = 100, fig.width = 86, fig.align = "center"} -->
+\pagebreak
+```{r FEA_GO_BP, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment (GO Biological Process 2021) analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes. The heatmaps represent the significance (-log$_{10}$(P-value)) of the most enriched terms (rows) associated to the dysregulated genes found on the seven analyzed cohorts (columns) when considering protein-coding genes with LoF mutations (PCGs::LoF; top-left), protein-coding genes with cis-regulatory mutations (PCG::TFBS; top-right), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; bottom-right). The terms are ordered by their mean ranks across the cohorts.", fig.height = 110, fig.width = 97, fig.align = "center"}
 
-<!-- types <- c("PCG::TFBS", -->
-<!--            "premiRNA::TFBS", -->
-<!--            "PCG::LoF") -->
+types <- c("PCG::TFBS",
+           "premiRNA::TFBS",
+           "PCG::LoF")
 
-<!-- load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list -->
-
-
-<!-- db <- "WikiPathways_2019_Human" -->
-<!-- font.size <- 60 -->
-<!-- # co <- "PCG::TFBS" -->
-<!-- heatmap.GSEA.list <- list() -->
-
-<!-- for(co in types){ -->
-<!--   ti = co -->
-<!--   if(co=="premiRNA::TFBS") -->
-<!--     ti = "miRNA::TFBS" -->
-<!--   fea.df <- heatmap.GSEA.axis.list[[db]][[co]][["df"]] -->
-
-<!--   cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["x_axis"]] -->
-<!--   terms.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["y_axis"]] -->
-
-<!--   heatmap.GSEA.list[[co]] <- -->
-<!--     ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) + -->
-<!--         geom_tile(width = 0.95, height = 0.95) + -->
-<!--         # coord_equal() + -->
-<!--         theme_bw() + -->
-<!--         theme(legend.position = "bottom", legend.title=element_text(size=font.size)) + -->
-<!--         scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75) -->
-<!--         # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) + -->
-<!--         theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"), -->
-<!--               axis.text.y = element_text(size=font.size, colour = "black"), -->
-<!--               axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12), -->
-<!--               axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12), -->
-<!--               legend.text=element_text(size=font.size), -->
-<!--               plot.title = element_text(size=font.size)) + -->
-<!--         scale_x_discrete(limits = cohorts.sorted) + -->
-<!--         scale_y_discrete(limits = terms.sorted) + -->
-<!--         labs(title = paste0(db, "\n", ti), x = "", y = "") + -->
-<!--         guides(fill = guide_colourbar(barwidth = 17, barheight = 6)) + -->
-<!--         guides(color = guide_legend(title.position = "top", -->
-<!--                                     title.hjust = 0.5, -->
-<!--                                     label.position = "left")) + -->
-<!--     ## Add a border to avoid trunked axis legends -->
-<!--       theme( -->
-<!--         panel.background = element_rect(fill = "white"), -->
-<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
-<!--         plot.background = element_rect( -->
-<!--           fill = "#fefefe", -->
-<!--           colour = "white", -->
-<!--           size = 1)) -->
-<!-- } -->
+load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list
 
 
-<!-- enriched.terms.gg <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]], -->
-<!--                                heatmap.GSEA.list[["PCG::TFBS"]], NULL, -->
-<!--                                heatmap.GSEA.list[["premiRNA::TFBS"]], -->
-<!--                                ncol = 2, align = "hv", labels = c('', '', ''), label_size = 30, -->
-<!--                                label_colour = "black", hjust = -2, vjust = 3, -->
-<!--                                rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1)) -->
+db <- "GO_Biological_Process_2021"
+font.size <- 70
+# co <- "PCG::TFBS"
+heatmap.GSEA.list <- list()
+for(co in types){
 
-<!-- ## Combine plots -->
-<!-- enriched.terms.gg -->
+  fea.df <- heatmap.GSEA.axis.list[[db]][[co]][["df"]]
 
-<!-- rm(heatmap.GSEA.list) -->
-<!-- rm(enriched.terms.gg) -->
-<!-- ``` -->
+  cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["x_axis"]]
+  terms.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["y_axis"]]
+  ti = co
+  if(co=="premiRNA::TFBS")
+    ti = "miRNA::TFBS"
 
-
-<!-- \pagebreak -->
-<!-- ```{r FEA_Panther, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment (Panther 2016) analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes. The heatmaps represent the significance (-log$_{10}$(P-value)) of the most enriched terms (rows) associated to the dysregulated genes found on the seven analyzed cohorts (columns) when considering protein-coding genes with LoF mutations (PCGs::LoF; top-left), protein-coding genes with cis-regulatory mutations (PCG::TFBS; top-right), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; bottom-right). The terms are ordered by their mean ranks across the cohorts.", fig.height = 87, fig.width = 77, fig.align = "center"} -->
-
-<!-- types <- c("PCG::TFBS", -->
-<!--            "premiRNA::TFBS", -->
-<!--            "PCG::LoF") -->
-
-<!-- load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list -->
-
-
-<!-- db <- "Panther_2016" -->
-<!-- font.size <- 65 -->
-<!-- # co <- "PCG::TFBS" -->
-<!-- heatmap.GSEA.list <- list() -->
-
-<!-- for(co in types){ -->
-<!--   ti = co -->
-<!--   if(co=="premiRNA::TFBS") -->
-<!--     ti = "miRNA::TFBS" -->
-<!--   fea.df <- heatmap.GSEA.axis.list[[db]][[co]][["df"]] -->
-
-<!--   cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["x_axis"]] -->
-<!--   terms.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["y_axis"]] -->
-
-<!--   heatmap.GSEA.list[[co]] <- -->
-<!--     ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) + -->
-<!--         geom_tile(width = 0.95, height = 0.95) + -->
-<!--         # coord_equal() + -->
-<!--         theme_bw() + -->
-<!--         theme(legend.position = "bottom", legend.title=element_text(size=font.size)) + -->
-<!--         scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75) -->
-<!--         # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) + -->
-<!--         theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"), -->
-<!--               axis.text.y = element_text(size=font.size, colour = "black"), -->
-<!--               axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12), -->
-<!--               axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12), -->
-<!--               legend.text=element_text(size=font.size), -->
-<!--               plot.title = element_text(size=font.size)) + -->
-<!--         scale_x_discrete(limits = cohorts.sorted) + -->
-<!--         scale_y_discrete(limits = terms.sorted) + -->
-<!--         labs(title = paste0(db, "\n", ti), x = "", y = "") + -->
-<!--         guides(fill = guide_colourbar(barwidth = 17, barheight = 6)) + -->
-<!--         guides(color = guide_legend(title.position = "top", -->
-<!--                                     title.hjust = 0.5, -->
-<!--                                     label.position = "left")) + -->
-<!--     ## Add a border to avoid trunked axis legends -->
-<!--       theme( -->
-<!--         panel.background = element_rect(fill = "white"), -->
-<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
-<!--         plot.background = element_rect( -->
-<!--           fill = "#fefefe", -->
-<!--           colour = "white", -->
-<!--           size = 1)) -->
-<!-- } -->
+  heatmap.GSEA.list[[co]] <-
+    ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) +
+        geom_tile(width = 0.95, height = 0.95) +
+        # coord_equal() +
+        theme_bw() +
+        theme(legend.position = "bottom", legend.title=element_text(size=font.size)) +
+        scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75)
+        # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"),
+              axis.text.y = element_text(size=font.size, colour = "black"),
+              axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12),
+              axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12),
+              legend.text=element_text(size=font.size),
+              plot.title = element_text(size=font.size)) +
+        scale_x_discrete(limits = cohorts.sorted) +
+        scale_y_discrete(limits = terms.sorted) +
+        labs(title = paste0(db, "\n", ti), x = "", y = "") +
+        guides(fill = guide_colourbar(barwidth = 23, barheight = 6)) +
+        guides(color = guide_legend(title.position = "top",
+                                    title.hjust = 0.5,
+                                    label.position = "left")) +
+    ## Add a border to avoid trunked axis legends
+      theme(
+        panel.background = element_rect(fill = "white"),
+        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
+        plot.background = element_rect(
+          fill = "#fefefe",
+          colour = "white",
+          size = 1))
+}
 
 
-<!-- enriched.terms.gg <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]], -->
-<!--                                heatmap.GSEA.list[["PCG::TFBS"]], NULL, -->
-<!--                                heatmap.GSEA.list[["premiRNA::TFBS"]], -->
-<!--                                ncol = 2, align = "hv", labels = c('', '', ''), label_size = 30, -->
-<!--                                label_colour = "black", hjust = -2, vjust = 3, -->
-<!--                                rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1)) -->
+enriched.terms.gg <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]],
+                               heatmap.GSEA.list[["PCG::TFBS"]], NULL,
+                               heatmap.GSEA.list[["premiRNA::TFBS"]],
+                               ncol = 2, align = "hv", labels = c('', '', ''), label_size = 30,
+                               label_colour = "black", hjust = -2, vjust = 3,
+                               rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1))
 
-<!-- ## Combine plots -->
-<!-- enriched.terms.gg -->
+## Combine plots
+enriched.terms.gg
 
-<!-- rm(heatmap.GSEA.list) -->
-<!-- rm(enriched.terms.gg) -->
-<!-- ``` -->
+rm(heatmap.GSEA.list)
+rm(enriched.terms.gg)
+```
+
+
+
+\pagebreak
+```{r FEA_KEGG_2021, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment (KEGG 2021) analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes. The heatmaps represent the significance (-log$_{10}$(P-value)) of the most enriched terms (rows) associated to the dysregulated genes found on the seven analyzed cohorts (columns) when considering protein-coding genes with LoF mutations (PCGs::LoF; top-left), protein-coding genes with cis-regulatory mutations (PCG::TFBS; top-right), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; bottom-right). The terms are ordered by their mean ranks across the cohorts.", fig.height = 70, fig.width = 60, fig.align = "center"}
+
+# plot.list <- list()
+# load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap.RData")  ## heatmap.GSEA.list
+# plot.list[["PCG::TFBS"]] <- heatmap.GSEA.list[["KEGG_2019_Human"]][["PCG::TFBS"]]
+# plot.list[["premiRNA::TFBS"]] <- heatmap.GSEA.list[["KEGG_2019_Human"]][["premiRNA::TFBS"]]
+# plot.list[["PCG::LoF"]] <- heatmap.GSEA.list[["KEGG_2019_Human"]][["PCG::LoF"]]
+
+types <- c("PCG::TFBS",
+           "premiRNA::TFBS",
+           "PCG::LoF")
+
+load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list
+
+
+db <- "KEGG_2021_Human"
+font.size <- 55
+# co <- "PCG::TFBS"
+
+heatmap.GSEA.list <- list()
+for(co in types){
+  ti = co
+  if(co=="premiRNA::TFBS")
+    ti = "miRNA::TFBS"
+  fea.df <- heatmap.GSEA.axis.list[[db]][[co]][["df"]]
+
+  cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["x_axis"]]
+  terms.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["y_axis"]]
+
+  heatmap.GSEA.list[[co]] <-
+    ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) +
+        geom_tile(width = 0.95, height = 0.95) +
+        # coord_equal() +
+        theme_bw() +
+        theme(legend.position = "bottom", legend.title=element_text(size=font.size)) +
+        scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75)
+        # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"),
+              axis.text.y = element_text(size=font.size, colour = "black"),
+              axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12),
+              axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12),
+              legend.text=element_text(size=font.size),
+              plot.title = element_text(size=font.size)) +
+        scale_x_discrete(limits = cohorts.sorted) +
+        scale_y_discrete(limits = terms.sorted) +
+        labs(title = paste0(db, "\n", ti), x = "", y = "") +
+        guides(fill = guide_colourbar(barwidth = 17, barheight = 6)) +
+        guides(color = guide_legend(title.position = "top",
+                                    title.hjust = 0.5,
+                                    label.position = "left")) +
+    ## Add a border to avoid trunked axis legends
+      theme(
+        panel.background = element_rect(fill = "white"),
+        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
+        plot.background = element_rect(
+          fill = "#fefefe",
+          colour = "white",
+          size = 1))
+}
+
+
+enriched.terms.gg <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]],
+                               heatmap.GSEA.list[["PCG::TFBS"]], NULL,
+                               heatmap.GSEA.list[["premiRNA::TFBS"]],
+                               ncol = 2, align = "hv", labels = c('', '', ''), label_size = 30,
+                               label_colour = "black", hjust = -2, vjust = 3,
+                               rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1))
+
+## Combine plots
+enriched.terms.gg
+
+rm(heatmap.GSEA.list)
+rm(enriched.terms.gg)
+```
+
+
+
+\pagebreak
+```{r FEA_WIKIPATH, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment (WikiPathways 2019 human) analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes. The heatmaps represent the significance (-log$_{10}$(P-value)) of the most enriched terms (rows) associated to the dysregulated genes found on the seven analyzed cohorts (columns) when considering protein-coding genes with LoF mutations (PCGs::LoF; top-left), protein-coding genes with cis-regulatory mutations (PCG::TFBS; top-right), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; bottom-right). The terms are ordered by their mean ranks across the cohorts.", fig.height = 100, fig.width = 86, fig.align = "center"}
+
+types <- c("PCG::TFBS",
+           "premiRNA::TFBS",
+           "PCG::LoF")
+
+load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list
+
+
+db <- "WikiPathways_2019_Human"
+font.size <- 60
+# co <- "PCG::TFBS"
+heatmap.GSEA.list <- list()
+
+for(co in types){
+  ti = co
+  if(co=="premiRNA::TFBS")
+    ti = "miRNA::TFBS"
+  fea.df <- heatmap.GSEA.axis.list[[db]][[co]][["df"]]
+
+  cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["x_axis"]]
+  terms.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["y_axis"]]
+
+  heatmap.GSEA.list[[co]] <-
+    ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) +
+        geom_tile(width = 0.95, height = 0.95) +
+        # coord_equal() +
+        theme_bw() +
+        theme(legend.position = "bottom", legend.title=element_text(size=font.size)) +
+        scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75)
+        # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"),
+              axis.text.y = element_text(size=font.size, colour = "black"),
+              axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12),
+              axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12),
+              legend.text=element_text(size=font.size),
+              plot.title = element_text(size=font.size)) +
+        scale_x_discrete(limits = cohorts.sorted) +
+        scale_y_discrete(limits = terms.sorted) +
+        labs(title = paste0(db, "\n", ti), x = "", y = "") +
+        guides(fill = guide_colourbar(barwidth = 17, barheight = 6)) +
+        guides(color = guide_legend(title.position = "top",
+                                    title.hjust = 0.5,
+                                    label.position = "left")) +
+    ## Add a border to avoid trunked axis legends
+      theme(
+        panel.background = element_rect(fill = "white"),
+        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
+        plot.background = element_rect(
+          fill = "#fefefe",
+          colour = "white",
+          size = 1))
+}
+
+
+enriched.terms.gg <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]],
+                               heatmap.GSEA.list[["PCG::TFBS"]], NULL,
+                               heatmap.GSEA.list[["premiRNA::TFBS"]],
+                               ncol = 2, align = "hv", labels = c('', '', ''), label_size = 30,
+                               label_colour = "black", hjust = -2, vjust = 3,
+                               rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1))
+
+## Combine plots
+enriched.terms.gg
+
+rm(heatmap.GSEA.list)
+rm(enriched.terms.gg)
+```
+
+
+
+\pagebreak
+```{r FEA_Panther, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment (Panther 2016) analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes. The heatmaps represent the significance (-log$_{10}$(P-value)) of the most enriched terms (rows) associated to the dysregulated genes found on the seven analyzed cohorts (columns) when considering protein-coding genes with LoF mutations (PCGs::LoF; top-left), protein-coding genes with cis-regulatory mutations (PCG::TFBS; top-right), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; bottom-right). The terms are ordered by their mean ranks across the cohorts.", fig.height = 87, fig.width = 77, fig.align = "center"}
+
+types <- c("PCG::TFBS",
+           "premiRNA::TFBS",
+           "PCG::LoF")
+
+load("FEA_heatmaps/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list
+
+
+db <- "Panther_2016"
+font.size <- 65
+# co <- "PCG::TFBS"
+heatmap.GSEA.list <- list()
+
+for(co in types){
+  ti = co
+  if(co=="premiRNA::TFBS")
+    ti = "miRNA::TFBS"
+  fea.df <- heatmap.GSEA.axis.list[[db]][[co]][["df"]]
+
+  cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["x_axis"]]
+  terms.sorted <- heatmap.GSEA.axis.list[[db]][[co]][["y_axis"]]
+
+  heatmap.GSEA.list[[co]] <-
+    ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) +
+        geom_tile(width = 0.95, height = 0.95) +
+        # coord_equal() +
+        theme_bw() +
+        theme(legend.position = "bottom", legend.title=element_text(size=font.size)) +
+        scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75)
+        # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"),
+              axis.text.y = element_text(size=font.size, colour = "black"),
+              axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12),
+              axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12),
+              legend.text=element_text(size=font.size),
+              plot.title = element_text(size=font.size)) +
+        scale_x_discrete(limits = cohorts.sorted) +
+        scale_y_discrete(limits = terms.sorted) +
+        labs(title = paste0(db, "\n", ti), x = "", y = "") +
+        guides(fill = guide_colourbar(barwidth = 17, barheight = 6)) +
+        guides(color = guide_legend(title.position = "top",
+                                    title.hjust = 0.5,
+                                    label.position = "left")) +
+    ## Add a border to avoid trunked axis legends
+      theme(
+        panel.background = element_rect(fill = "white"),
+        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
+        plot.background = element_rect(
+          fill = "#fefefe",
+          colour = "white",
+          size = 1))
+}
+
+
+enriched.terms.gg <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]],
+                               heatmap.GSEA.list[["PCG::TFBS"]], NULL,
+                               heatmap.GSEA.list[["premiRNA::TFBS"]],
+                               ncol = 2, align = "hv", labels = c('', '', ''), label_size = 30,
+                               label_colour = "black", hjust = -2, vjust = 3,
+                               rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1))
+
+## Combine plots
+enriched.terms.gg
+
+rm(heatmap.GSEA.list)
+rm(enriched.terms.gg)
+```
+
 
 
 <!-- \pagebreak -->
