@@ -730,45 +730,46 @@ knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatma
 \end{landscape}
 
 
-<!-- \pagebreak -->
-<!-- ```{r Nb_target_genes_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNA-target genes information. A) Distribution of the number of targets considered per miRNA. The red line indicates the median value (1052 targets). The rug at the bottom highlights the predicted miRNAs. B) Number of cohorts (x-axis) where each mature miRNA was predicted versus its number of targets (y-axis).", fig.height = 10, fig.width = 10, fig.align = "center"} -->
 
-<!-- plot.list <- list() -->
-<!-- load("Nb_targets_miRNA/Nb_targets_distribution.RData")  ## nb.targets.distr -->
-<!-- load("Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData") ## nb.targets.nb.cohorts.violin -->
+\pagebreak
+```{r Nb_target_genes_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNA-target genes information. A) Distribution of the number of targets considered per miRNA. The red line indicates the median value (1052 targets). The rug at the bottom highlights the predicted miRNAs. B) Number of cohorts (x-axis) where each mature miRNA was predicted versus its number of targets (y-axis).", fig.height = 10, fig.width = 10, fig.align = "center"}
 
-<!-- plot.list[["Distrib"]] <- nb.targets.distr -->
-<!-- plot.list[["Violin"]] <- nb.targets.nb.cohorts.violin -->
+plot.list <- list()
+load("Nb_targets_miRNA/Nb_targets_distribution.RData")  ## nb.targets.distr
+load("Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData") ## nb.targets.nb.cohorts.violin
+
+plot.list[["Distrib"]] <- nb.targets.distr
+plot.list[["Violin"]] <- nb.targets.nb.cohorts.violin
 
 
-<!-- ## Add a border to avoid trunked axis legends -->
-<!-- for(co in names(plot.list)){ -->
+## Add a border to avoid trunked axis legends
+for(co in names(plot.list)){
 
-<!--   plot.list[[co]] <- -->
-<!--     plot.list[[co]] + -->
-<!--     theme( -->
-<!--     panel.background = element_rect(fill = "white"), -->
-<!--     plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), -->
-<!--     plot.background = element_rect( -->
-<!--       fill = "#fefefe", -->
-<!--       colour = "white", -->
-<!--       size = 1 -->
-<!--     ) -->
-<!--   ) -->
-<!-- } -->
+  plot.list[[co]] <-
+    plot.list[[co]] +
+    theme(
+    panel.background = element_rect(fill = "white"),
+    plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+    plot.background = element_rect(
+      fill = "#fefefe",
+      colour = "white",
+      size = 1
+    )
+  )
+}
 
-<!-- ## Combine plots -->
-<!-- suppressMessages( -->
-<!-- plot_grid(plot.list[["Distrib"]], -->
-<!--           NULL, -->
-<!--           plot.list[["Violin"]], -->
-<!--           ncol = 1, labels = c('A)', '', 'B)'), label_size = 17, label_colour = "black", hjust = 0, vjust = 3, rel_heights = c(1, 0.15, 1)) -->
-<!-- ) -->
+## Combine plots
+suppressMessages(
+plot_grid(plot.list[["Distrib"]],
+          NULL,
+          plot.list[["Violin"]],
+          ncol = 1, labels = c('A)', '', 'B)'), label_size = 17, label_colour = "black", hjust = 0, vjust = 3, rel_heights = c(1, 0.15, 1))
+)
 
-<!-- rm(plot.list) -->
-<!-- rm(nb.targets.distr) -->
-<!-- rm(nb.targets.nb.cohorts.violin) -->
-<!-- ``` -->
+rm(plot.list)
+rm(nb.targets.distr)
+rm(nb.targets.nb.cohorts.violin)
+```
 
 
 <!-- <!-- \pagebreak --> -->
