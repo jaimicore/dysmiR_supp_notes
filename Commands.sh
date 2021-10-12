@@ -92,16 +92,25 @@ done
 ## S14: GO Biological Process 2018 enrichR heatmaps
 ## S15: KEGG 2019 enrichR heatmaps
 ## S16: WikiPathways human 2019 enrichR heatmaps
+## S17: Panther 2016 enrichR heatmaps
 
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/enrichR_analysis/RData/*.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
 
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_10000_minW_0.8_minscore_0.8/enrichR_analysis/RData/Enriched_terms_plots_BASIS.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
+#rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_10000_minW_0.8_minscore_0.8/enrichR_analysis/RData/Enriched_terms_plots_BASIS.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
 
 
 
 
 
+#############################
+## Supplementary figure 18 ##
+#############################
+ 
+####################################################
+## Fig S18: pan-cancer highlighted miRNAS heatmap 
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/plots/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot.pdf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot.pdf 
 
+convert -density 500 -trim /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot.pdf  -quality 350 /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot.jpeg
 
 
 
