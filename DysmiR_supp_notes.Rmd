@@ -721,13 +721,13 @@ rm(enriched.terms.gg)
 
 
 
-<!-- \pagebreak -->
-<!-- \begin{landscape} -->
-<!-- ```{r miRNAs_predictec_pancancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNAs predicted by xseq in the seven TCGA cohorts. Cell colors indicate the posterior probability computed over the corresponding cohort. Red stars indicate that the miRNA is annotated as a cancer miRNA in miRCancer. Blue stars indicate that the miRNA was reported as a cancer miRNA in the specific cancer type where it is predicted by xseq, according to miRCancer annotation.", out.width = "650px", out.height = "700px", fig.align = "center"} -->
+\pagebreak
+\begin{landscape}
+```{r miRNAs_predictec_pancancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNAs predicted by xseq in the seven TCGA cohorts. Cell colors indicate the posterior probability computed over the corresponding cohort. Red stars indicate that the miRNA is annotated as a cancer miRNA in miRCancer. Blue stars indicate that the miRNA was reported as a cancer miRNA in the specific cancer type where it is predicted by xseq, according to miRCancer annotation.", out.width = "650px", out.height = "700px", fig.align = "center"}
 
-<!-- knitr::include_graphics("Highlighted_genes_pancancer/miRNAs_pancancer.png", dpi = 100) -->
-<!-- ``` -->
-<!-- \end{landscape} -->
+knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot.jpeg", dpi = 100)
+```
+\end{landscape}
 
 
 <!-- \pagebreak -->
