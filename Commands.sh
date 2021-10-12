@@ -116,6 +116,27 @@ convert -density 500 -trim /home/jamondra/Documents/PostDoc/Mathelier_lab/Manusc
 
 
 
+#############################
+## Supplementary figure 19 ##
+#############################
+ 
+##################################################
+## Fig S18: Predicted miRNA target distribution
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_distribution.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_distribution.RData 
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_vs_Nb_cohorts.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
