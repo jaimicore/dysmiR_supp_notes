@@ -772,152 +772,68 @@ rm(nb.targets.nb.cohorts.violin)
 ```
 
 
-<!-- <!-- \pagebreak --> -->
-<!-- <!-- ```{r Dysregulation_HeatMaps_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Examples of dysregulated networks for predicted miRNA driver genes through cis-regulatory mutations: hsa-mir-17-3p in BRCA-US (left), hsa-mir-155-5p in LIHC-US (center), and hsa-mir-21-3p in UCEC-US (right). Each heatmap column corresponds to a sample where TFBSs associated to the predicted drivers are found with a somatic mutation. Each row corresponds to dysregulated genes in the network of the predicted driver. The color scale represents the gene regulatory status (red: up-regulation; blue: down-regulation). The horizontal bars on top of the heatmaps show the patient-specific driver posterior probability; the darker the higher the probability. Note patient stratification based on this probability.", fig.height = 29, fig.width = 25, fig.align = "center"} --> -->
 
-<!-- <!-- ## Load the heatmap objects --> -->
+\pagebreak
+```{r Fraction_dysreg_nets, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Fraction of the original gene networks predicted as dysregulated for the predicted genes in A) BRCA-US, B) HNSC-US, C) LIHC-US, D) LUAD-US, E) LUSC-US, F) STAT-US, and G) UCEC-US. X-axis corresponds to the number of dysregulated genes in the filtered network (see Material and methods), Y-axis corresponds to the original size of the gene networks before any filtering (for expression). Color scale corresponds to the fraction of the network that is predicted to be dysregulated in the samples with corresponding mutations of interest.", fig.height = 30, fig.width = 25, fig.align = "center"}
 
-<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_BRCA-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.brca <- all.heatmaps.list --> -->
-<!-- <!-- # names(all.heatmaps.list.brca) --> -->
+plot.list <- list()
 
-<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_LUSC-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.lusc <- all.heatmaps.list --> -->
-<!-- <!-- # names(all.heatmaps.list.lusc) --> -->
+## Load plots
+load("Fraction_dysreg_net/Dysregulated_network_fraction_BRCA-US.Rdata") ## dysreg.network.fraction.plot
+plot.list[["BRCA"]] <- dysreg.network.fraction.plot + theme_bw()
 
-<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_UCEC-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.ucec <- all.heatmaps.list --> -->
-<!-- <!-- # names(all.heatmaps.list.brca) --> -->
-<!-- <!-- # names(all.heatmaps.list.lihc) --> -->
-<!-- <!-- # names(all.heatmaps.list.ucec) --> -->
+load("Fraction_dysreg_net/Dysregulated_network_fraction_HNSC-US.Rdata") ## dysreg.network.fraction.plot
+plot.list[["HNSC"]] <- dysreg.network.fraction.plot + theme_bw()
 
-<!-- <!-- ht1 <- all.heatmaps.list.brca[["hsa-mir-17-5p::hsa-mir-17_TFBS"]] --> -->
-<!-- <!-- ht2 <- all.heatmaps.list.lusc[["hsa-mir-205-5p::hsa-mir-205_TFBS"]] --> -->
-<!-- <!-- ht3 <- all.heatmaps.list.ucec[["hsa-mir-21-3p::hsa-mir-21_TFBS"]] --> -->
+load("Fraction_dysreg_net/Dysregulated_network_fraction_LIHC-US.Rdata") ## dysreg.network.fraction.plot
+plot.list[["LIHC"]] <- dysreg.network.fraction.plot + theme_bw()
 
-<!-- <!-- ht11 <- as.ggplot(grid.grabExpr(draw(ht1))) + add_space --> -->
-<!-- <!-- ht22 <- as.ggplot(grid.grabExpr(draw(ht2))) + add_space --> -->
-<!-- <!-- ht33 <- as.ggplot(grid.grabExpr(draw(ht3))) + add_space --> -->
+load("Fraction_dysreg_net/Dysregulated_network_fraction_LUAD-US.Rdata") ## dysreg.network.fraction.plot
+plot.list[["LUAD"]] <- dysreg.network.fraction.plot + theme_bw()
 
-<!-- <!-- plot_grid(ht11, ht22, ht33, --> -->
-<!-- <!--           nrow =  1) --> -->
+load("Fraction_dysreg_net/Dysregulated_network_fraction_LUSC-US.Rdata") ## dysreg.network.fraction.plot
+plot.list[["LUSC"]] <- dysreg.network.fraction.plot + theme_bw()
+
+load("Fraction_dysreg_net/Dysregulated_network_fraction_STAD-US.Rdata") ## dysreg.network.fraction.plot
+plot.list[["STAD"]] <- dysreg.network.fraction.plot + theme_bw()
+
+load("Fraction_dysreg_net/Dysregulated_network_fraction_UCEC-US.Rdata") ## dysreg.network.fraction.plot
+plot.list[["UCEC"]] <- dysreg.network.fraction.plot + theme_bw()
 
 
-<!-- <!-- rm(ht11) --> -->
-<!-- <!-- rm(ht22) --> -->
-<!-- <!-- rm(ht33) --> -->
-<!-- <!-- rm(ht1) --> -->
-<!-- <!-- rm(ht2) --> -->
-<!-- <!-- rm(ht3) --> -->
-<!-- <!-- rm(all.heatmaps.list) --> -->
-<!-- <!-- rm(all.heatmaps.list.brca) --> -->
-<!-- <!-- rm(all.heatmaps.list.lusc) --> -->
-<!-- <!-- rm(all.heatmaps.list.ucec) --> -->
-<!-- <!-- ``` --> -->
+## Add a border to avoid trunked axis legends
+for(co in names(plot.list)){
+
+  plot.list[[co]] <-
+    plot.list[[co]] +
+    # scale_colour_gradient2(low = "#feb24c", mid = "#e31a1c", high = "#800026", midpoint = 0.5, limits = c(0,1)) +
+    theme(
+    panel.background = element_rect(fill = "white"),
+    plot.margin = margin(0.75, 0.75, 0.75, 0.75, "cm"),
+    plot.background = element_rect(
+      fill = "#fefefe",
+      colour = "white",
+      size = 1
+    )
+  )
+}
 
 
-<!-- <!-- \pagebreak --> -->
-<!-- <!-- ```{r Dysregulation_HeatMaps_hsa_mir_92a, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Examples of dysregulated networks for predicted miRNA driver genes through cis-regulatory mutations: hsa-mir-92a-1-5p in BRCA-US (left), LIHC-US (center), and UCEC-US (right). Each heatmap column corresponds to a sample where TFBSs associated to the predicted drivers are found with a somatic mutation. Each row corresponds to dysregulated genes in the network of the predicted driver. The color scale represents the gene regulatory status (red: up-regulation; blue: down-regulation). The horizontal bars on top of the heatmaps show the patient-specific driver posterior probability; the darker the higher the probability. Note patient stratification based on this probability.", fig.height = 29, fig.width = 25, fig.align = "center"} --> -->
-
-<!-- <!-- ## Load the heatmap objects --> -->
-
-<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_BRCA-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.brca <- all.heatmaps.list --> -->
-
-<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_UCEC-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.ucec <- all.heatmaps.list --> -->
-
-<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_LIHC-US.Rdata") ## all.heatmaps.list --> -->
-<!-- <!-- all.heatmaps.list.lihc <- all.heatmaps.list --> -->
-<!-- <!-- # names(all.heatmaps.list.brca) --> -->
-<!-- <!-- # names(all.heatmaps.list.lihc) --> -->
-<!-- <!-- # names(all.heatmaps.list.ucec) --> -->
-
-<!-- <!-- ht1 <- all.heatmaps.list.brca[["hsa-mir-92a-1-5p::hsa-mir-92a-1_TFBS"]] --> -->
-<!-- <!-- ht2 <- all.heatmaps.list.lihc[["hsa-mir-92a-1-5p::hsa-mir-92a-1_TFBS"]] --> -->
-<!-- <!-- ht3 <- all.heatmaps.list.ucec[["hsa-mir-92a-1-5p::hsa-mir-92a-1_TFBS"]] --> -->
-
-<!-- <!-- ht11 <- as.ggplot(grid.grabExpr(draw(ht1))) + add_space --> -->
-<!-- <!-- ht22 <- as.ggplot(grid.grabExpr(draw(ht2))) + add_space --> -->
-<!-- <!-- ht33 <- as.ggplot(grid.grabExpr(draw(ht3))) + add_space --> -->
-
-<!-- <!-- plot_grid(ht11, ht22, ht33, --> -->
-<!-- <!--           nrow =  1) --> -->
-
-<!-- <!-- rm(ht11) --> -->
-<!-- <!-- rm(ht22) --> -->
-<!-- <!-- rm(ht33) --> -->
-<!-- <!-- rm(ht1) --> -->
-<!-- <!-- rm(ht2) --> -->
-<!-- <!-- rm(ht3) --> -->
-<!-- <!-- rm(all.heatmaps.list) --> -->
-<!-- <!-- rm(all.heatmaps.list.brca) --> -->
-<!-- <!-- rm(all.heatmaps.list.lihc) --> -->
-<!-- <!-- rm(all.heatmaps.list.ucec) --> -->
-<!-- <!-- ``` --> -->
+suppressWarnings(suppressMessages(
+plot_grid(plot.list[["BRCA"]],
+          plot.list[["HNSC"]],
+          plot.list[["LIHC"]],
+          plot.list[["LUAD"]],
+          plot.list[["LUSC"]],
+          plot.list[["STAD"]],
+          plot.list[["UCEC"]],
+          ncol = 2, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)'), label_size = 35, label_colour = "black", hjust = 0, vjust = 1.15, rel_heights = c(1))
+))
 
 
-<!-- \pagebreak -->
-<!-- ```{r Fraction_dysreg_nets, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Fraction of the original gene networks predicted as dysregulated for the predicted genes in A) BRCA-US, B) HNSC-US, C) LIHC-US, D) LUAD-US, E) LUSC-US, F) STAT-US, and G) UCEC-US. X-axis corresponds to the number of dysregulated genes in the filtered network (see Material and methods), Y-axis corresponds to the original size of the gene networks before any filtering (for expression). Color scale corresponds to the fraction of the network that is predicted to be dysregulated in the samples with corresponding mutations of interest.", fig.height = 30, fig.width = 25, fig.align = "center"} -->
-
-<!-- plot.list <- list() -->
-
-<!-- ## Load plots -->
-<!-- load("Fraction_dysreg_net/Dysregulated_network_fraction_BRCA-US.Rdata") ## dysreg.network.fraction.plot -->
-<!-- plot.list[["BRCA"]] <- dysreg.network.fraction.plot -->
-
-<!-- load("Fraction_dysreg_net/Dysregulated_network_fraction_HNSC-US.Rdata") ## dysreg.network.fraction.plot -->
-<!-- plot.list[["HNSC"]] <- dysreg.network.fraction.plot -->
-
-<!-- load("Fraction_dysreg_net/Dysregulated_network_fraction_LIHC-US.Rdata") ## dysreg.network.fraction.plot -->
-<!-- plot.list[["LIHC"]] <- dysreg.network.fraction.plot -->
-
-<!-- load("Fraction_dysreg_net/Dysregulated_network_fraction_LUAD-US.Rdata") ## dysreg.network.fraction.plot -->
-<!-- plot.list[["LUAD"]] <- dysreg.network.fraction.plot -->
-
-<!-- load("Fraction_dysreg_net/Dysregulated_network_fraction_LUSC-US.Rdata") ## dysreg.network.fraction.plot -->
-<!-- plot.list[["LUSC"]] <- dysreg.network.fraction.plot -->
-
-<!-- load("Fraction_dysreg_net/Dysregulated_network_fraction_STAD-US.Rdata") ## dysreg.network.fraction.plot -->
-<!-- plot.list[["STAD"]] <- dysreg.network.fraction.plot -->
-
-<!-- load("Fraction_dysreg_net/Dysregulated_network_fraction_UCEC-US.Rdata") ## dysreg.network.fraction.plot -->
-<!-- plot.list[["UCEC"]] <- dysreg.network.fraction.plot -->
-
-
-<!-- ## Add a border to avoid trunked axis legends -->
-<!-- for(co in names(plot.list)){ -->
-
-<!--   plot.list[[co]] <- -->
-<!--     plot.list[[co]] + -->
-<!--     # scale_colour_gradient2(low = "#feb24c", mid = "#e31a1c", high = "#800026", midpoint = 0.5, limits = c(0,1)) + -->
-<!--     theme( -->
-<!--     panel.background = element_rect(fill = "white"), -->
-<!--     plot.margin = margin(0.75, 0.75, 0.75, 0.75, "cm"), -->
-<!--     plot.background = element_rect( -->
-<!--       fill = "#fefefe", -->
-<!--       colour = "white", -->
-<!--       size = 1 -->
-<!--     ) -->
-<!--   ) -->
-<!-- } -->
-
-
-<!-- suppressWarnings(suppressMessages( -->
-<!-- plot_grid(plot.list[["BRCA"]], -->
-<!--           plot.list[["HNSC"]], -->
-<!--           plot.list[["LIHC"]], -->
-<!--           plot.list[["LUAD"]], -->
-<!--           plot.list[["LUSC"]], -->
-<!--           plot.list[["STAD"]], -->
-<!--           plot.list[["UCEC"]], -->
-<!--           ncol = 2, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)'), label_size = 35, label_colour = "black", hjust = 0, vjust = 1.15, rel_heights = c(1)) -->
-<!-- )) -->
-
-
-<!-- rm(plot.list) -->
-<!-- rm(dysreg.network.fraction.plot) -->
-<!-- ``` -->
+rm(plot.list)
+rm(dysreg.network.fraction.plot)
+```
 
 
 <!-- <!-- \pagebreak --> -->
@@ -2076,3 +1992,90 @@ rm(nb.targets.nb.cohorts.violin)
 <!-- ## 27 * 11 P -->
 
 <!-- ``` -->
+
+
+
+
+<!-- \pagebreak -->
+<!-- ```{r Dysregulation_HeatMaps_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Examples of dysregulated networks for predicted miRNA driver genes through cis-regulatory mutations: hsa-mir-17-3p in BRCA-US (left), hsa-mir-155-5p in LIHC-US (center), and hsa-mir-21-3p in UCEC-US (right). Each heatmap column corresponds to a sample where TFBSs associated to the predicted drivers are found with a somatic mutation. Each row corresponds to dysregulated genes in the network of the predicted driver. The color scale represents the gene regulatory status (red: up-regulation; blue: down-regulation). The horizontal bars on top of the heatmaps show the patient-specific driver posterior probability; the darker the higher the probability. Note patient stratification based on this probability.", fig.height = 29, fig.width = 25, fig.align = "center"} -->
+
+<!-- ## Load the heatmap objects -->
+
+<!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_BRCA-US.Rdata") ## all.heatmaps.list -->
+<!-- all.heatmaps.list.brca <- all.heatmaps.list -->
+<!-- # names(all.heatmaps.list.brca) -->
+
+<!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_LUSC-US.Rdata") ## all.heatmaps.list -->
+<!-- all.heatmaps.list.lusc <- all.heatmaps.list -->
+<!-- # names(all.heatmaps.list.lusc) -->
+
+<!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_UCEC-US.Rdata") ## all.heatmaps.list -->
+<!-- all.heatmaps.list.ucec <- all.heatmaps.list -->
+<!-- # names(all.heatmaps.list.brca) -->
+<!-- # names(all.heatmaps.list.lihc) -->
+<!-- # names(all.heatmaps.list.ucec) -->
+
+<!-- ht1 <- all.heatmaps.list.brca[["hsa-mir-17-5p::hsa-mir-17_TFBS"]] -->
+<!-- ht2 <- all.heatmaps.list.lusc[["hsa-mir-205-5p::hsa-mir-205_TFBS"]] -->
+<!-- ht3 <- all.heatmaps.list.ucec[["hsa-mir-21-3p::hsa-mir-21_TFBS"]] -->
+
+<!-- ht11 <- as.ggplot(grid.grabExpr(draw(ht1))) + add_space -->
+<!-- ht22 <- as.ggplot(grid.grabExpr(draw(ht2))) + add_space -->
+<!-- ht33 <- as.ggplot(grid.grabExpr(draw(ht3))) + add_space -->
+
+<!-- plot_grid(ht11, ht22, ht33, -->
+<!--           nrow =  1) -->
+
+
+<!-- rm(ht11) -->
+<!-- rm(ht22) -->
+<!-- rm(ht33) -->
+<!-- rm(ht1) -->
+<!-- rm(ht2) -->
+<!-- rm(ht3) -->
+<!-- rm(all.heatmaps.list) -->
+<!-- rm(all.heatmaps.list.brca) -->
+<!-- rm(all.heatmaps.list.lusc) -->
+<!-- rm(all.heatmaps.list.ucec) -->
+<!-- ``` -->
+
+
+<!-- <!-- \pagebreak --> -->
+<!-- <!-- ```{r Dysregulation_HeatMaps_hsa_mir_92a, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Examples of dysregulated networks for predicted miRNA driver genes through cis-regulatory mutations: hsa-mir-92a-1-5p in BRCA-US (left), LIHC-US (center), and UCEC-US (right). Each heatmap column corresponds to a sample where TFBSs associated to the predicted drivers are found with a somatic mutation. Each row corresponds to dysregulated genes in the network of the predicted driver. The color scale represents the gene regulatory status (red: up-regulation; blue: down-regulation). The horizontal bars on top of the heatmaps show the patient-specific driver posterior probability; the darker the higher the probability. Note patient stratification based on this probability.", fig.height = 29, fig.width = 25, fig.align = "center"} --> -->
+
+<!-- <!-- ## Load the heatmap objects --> -->
+
+<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_BRCA-US.Rdata") ## all.heatmaps.list --> -->
+<!-- <!-- all.heatmaps.list.brca <- all.heatmaps.list --> -->
+
+<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_UCEC-US.Rdata") ## all.heatmaps.list --> -->
+<!-- <!-- all.heatmaps.list.ucec <- all.heatmaps.list --> -->
+
+<!-- <!-- load("Dysreg_heatmaps_examples/miRNA/Dysregulation_heatmaps_LIHC-US.Rdata") ## all.heatmaps.list --> -->
+<!-- <!-- all.heatmaps.list.lihc <- all.heatmaps.list --> -->
+<!-- <!-- # names(all.heatmaps.list.brca) --> -->
+<!-- <!-- # names(all.heatmaps.list.lihc) --> -->
+<!-- <!-- # names(all.heatmaps.list.ucec) --> -->
+
+<!-- <!-- ht1 <- all.heatmaps.list.brca[["hsa-mir-92a-1-5p::hsa-mir-92a-1_TFBS"]] --> -->
+<!-- <!-- ht2 <- all.heatmaps.list.lihc[["hsa-mir-92a-1-5p::hsa-mir-92a-1_TFBS"]] --> -->
+<!-- <!-- ht3 <- all.heatmaps.list.ucec[["hsa-mir-92a-1-5p::hsa-mir-92a-1_TFBS"]] --> -->
+
+<!-- <!-- ht11 <- as.ggplot(grid.grabExpr(draw(ht1))) + add_space --> -->
+<!-- <!-- ht22 <- as.ggplot(grid.grabExpr(draw(ht2))) + add_space --> -->
+<!-- <!-- ht33 <- as.ggplot(grid.grabExpr(draw(ht3))) + add_space --> -->
+
+<!-- <!-- plot_grid(ht11, ht22, ht33, --> -->
+<!-- <!--           nrow =  1) --> -->
+
+<!-- <!-- rm(ht11) --> -->
+<!-- <!-- rm(ht22) --> -->
+<!-- <!-- rm(ht33) --> -->
+<!-- <!-- rm(ht1) --> -->
+<!-- <!-- rm(ht2) --> -->
+<!-- <!-- rm(ht3) --> -->
+<!-- <!-- rm(all.heatmaps.list) --> -->
+<!-- <!-- rm(all.heatmaps.list.brca) --> -->
+<!-- <!-- rm(all.heatmaps.list.lihc) --> -->
+<!-- <!-- rm(all.heatmaps.list.ucec) --> -->
+<!-- <!-- ``` --> -->
