@@ -121,7 +121,7 @@ convert -density 500 -trim /home/jamondra/Documents/PostDoc/Mathelier_lab/Manusc
 #############################
  
 ##################################################
-## Fig S18: Predicted miRNA target distribution
+## Fig S19: Predicted miRNA target distribution
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_distribution.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_distribution.RData 
 
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_vs_Nb_cohorts.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData
@@ -130,7 +130,33 @@ rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamon
 
 
 
+#############################
+## Supplementary figure 20 ##
+#############################
 
+#############################################
+## Fig S20: Dysregulation network fraction
+
+rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/BRCA-US/
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/BRCA-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/BRCA-US/
+
+rm -rf /home/jiamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Supp_Material/xseq_ranked_genes/HNSC-US/
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/HNSC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/HNSC-US/
+
+rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LIHC-US/
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/LIHC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LIHC-US/
+
+rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LUAD-US/
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/LUAD-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LUAD-US/
+
+rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LUSC-US/
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/LUSC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LUSC-US/
+
+rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/STAD-US/
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/STAD-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/STAD-US/
+
+rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/UCEC-US/
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/UCEC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/UCEC-US/
 
 
 
@@ -203,30 +229,7 @@ more /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Tables/Additional
 
 
 
-#####################################
-## Dysregulation network fractions ##
-#####################################
 
-rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/BRCA-US/
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/BRCA-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/BRCA-US/
-
-rm -rf /home/jiamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Supp_Material/xseq_ranked_genes/HNSC-US/
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/HNSC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/HNSC-US/
-
-rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LIHC-US/
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/LIHC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LIHC-US/
-
-rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LUAD-US/
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/LUAD-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LUAD-US/
-
-rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LUSC-US/
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/LUSC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/LUSC-US/
-
-rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/STAD-US/
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/STAD-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/STAD-US/
-
-rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/UCEC-US/
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/UCEC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/UCEC-US/
 
 
 
