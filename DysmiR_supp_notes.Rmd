@@ -94,7 +94,8 @@ agg.net.fun <- function(df           = NULL,
                              fontface = "plain", box.padding = unit(1, "lines"), color = "black", force = 0.85, size = 6) +
         scale_fill_manual(values = c("#fdbb84", "white"),
                           breaks = c("TF", "non_TF")) + ##
-        geom_edges(arrow = arrow(length = unit(7, "pt"), type = "closed")) +
+        # geom_edges(arrow = arrow(length = unit(7, "pt"), type = "closed")) +
+        geom_edges(size = 1, colour = "#6baed6") +
         geom_nodes(size = 8) +
         scale_color_distiller(palette = "PuBu", direction = +1, limits = c(1 ,max(df$Nb_samples)), name = "Samples    ") + 
         theme_blank() +
@@ -356,7 +357,7 @@ suppressMessages(tfbs.vs.exon.mutations )
 \pagebreak
 ```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of all predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"}
 
-cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD")
+cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC")
 
 net.list <- vector(mode = "list", length = length(cohorts))
 for (co in cohorts) {
@@ -377,12 +378,16 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
                            net.list[["HNSC"]],
 
                            net.list[["LIHC"]],
-                           net.list[["LUAD"]],
-
                            net.list[["LUSC"]],
+                           
                            net.list[["STAD"]],
+                           net.list[["UCEC"]],
                            nrow = 3, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)'),
                            label_size = 35, vjust = 1, hjust = 0))
+
+## Figure 3B
+# net.list[["LUAD"]]
+
 ```
 
 
@@ -837,148 +842,148 @@ rm(dysreg.network.fraction.plot)
 
 
 
-\pagebreak
-\begin{landscape}
-```{r FEA_BASIS_1, results='hide', cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes in the BASIS cohort. The barplots represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes when considering protein-coding genes with LoF mutations (PCGs::LoF; A-C), protein-coding genes with cis-regulatory mutations (PCG::TFBS; B-D), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; E). Enriched terms from KEGG 2021 Human (A-B) and WikiPathways (C-E) are provided.", fig.height = 100, fig.width = 180, fig.align = "center"}
+<!-- \pagebreak -->
+<!-- \begin{landscape} -->
+<!-- ```{r FEA_BASIS_1, results='hide', cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes in the BASIS cohort. The barplots represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes when considering protein-coding genes with LoF mutations (PCGs::LoF; A-C), protein-coding genes with cis-regulatory mutations (PCG::TFBS; B-D), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; E). Enriched terms from KEGG 2021 Human (A-B) and WikiPathways (C-E) are provided.", fig.height = 100, fig.width = 180, fig.align = "center"} -->
 
-load("FEA_heatmaps/Enriched_terms_plots_BASIS.RData")  ## GSEA.enrich.plots
+<!-- load("FEA_heatmaps/Enriched_terms_plots_BASIS.RData")  ## GSEA.enrich.plots -->
 
-##########
-## KEGG ##
-##########
+<!-- ########## -->
+<!-- ## KEGG ## -->
+<!-- ########## -->
 
-## KEGG TFBS PCG
-gene.names <- GSEA.enrich.plots[["KEGG_2021_Human"]][["PCG.TFBS"]][["gene_names"]]
-basis.pcg.tfbs.kegg <- GSEA.enrich.plots[["KEGG_2021_Human"]][["PCG.TFBS"]][["plot"]]
+<!-- ## KEGG TFBS PCG -->
+<!-- gene.names <- GSEA.enrich.plots[["KEGG_2021_Human"]][["PCG.TFBS"]][["gene_names"]] -->
+<!-- basis.pcg.tfbs.kegg <- GSEA.enrich.plots[["KEGG_2021_Human"]][["PCG.TFBS"]][["plot"]] -->
 
-basis.pcg.tfbs.kegg.plot <-
-basis.pcg.tfbs.kegg +
-  scale_x_discrete(limits = gene.names) +
-  scale_fill_distiller(palette = "Blues", direction = +1) +
-  labs(title = " PCG.TFBS - KEGG") +
-  theme(text = element_text(size = 90),
-        axis.text.x = element_text(hjust=1, size = 100),
-        axis.text.y = element_text(hjust=1, size = 100)) +
-  guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-        theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
-
-
-## KEGG LoF
-gene.names <- GSEA.enrich.plots[["KEGG_2019_Human"]][["PCG.LoF"]][["gene_names"]]
-basis.pcg.lof.kegg <- GSEA.enrich.plots[["KEGG_2019_Human"]][["PCG.LoF"]][["plot"]]
-
-basis.pcg.lof.kegg.plot <-
-basis.pcg.lof.kegg +
-  scale_x_discrete(limits = gene.names) +
-  scale_fill_distiller(palette = "Blues", direction = +1) +
-  guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-  labs(title = " PCG.LoF - KEGG") +
-  theme(text = element_text(size = 100),
-          axis.text.x = element_text(hjust=1, size = 100),
-          axis.text.y = element_text(hjust=1, size = 100)) +
-        theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
+<!-- basis.pcg.tfbs.kegg.plot <- -->
+<!-- basis.pcg.tfbs.kegg + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!--   scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!--   labs(title = " PCG.TFBS - KEGG") + -->
+<!--   theme(text = element_text(size = 90), -->
+<!--         axis.text.x = element_text(hjust=1, size = 100), -->
+<!--         axis.text.y = element_text(hjust=1, size = 100)) + -->
+<!--   guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!--         theme( -->
+<!--         panel.background = element_rect(fill = "white"), -->
+<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!--         plot.background = element_rect( -->
+<!--           fill = "#fefefe", -->
+<!--           colour = "white", -->
+<!--           size = 1)) -->
 
 
-##################
-## WikiPathways ##
-##################
+<!-- ## KEGG LoF -->
+<!-- gene.names <- GSEA.enrich.plots[["KEGG_2019_Human"]][["PCG.LoF"]][["gene_names"]] -->
+<!-- basis.pcg.lof.kegg <- GSEA.enrich.plots[["KEGG_2019_Human"]][["PCG.LoF"]][["plot"]] -->
 
-## WikiPathways TFBS PCG
-gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.TFBS"]][["gene_names"]]
-basis.pcg.tfbs.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.TFBS"]][["plot"]]
-
-basis.pcg.tfbs.wiki.plot <-
-basis.pcg.tfbs.wiki +
-  scale_x_discrete(limits = gene.names) +
-scale_fill_distiller(palette = "Blues", direction = +1) +
-labs(title = "PCG.TFBS - WikiPathways") +
-guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-theme(text = element_text(size = 100),
-          axis.text.x = element_text(hjust=1, size = 100),
-          axis.text.y = element_text(hjust=1, size = 100)) +
-        theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
+<!-- basis.pcg.lof.kegg.plot <- -->
+<!-- basis.pcg.lof.kegg + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!--   scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!--   guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!--   labs(title = " PCG.LoF - KEGG") + -->
+<!--   theme(text = element_text(size = 100), -->
+<!--           axis.text.x = element_text(hjust=1, size = 100), -->
+<!--           axis.text.y = element_text(hjust=1, size = 100)) + -->
+<!--         theme( -->
+<!--         panel.background = element_rect(fill = "white"), -->
+<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!--         plot.background = element_rect( -->
+<!--           fill = "#fefefe", -->
+<!--           colour = "white", -->
+<!--           size = 1)) -->
 
 
-## WikiPathways LoF
-gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.LoF"]][["gene_names"]]
-basis.pcg.lof.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.LoF"]][["plot"]]
+<!-- ################## -->
+<!-- ## WikiPathways ## -->
+<!-- ################## -->
 
-basis.pcg.lof.wiki.plot <-
-basis.pcg.lof.wiki +
-  scale_x_discrete(limits = gene.names) +
-scale_fill_distiller(palette = "Blues", direction = +1) +
-guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-labs(title = "PCG.LoF - WikiPathways") +
-theme(text = element_text(size = 100),
-          axis.text.x = element_text(hjust=1, size = 100),
-          axis.text.y = element_text(hjust=1, size = 100)) +
-        theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
+<!-- ## WikiPathways TFBS PCG -->
+<!-- gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.TFBS"]][["gene_names"]] -->
+<!-- basis.pcg.tfbs.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.TFBS"]][["plot"]] -->
 
-
-
-## WikiPathways TFBS miRNA
-gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["premiRNA.TFBS"]][["gene_names"]]
-basis.premiRNA.tfbs.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["premiRNA.TFBS"]][["plot"]]
-
-basis.premiRNA.tfbs.wiki.plot <-
-basis.premiRNA.tfbs.wiki +
-  scale_x_discrete(limits = gene.names) +
-scale_fill_distiller(palette = "Blues", direction = +1) +
-guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-labs(title = "miRNA.TFBS - WikiPathways") +
-theme(text = element_text(size = 100),
-          axis.text.x = element_text(hjust=1, size = 100),
-          axis.text.y = element_text(hjust=1, size = 100)) #+
-#         theme(
-#         panel.background = element_rect(fill = "white"),
-#         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-#         plot.background = element_rect(
-#           fill = "#fefefe",
-#           colour = "white",
-#           size = 1))
+<!-- basis.pcg.tfbs.wiki.plot <- -->
+<!-- basis.pcg.tfbs.wiki + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!-- scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- labs(title = "PCG.TFBS - WikiPathways") + -->
+<!-- guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- theme(text = element_text(size = 100), -->
+<!--           axis.text.x = element_text(hjust=1, size = 100), -->
+<!--           axis.text.y = element_text(hjust=1, size = 100)) + -->
+<!--         theme( -->
+<!--         panel.background = element_rect(fill = "white"), -->
+<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!--         plot.background = element_rect( -->
+<!--           fill = "#fefefe", -->
+<!--           colour = "white", -->
+<!--           size = 1)) -->
 
 
-enriched.terms.gg <- plot_grid(basis.pcg.lof.kegg.plot,
-                               basis.pcg.tfbs.kegg.plot,
-                               NULL,
-                               NULL, NULL, NULL,
-                               basis.pcg.lof.wiki.plot,
-                               basis.pcg.tfbs.wiki.plot,
-                               basis.premiRNA.tfbs.wiki.plot,
-                               ncol = 3, align = "hv", labels = c('A)', 'B)', '', '', '' , '', 'C)', 'D)', 'E)'), label_size = 150,
-                               label_colour = "black", hjust = -2, vjust = 3,
-                               rel_heights = c(1, 1,1,0,0,0, 1,1,1))
+<!-- ## WikiPathways LoF -->
+<!-- gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.LoF"]][["gene_names"]] -->
+<!-- basis.pcg.lof.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.LoF"]][["plot"]] -->
 
-## Combine plots
-enriched.terms.gg
+<!-- basis.pcg.lof.wiki.plot <- -->
+<!-- basis.pcg.lof.wiki + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!-- scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- labs(title = "PCG.LoF - WikiPathways") + -->
+<!-- theme(text = element_text(size = 100), -->
+<!--           axis.text.x = element_text(hjust=1, size = 100), -->
+<!--           axis.text.y = element_text(hjust=1, size = 100)) + -->
+<!--         theme( -->
+<!--         panel.background = element_rect(fill = "white"), -->
+<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!--         plot.background = element_rect( -->
+<!--           fill = "#fefefe", -->
+<!--           colour = "white", -->
+<!--           size = 1)) -->
 
-rm(GSEA.enrich.plots)
-rm(enriched.terms.gg)
-```
+
+
+<!-- ## WikiPathways TFBS miRNA -->
+<!-- gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["premiRNA.TFBS"]][["gene_names"]] -->
+<!-- basis.premiRNA.tfbs.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["premiRNA.TFBS"]][["plot"]] -->
+
+<!-- basis.premiRNA.tfbs.wiki.plot <- -->
+<!-- basis.premiRNA.tfbs.wiki + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!-- scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- labs(title = "miRNA.TFBS - WikiPathways") + -->
+<!-- theme(text = element_text(size = 100), -->
+<!--           axis.text.x = element_text(hjust=1, size = 100), -->
+<!--           axis.text.y = element_text(hjust=1, size = 100)) #+ -->
+<!-- #         theme( -->
+<!-- #         panel.background = element_rect(fill = "white"), -->
+<!-- #         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!-- #         plot.background = element_rect( -->
+<!-- #           fill = "#fefefe", -->
+<!-- #           colour = "white", -->
+<!-- #           size = 1)) -->
+
+
+<!-- enriched.terms.gg <- plot_grid(basis.pcg.lof.kegg.plot, -->
+<!--                                basis.pcg.tfbs.kegg.plot, -->
+<!--                                NULL, -->
+<!--                                NULL, NULL, NULL, -->
+<!--                                basis.pcg.lof.wiki.plot, -->
+<!--                                basis.pcg.tfbs.wiki.plot, -->
+<!--                                basis.premiRNA.tfbs.wiki.plot, -->
+<!--                                ncol = 3, align = "hv", labels = c('A)', 'B)', '', '', '' , '', 'C)', 'D)', 'E)'), label_size = 150, -->
+<!--                                label_colour = "black", hjust = -2, vjust = 3, -->
+<!--                                rel_heights = c(1, 1,1,0,0,0, 1,1,1)) -->
+
+<!-- ## Combine plots -->
+<!-- enriched.terms.gg -->
+
+<!-- rm(GSEA.enrich.plots) -->
+<!-- rm(enriched.terms.gg) -->
+<!-- ``` -->
 
 
 <!-- ```{r FEA_BASIS_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes in the BASIS cohort. The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes when considering protein-coding genes with LoF mutations (PCGs::LoF; A-C), protein-coding genes with cis-regulatory mutations (PCG::TFBS; B-D), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; E). Enriched terms from GO biological processes (GO-BP; A-B) and Panther 2016 (C-E) are provided.", fig.height = 100, fig.width = 200, fig.align = "center"} -->
