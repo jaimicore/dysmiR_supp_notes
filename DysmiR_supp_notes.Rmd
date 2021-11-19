@@ -47,6 +47,9 @@ suppressPackageStartupMessages(library(ggplotify))
 suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(ggsignif))
 suppressPackageStartupMessages(library(ggnetwork))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(data.table))
 
 pdf.options(encoding = 'ISOLatin2')
 options(device = "cairo_pdf")
@@ -373,23 +376,82 @@ for (co in cohorts) {
 
 
 
-
 suppressMessages(plot_grid(net.list[["BRCA"]],
                            net.list[["HNSC"]],
 
                            net.list[["LIHC"]],
-                           net.list[["LUSC"]],
+                           net.list[["LUAD"]],
                            
+                           net.list[["LUSC"]],
                            net.list[["STAD"]],
-                           net.list[["UCEC"]],
+                           
                            nrow = 3, labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)'),
                            label_size = 35, vjust = 1, hjust = 0))
 
-## Figure 3B
-# net.list[["LUAD"]]
-
 ```
 
+
+
+<!-- # ```{r Figure3, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="", fig.height = 18, fig.width = 15, fig.align = "center"} -->
+<!-- #  -->
+<!-- #  -->
+<!-- # cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC") -->
+<!-- #  -->
+<!-- # subgraph.list        <- vector(mode = "list", length = length(cohorts)) -->
+<!-- # names(subgraph.list) <- cohorts -->
+<!-- # for (co in cohorts) { -->
+<!-- #  -->
+<!-- #   load(paste0("Aggregated_networks/", co, "/Aggregated_network_", co, "-US.Rdata")) -->
+<!-- #  -->
+<!-- #   gene.cluster <- data.frame(list.agg.net$Clusters$membership) %>% -->
+<!-- #                     rename(Cluster = list.agg.net.Clusters.membership) -->
+<!-- #   gene.cluster$Gene   <- rownames(gene.cluster) -->
+<!-- #   gene.cluster$Cohort <- paste0(co, "-US") -->
+<!-- #  -->
+<!-- #   subgraph.list[[co]] <- gene.cluster -->
+<!-- #  -->
+<!-- # } -->
+<!-- #  -->
+<!-- #  -->
+<!-- #  -->
+<!-- # nb.subgraphs.per.cohort.df <- rbindlist(subgraph.list) %>% -->
+<!-- #                                 group_by(Cohort, Cluster) %>% -->
+<!-- #                                 summarise(N = n(), .groups = "drop") %>%  -->
+<!-- #                                 # ungroup() %>%  -->
+<!-- #                                 complete(Cluster, nesting(Cohort)) -->
+<!-- #  -->
+<!-- # nb.subgraphs.per.cohort.gg <- ggplot(nb.subgraphs.per.cohort.df, aes(y = Cluster, x = Cohort, fill = as.numeric(N))) + -->
+<!-- #                                 geom_tile(aes(width = 0.95, height = 0.95)) + -->
+<!-- #                                 theme_classic() + -->
+<!-- #                                 coord_equal() + -->
+<!-- #                                 scale_x_discrete(limits = paste0(cohorts, "-US")) + -->
+<!-- #                                 scale_y_discrete(limits = factor(1:12)) + -->
+<!-- #                                 scale_fill_distiller(palette = "Oranges", direction = +1, na.value = "white", name = "Number of genes in cluster") + -->
+<!-- #                                 theme(plot.title         = element_text(hjust = 0.5), -->
+<!-- #                                       plot.subtitle      = element_text(hjust = 0.5), -->
+<!-- #                                       axis.text.y        = element_text(angle = 0, -->
+<!-- #                                                                         hjust = 1, -->
+<!-- #                                                                         size  = 15), -->
+<!-- #                                       axis.text.x        = element_text(angle = 45, -->
+<!-- #                                                                         hjust = 1, -->
+<!-- #                                                                         size  = 15), -->
+<!-- #                                       legend.position    = "bottom") + -->
+<!-- #                                 labs(y = "Number of clusters", x = "") -->
+<!-- #    -->
+<!-- #  -->
+<!-- #  -->
+<!-- #  -->
+<!-- #  -->
+<!-- # agg.nets.fig <- -->
+<!-- # plot_grid(nb.subgraphs.per.cohort.gg, -->
+<!-- #           net.list[["UCEC"]], -->
+<!-- #           nrow = 1, labels = c('A)', 'B)'), -->
+<!-- #           label_size = 35, vjust = 1.25, hjust = 0, rel_widths = c(1, 1)) -->
+<!-- #  -->
+<!-- #  -->
+<!-- #  -->
+<!-- # agg.nets.fig -->
+<!-- # ``` -->
 
 
 <!-- \pagebreak -->
@@ -1873,27 +1935,7 @@ rm(dysreg.network.fraction.plot)
 <!-- ``` -->
 
 
-<!-- \pagebreak -->
-<!-- ```{r Aggregated_networks, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="", fig.height = 18, fig.width = 15, fig.align = "center"} -->
 
-<!-- # setwd("../..") -->
-<!-- load("Indiv_nets/Nb_subgraphs_individual_samples_all_cohorts.Rdata") -->
-<!-- subgraphs <- xx -->
-
-<!-- load("Indiv_nets/UCEC-US/Aggregated_network_UCEC-US.Rdata") -->
-<!-- agg.net.ucec <- agg.net + add_space + theme(plot.title = element_text(size=22)) -->
-
-
-<!-- agg.nets.fig <- -->
-<!-- plot_grid(subgraphs, -->
-<!--           agg.net.ucec, -->
-<!--           nrow = 1, labels = c('A)', 'B)'), -->
-<!--           label_size = 45, vjust = 2, hjust = 0, rel_widths = c(0.666, 1)) -->
-<!-- agg.nets.fig -->
-<!-- ## 30 * 17 P -->
-<!-- ## 27 * 11 P -->
-
-<!-- ``` -->
 
 
 
