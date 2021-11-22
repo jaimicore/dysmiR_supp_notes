@@ -334,7 +334,7 @@ knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatma
 load("Nb_TFBS_vs_Exonic_mutations/Analysis_samples_w_TFBS_Exonic_mutations.rdata")
 
 
-## The original colors in the legend are inverted when the plots are ecported as Rdata, therefore we have to reset the color scale
+## The original colors in the legend are inverted when the plots are reported as Rdata, therefore we have to reset the color scale
 suppressMessages(barplots$A     <- barplots$A + scale_fill_manual(values = c(TFBS_and_Exonic = "#bf812d", TFBS = "#35978f"), labels = c("TFBS only", "TFBS & Exon")))
 
 suppressMessages(barplots$extra <- barplots$extra + scale_fill_manual(values = c(TFBS_and_Exonic = "#bf812d", TFBS = "#35978f"), labels = c("TFBS only", "TFBS & Exon")))
@@ -351,6 +351,8 @@ tfbs.vs.exon.mutations <- tfbs.vs.exon.mutations + add_space
 
 
 suppressMessages(tfbs.vs.exon.mutations )
+
+## NOTE: the variable barplot$C has the plot displayed in Figure 2B
 ```
 
 
@@ -395,62 +397,62 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
 <!-- # ```{r Figure3, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="", fig.height = 18, fig.width = 15, fig.align = "center"} -->
 <!-- #  -->
 <!-- #  -->
-<!-- # cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC") -->
+<!-- #  cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC") -->
 <!-- #  -->
-<!-- # subgraph.list        <- vector(mode = "list", length = length(cohorts)) -->
-<!-- # names(subgraph.list) <- cohorts -->
-<!-- # for (co in cohorts) { -->
+<!-- #  subgraph.list        <- vector(mode = "list", length = length(cohorts)) -->
+<!-- #  names(subgraph.list) <- cohorts -->
+<!-- #  for (co in cohorts) { -->
 <!-- #  -->
-<!-- #   load(paste0("Aggregated_networks/", co, "/Aggregated_network_", co, "-US.Rdata")) -->
+<!-- #    load(paste0("Aggregated_networks/", co, "/Aggregated_network_", co, "-US.Rdata")) -->
 <!-- #  -->
-<!-- #   gene.cluster <- data.frame(list.agg.net$Clusters$membership) %>% -->
-<!-- #                     rename(Cluster = list.agg.net.Clusters.membership) -->
-<!-- #   gene.cluster$Gene   <- rownames(gene.cluster) -->
-<!-- #   gene.cluster$Cohort <- paste0(co, "-US") -->
+<!-- #    gene.cluster <- data.frame(list.agg.net$Clusters$membership) %>% -->
+<!-- #                      rename(Cluster = list.agg.net.Clusters.membership) -->
+<!-- #    gene.cluster$Gene   <- rownames(gene.cluster) -->
+<!-- #    gene.cluster$Cohort <- paste0(co, "-US") -->
 <!-- #  -->
-<!-- #   subgraph.list[[co]] <- gene.cluster -->
+<!-- #    subgraph.list[[co]] <- gene.cluster -->
 <!-- #  -->
-<!-- # } -->
-<!-- #  -->
-<!-- #  -->
-<!-- #  -->
-<!-- # nb.subgraphs.per.cohort.df <- rbindlist(subgraph.list) %>% -->
-<!-- #                                 group_by(Cohort, Cluster) %>% -->
-<!-- #                                 summarise(N = n(), .groups = "drop") %>%  -->
-<!-- #                                 # ungroup() %>%  -->
-<!-- #                                 complete(Cluster, nesting(Cohort)) -->
-<!-- #  -->
-<!-- # nb.subgraphs.per.cohort.gg <- ggplot(nb.subgraphs.per.cohort.df, aes(y = Cluster, x = Cohort, fill = as.numeric(N))) + -->
-<!-- #                                 geom_tile(aes(width = 0.95, height = 0.95)) + -->
-<!-- #                                 theme_classic() + -->
-<!-- #                                 coord_equal() + -->
-<!-- #                                 scale_x_discrete(limits = paste0(cohorts, "-US")) + -->
-<!-- #                                 scale_y_discrete(limits = factor(1:12)) + -->
-<!-- #                                 scale_fill_distiller(palette = "Oranges", direction = +1, na.value = "white", name = "Number of genes in cluster") + -->
-<!-- #                                 theme(plot.title         = element_text(hjust = 0.5), -->
-<!-- #                                       plot.subtitle      = element_text(hjust = 0.5), -->
-<!-- #                                       axis.text.y        = element_text(angle = 0, -->
-<!-- #                                                                         hjust = 1, -->
-<!-- #                                                                         size  = 15), -->
-<!-- #                                       axis.text.x        = element_text(angle = 45, -->
-<!-- #                                                                         hjust = 1, -->
-<!-- #                                                                         size  = 15), -->
-<!-- #                                       legend.position    = "bottom") + -->
-<!-- #                                 labs(y = "Number of clusters", x = "") -->
-<!-- #    -->
+<!-- #  } -->
 <!-- #  -->
 <!-- #  -->
 <!-- #  -->
+<!-- #  nb.subgraphs.per.cohort.df <- rbindlist(subgraph.list) %>% -->
+<!-- #                                  group_by(Cohort, Cluster) %>% -->
+<!-- #                                  summarise(N = n(), .groups = "drop") %>% -->
+<!-- #                                  # ungroup() %>% -->
+<!-- #                                  complete(Cluster, nesting(Cohort)) -->
 <!-- #  -->
-<!-- # agg.nets.fig <- -->
-<!-- # plot_grid(nb.subgraphs.per.cohort.gg, -->
-<!-- #           net.list[["UCEC"]], -->
-<!-- #           nrow = 1, labels = c('A)', 'B)'), -->
-<!-- #           label_size = 35, vjust = 1.25, hjust = 0, rel_widths = c(1, 1)) -->
+<!-- #  nb.subgraphs.per.cohort.gg <- ggplot(nb.subgraphs.per.cohort.df, aes(y = Cluster, x = Cohort, fill = as.numeric(N))) + -->
+<!-- #                                  geom_tile(aes(width = 0.95, height = 0.95)) + -->
+<!-- #                                  theme_classic() + -->
+<!-- #                                  coord_equal() + -->
+<!-- #                                  scale_x_discrete(limits = paste0(cohorts, "-US")) + -->
+<!-- #                                  scale_y_discrete(limits = factor(1:12)) + -->
+<!-- #                                  scale_fill_distiller(palette = "Oranges", direction = +1, na.value = "white", name = "Number of genes in luster") + -->
+<!-- #                                  theme(plot.title         = element_text(hjust = 0.5), -->
+<!-- #                                        plot.subtitle      = element_text(hjust = 0.5), -->
+<!-- #                                        axis.text.y        = element_text(angle = 0, -->
+<!-- #                                                                          hjust = 1, -->
+<!-- #                                                                          size  = 15), -->
+<!-- #                                        axis.text.x        = element_text(angle = 45, -->
+<!-- #                                                                          hjust = 1, -->
+<!-- #                                                                          size  = 15), -->
+<!-- #                                        legend.position    = "bottom") + -->
+<!-- #                                  labs(y = "Number of clusters", x = "") -->
 <!-- #  -->
 <!-- #  -->
 <!-- #  -->
-<!-- # agg.nets.fig -->
+<!-- #  -->
+<!-- #  -->
+<!-- #  agg.nets.fig <- -->
+<!-- #  plot_grid(nb.subgraphs.per.cohort.gg, -->
+<!-- #            net.list[["UCEC"]], -->
+<!-- #            nrow = 1, labels = c('A)', 'B)'), -->
+<!-- #            label_size = 35, vjust = 1.25, hjust = 0, rel_widths = c(1, 1)) -->
+<!-- #  -->
+<!-- #  -->
+<!-- #  -->
+<!-- #  agg.nets.fig -->
 <!-- # ``` -->
 
 
@@ -640,6 +642,20 @@ enriched.terms.gg
 
 rm(heatmap.GSEA.list)
 rm(enriched.terms.gg)
+```
+
+
+
+```{r FEA_KEGG_2021_Fig4, cache=TRUE, include=FALSE, echo=FALSE, eval=TRUE}
+
+
+ ss <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]],
+                 heatmap.GSEA.list[["PCG::TFBS"]],
+                 ncol = 2, align = "h", labels = c('', ''), label_size = 30,
+                 label_colour = "black", hjust = -2, vjust = 3,
+                 rel_heights = c(1, 1), rel_widths = c(0.75, 1))
+
+ ggsave(ss, filename = "Main_manuscript/Fig4/KEGG_2021_PCG_LOF.pdf", width = 60, height = 40, limitsize = F)
 ```
 
 
