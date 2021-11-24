@@ -96,8 +96,6 @@ done
 
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/enrichR_analysis/RData/*.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
 
-#rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_10000_minW_0.8_minscore_0.8/enrichR_analysis/RData/Enriched_terms_plots_BASIS.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/
-
 
 
 
@@ -157,6 +155,49 @@ rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamon
 
 rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/UCEC-US/
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/UCEC-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/UCEC-US/
+
+
+
+
+
+#####################################
+## Supplementary figures 21 and 22 ##
+#####################################
+
+## S22: BASIS dysregulated genes functional enrichment: KEGG + Wikipathways
+## S22: BASIS dysregulated genes functional enrichment: GO + Panther
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_100_minW_0.8_minscore_0.8/enrichR_analysis/RData/Enriched_terms_plots_BASIS.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/Enriched_terms_plots_BASIS.RData
+
+
+
+
+
+
+###########################
+## Numbers in manuscript ##
+###########################
+
+## Number of mature miRNAs (pancancer)
+more  /storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/filtered_networks/All_geneList_Pancancer_analysis.txt  | cut -f2,4 | grep '::' | sed 's/::/\t/g' | sort | uniq | cut -f1 | sort | uniq | wc -l
+
+## Number of miRNA precursors (pancancer)
+more  /storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/filtered_networks/All_geneList_Pancancer_analysis.txt  | cut -f2,4 | grep '::' | sed 's/::/\t/g' | sort | uniq | cut -f2 | sort | uniq | wc -l
+
+## Mature miRNA - Nb of cohorts
+more  /storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/filtered_networks/All_geneList_Pancancer_analysis.txt  | cut -f2,4 | grep '::' | sed 's/::/\t/g' | sort | uniq | cut -f1,3 | cut -f1 | uniq -c | sort -h -r 
+
+## Precursosr in more than 5 cohorts
+more  /storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/filtered_networks/All_geneList_Pancancer_analysis.txt  | cut -f2,4 | grep '::' | sed 's/::/\t/g' | sort | uniq | cut -f1,2,3 | cut -f1,2 | uniq -c | sort -h -r | cut -d '' -f4
+
+
+
+
+
+
+
+
+
 
 
 
