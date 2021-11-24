@@ -646,17 +646,17 @@ rm(enriched.terms.gg)
 
 
 
-```{r FEA_KEGG_2021_Fig4, cache=TRUE, include=FALSE, echo=FALSE, eval=TRUE}
+<!-- ```{r FEA_KEGG_2021_Fig4, cache=TRUE, include=FALSE, echo=FALSE, eval=TRUE} -->
 
 
- ss <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]],
-                 heatmap.GSEA.list[["PCG::TFBS"]],
-                 ncol = 2, align = "h", labels = c('', ''), label_size = 30,
-                 label_colour = "black", hjust = -2, vjust = 3,
-                 rel_heights = c(1, 1), rel_widths = c(0.75, 1))
+<!--  ss <- plot_grid(heatmap.GSEA.list[["PCG::LoF"]], -->
+<!--                  heatmap.GSEA.list[["PCG::TFBS"]], -->
+<!--                  ncol = 2, align = "h", labels = c('', ''), label_size = 30, -->
+<!--                  label_colour = "black", hjust = -2, vjust = 3, -->
+<!--                  rel_heights = c(1, 1), rel_widths = c(0.85, 1)) -->
 
- ggsave(ss, filename = "Main_manuscript/Fig4/KEGG_2021_PCG_LOF.pdf", width = 60, height = 40, limitsize = F)
-```
+<!--  ggsave(ss, filename = "Main_manuscript/Fig4/KEGG_2021_PCG_LOF.pdf", width = 60, height = 40, limitsize = F) -->
+<!-- ``` -->
 
 
 
@@ -806,53 +806,54 @@ rm(enriched.terms.gg)
 
 \pagebreak
 \begin{landscape}
-```{r miRNAs_predictec_pancancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNAs predicted by xseq in the seven TCGA cohorts. Cell colors indicate the posterior probability computed over the corresponding cohort. Red stars indicate that the miRNA is annotated as a cancer-associated miRNA in miRCancer. Blue stars indicate that the miRNA was reported as a cancer-associated miRNA in the specific cancer type where it is predicted by xseq, according to miRCancer annotation.", out.width = "650px", out.height = "700px", fig.align = "center"}
+```{r miRNAs_predicted_pancancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNAs predicted by xseq in the seven TCGA cohorts. Cell colors indicate the posterior probability computed over the corresponding cohort. Red stars indicate that the miRNA is annotated as a cancer-associated miRNA in miRCancer. Blue stars indicate that the miRNA was reported as a cancer-associated miRNA in the specific cancer type where it is predicted by xseq, according to miRCancer annotation.", out.width = "675px", out.height = "700px", fig.align = "center"}
 
-knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot.jpeg", dpi = 100)
+## This plot is generated in this script:summary_xseq_trans_ICGC_primiRNA_genes_ALL_projects_Fig5.R
+knitr::include_graphics("Highlighted_genes_pancancer/Mature_miRNAs_pancancer.jpeg", dpi = 100)
 ```
 \end{landscape}
 
 
 
-\pagebreak
-```{r Nb_target_genes_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNA-target genes information. A) Distribution of the number of targets considered per miRNA. The red line indicates the median value (1052 targets). The rug at the bottom highlights the predicted miRNAs. B) Number of cohorts (x-axis) where each mature miRNA was predicted versus its number of targets (y-axis).", fig.height = 10, fig.width = 10, fig.align = "center"}
+<!-- \pagebreak -->
+<!-- ```{r Nb_target_genes_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNA-target genes information. A) Distribution of the number of targets considered per miRNA. The red line indicates the median value (1052 targets). The rug at the bottom highlights the predicted miRNAs. B) Number of cohorts (x-axis) where each mature miRNA was predicted versus its number of targets (y-axis).", fig.height = 10, fig.width = 10, fig.align = "center"} -->
 
-plot.list <- list()
-load("Nb_targets_miRNA/Nb_targets_distribution.RData")  ## nb.targets.distr
-load("Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData") ## nb.targets.nb.cohorts.violin
+<!-- plot.list <- list() -->
+<!-- load("Nb_targets_miRNA/Nb_targets_distribution.RData")  ## nb.targets.distr -->
+<!-- load("Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData") ## nb.targets.nb.cohorts.violin -->
 
-plot.list[["Distrib"]] <- nb.targets.distr
-plot.list[["Violin"]] <- nb.targets.nb.cohorts.violin
+<!-- plot.list[["Distrib"]] <- nb.targets.distr -->
+<!-- plot.list[["Violin"]] <- nb.targets.nb.cohorts.violin -->
 
 
-## Add a border to avoid trunked axis legends
-for(co in names(plot.list)){
+<!-- ## Add a border to avoid trunked axis legends -->
+<!-- for(co in names(plot.list)){ -->
 
-  plot.list[[co]] <-
-    plot.list[[co]] +
-    theme(
-    panel.background = element_rect(fill = "white"),
-    plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
-    plot.background = element_rect(
-      fill = "#fefefe",
-      colour = "white",
-      size = 1
-    )
-  )
-}
+<!--   plot.list[[co]] <- -->
+<!--     plot.list[[co]] + -->
+<!--     theme( -->
+<!--     panel.background = element_rect(fill = "white"), -->
+<!--     plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"), -->
+<!--     plot.background = element_rect( -->
+<!--       fill = "#fefefe", -->
+<!--       colour = "white", -->
+<!--       size = 1 -->
+<!--     ) -->
+<!--   ) -->
+<!-- } -->
 
-## Combine plots
-suppressMessages(
-plot_grid(plot.list[["Distrib"]],
-          NULL,
-          plot.list[["Violin"]],
-          ncol = 1, labels = c('A)', '', 'B)'), label_size = 17, label_colour = "black", hjust = 0, vjust = 3, rel_heights = c(1, 0.15, 1))
-)
+<!-- ## Combine plots -->
+<!-- suppressMessages( -->
+<!-- plot_grid(plot.list[["Distrib"]], -->
+<!--           NULL, -->
+<!--           plot.list[["Violin"]], -->
+<!--           ncol = 1, labels = c('A)', '', 'B)'), label_size = 17, label_colour = "black", hjust = 0, vjust = 3, rel_heights = c(1, 0.15, 1)) -->
+<!-- ) -->
 
-rm(plot.list)
-rm(nb.targets.distr)
-rm(nb.targets.nb.cohorts.violin)
-```
+<!-- rm(plot.list) -->
+<!-- rm(nb.targets.distr) -->
+<!-- rm(nb.targets.nb.cohorts.violin) -->
+<!-- ``` -->
 
 
 
