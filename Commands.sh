@@ -117,23 +117,9 @@ convert -density 500 -trim /home/jamondra/Documents/PostDoc/Mathelier_lab/Manusc
 #############################
 ## Supplementary figure 19 ##
 #############################
- 
-##################################################
-## Fig S19: Predicted miRNA target distribution
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_distribution.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_distribution.RData 
-
-rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_vs_Nb_cohorts.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData
-
-
-
-
-
-#############################
-## Supplementary figure 20 ##
-#############################
 
 #############################################
-## Fig S20: Dysregulation network fraction
+## Fig S19: Dysregulation network fraction
 
 rm -rf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/BRCA-US/
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/BRCA-US/premiRNA/xseq/trans/Rdata/* /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_ranked_genes/BRCA-US/
@@ -177,6 +163,20 @@ rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamon
 
 convert -density 500 -trim /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Main_manuscript/Fig2/xseq_trans_pancancer_heatmap_PCG_all_mutation_types_triangles.pdf -quality 350 /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Main_manuscript/Fig2/xseq_trans_pancancer_heatmap_PCG_all_mutation_types_triangles.jpeg
 
+
+######################
+## Figures 5A and B ##
+######################
+
+## 5A
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/plots/xseq_trans_pancancer_heatmap_premiRNA_analysis_mutation_type_TFBS_results_summary_plot1.pdf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Main_manuscript/Fig5/Fig5A.pdf
+
+convert -density 500 -trim /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Main_manuscript/Fig5/Fig5A.pdf -quality 350 /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Main_manuscript/Fig5/Fig5A.jpeg
+
+## 5B
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/LIHC-US/premiRNA/xseq/trans/dysregulation_heatmaps/hsa-mir-20a-5p::hsa-mir-20a_TFBS_dysregulation_heatmap.pdf /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Dysreg_heatmaps_examples/miRNA/hsa-mir-20a-5p::hsa-mir-20a_TFBS_dysregulation_heatmap.pdf
+
+convert -density 500 -trim /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Dysreg_heatmaps_examples/miRNA/hsa-mir-20a-5p::hsa-mir-20a_TFBS_dysregulation_heatmap.pdf -quality 350 /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Main_manuscript/Fig5/dysreg_heatmap_example.jpeg
 
 
 
@@ -276,6 +276,16 @@ more /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Tables/Additional
 ## Number of precursors
 
 
+
+
+
+
+
+##################################################
+## Predicted miRNA target distribution
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_distribution.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_distribution.RData 
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/Pancancer_analysis/premiRNA/xseq/trans/RData/Nb_targets_vs_Nb_cohorts.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/Nb_targets_miRNA/Nb_targets_vs_Nb_cohorts.RData
 
 
 
