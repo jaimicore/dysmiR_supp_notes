@@ -147,13 +147,24 @@ rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamon
 
 
 #####################################
-## Supplementary figures 21 and 22 ##
+## Supplementary figures 20 and 21 ##
 #####################################
 
-## S22: BASIS dysregulated genes functional enrichment: KEGG + Wikipathways
-## S22: BASIS dysregulated genes functional enrichment: GO + Panther
+## S20: BASIS dysregulated genes functional enrichment: KEGG + Wikipathways
+## S21: BASIS dysregulated genes functional enrichment: GO + Panther
 
 rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_100_minW_0.8_minscore_0.8/enrichR_analysis/RData/Enriched_terms_plots_BASIS.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/Enriched_terms_plots_BASIS.RData
+
+
+#####################################
+## Supplementary figures 22 and 23 ##
+#####################################
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_100_minW_0.8_minscore_0.8/enrichR_analysis/RData/Enriched_terms_plots_BASIS.RData /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/FEA_heatmaps/Enriched_terms_plots_BASIS.RData
+
+
+
+
 
 
 ###############
