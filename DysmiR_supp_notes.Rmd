@@ -361,7 +361,7 @@ suppressMessages(tfbs.vs.exon.mutations )
 
 
 \pagebreak
-```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of all predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"}
+```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts, genes that could not be connected are not shown. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"}
 
 cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC")
 
@@ -887,6 +887,312 @@ rm(plot.list)
 rm(dysreg.network.fraction.plot)
 ```
 
+                                
+                                      
+                                      
+\pagebreak
+```{r Predicted_genes_breast_cancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Predicted protein-coding genes in the BASIS cohort using all samples, ER+ samples and ER- samples, and in the TCGA BRCA-US cohort (columns). Predictions were obtained applying the xseq tool on each dataset independently considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "650px", out.height="530px", fig.align = "center"}
+
+knitr::include_graphics("BASIS_vs_TCGA/BRCA_predicted_genes.jpeg", dpi = 100)
+```
+
+
+\pagebreak
+\begin{landscape}
+```{r Breast_Cancer_agg_net, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network representing the predicted protein-coding genes in BASIS (all samples), BASIS ER+, ER- and BRCA-US cohorts. The name of the genes predicted in two or more cohorts are displayed many times with different colors.", out.width = "600px", out.height="430px", fig.align = "center"}
+
+knitr::include_graphics("BASIS_vs_TCGA/BRCA_agg_net.jpeg", dpi = 100)
+
+```
+
+
+
+\pagebreak
+
+```{r FEA_breast_cancer_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted protein-coding genes in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A), WikiPathways (B), Panther (C), and KEGG (D). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 75, fig.width = 115, fig.align = "center"}
+
+## From: /storage/mathelierarea/processed/jamondra/Projects/dysmir/R_scripts/BASIS/Heatmap_enriched_terms_breast_cancer.R
+
+
+load("BASIS_vs_TCGA/RData/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list
+
+db1 <- "KEGG_2019_Human"
+db2 <- "WikiPathways_2019_Human"
+db3 <- "Panther_2016"
+db4 <- "GO_Biological_Process_2018"
+DBs <- c(db1, db2, db3, db4)
+
+db <- names(heatmap.GSEA.axis.list)
+font.size <- 80
+mt <- c("PCG.TFBS")
+heatmap.GSEA.list <- list()
+for(db in DBs){
+
+  fea.df <- heatmap.GSEA.axis.list[[db]][[mt]][["df"]]
+
+  cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[mt]][["x_axis"]]
+  terms.sorted <- heatmap.GSEA.axis.list[[db]][[mt]][["y_axis"]]
+
+  db.title <- NULL
+  if(db == "KEGG_2019_Human"){
+    db.title <- "KEGG"
+  }
+  if(db == "WikiPathways_2019_Human"){
+    db.title <- "WikiPathways"
+    }
+  if(db == "Panther_2016"){
+    db.title <- "Panther"
+  }
+  if(db == "GO_Biological_Process_2018"){
+    db.title <- "GO_BP"
+  }
+
+  heatmap.GSEA.list[[db]] <-
+    ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) +
+        geom_tile(width = 0.95, height = 0.95) +
+        # coord_equal() +
+        theme_bw() +
+        theme(legend.position = "bottom", legend.title=element_text(size=font.size)) +
+        scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75)
+        # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"),
+              axis.text.y = element_text(size=font.size, colour = "black"),
+              axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12),
+              axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12),
+              legend.text=element_text(size=font.size),
+              plot.title = element_text(size=font.size+10)) +
+        scale_x_discrete(limits = cohorts.sorted) +
+        scale_y_discrete(limits = terms.sorted) +
+        labs(title = db.title, x = "", y = "") +
+        guides(fill = guide_colourbar(barwidth = 30, barheight = 7)) +
+        guides(color = guide_legend(title.position = "top",
+                                    title.hjust = 0.5,
+                                    label.position = "left")) +
+    ## Add a border to avoid trunked axis legends
+      theme(
+        panel.background = element_rect(fill = "white"),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+        plot.background = element_rect(
+          fill = "#fefefe",
+          colour = "white",
+          size = 1))
+}
+
+
+# font.size <- 1
+# null.hm <- ggplot(mtcars, aes(x=cyl)) +
+#             geom_bar() +
+#             theme(legend.position = "none")
+
+
+enriched.terms.gg <- plot_grid(heatmap.GSEA.list[[db4]],
+                               heatmap.GSEA.list[[db2]],
+                               heatmap.GSEA.list[[db3]],
+                               heatmap.GSEA.list[[db1]],
+                               nrow = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)'), label_size = 150,
+                               label_colour = "black", hjust = -7, vjust = 2,
+                               rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1))
+
+## Combine plots
+enriched.terms.gg
+
+rm(heatmap.GSEA.list)
+rm(enriched.terms.gg)
+```
+
+
+```{r FEA_breast_cancer_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated target genes of predicted miRNAs in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A), WikiPathways (B), and Panther (C). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 70, fig.width = 115, fig.align = "center"}
+
+## From: /storage/mathelierarea/processed/jamondra/Projects/dysmir/R_scripts/BASIS/Heatmap_enriched_terms_breast_cancer.R
+
+
+load("BASIS_vs_TCGA/RData/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list
+
+## No KEGG for miRNAs
+db1 <- "WikiPathways_2019_Human"
+db2 <- "Panther_2016"
+db3 <- "GO_Biological_Process_2018"
+DBs <- c(db1, db2, db3)
+
+db <- names(heatmap.GSEA.axis.list)
+font.size <- 80
+mt <- c("premiRNA.TFBS")
+heatmap.GSEA.list <- list()
+for(db in DBs){
+
+  fea.df <- heatmap.GSEA.axis.list[[db]][[mt]][["df"]]
+
+  cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[mt]][["x_axis"]]
+  terms.sorted <- heatmap.GSEA.axis.list[[db]][[mt]][["y_axis"]]
+
+  db.title <- NULL
+  if(db == "KEGG_2019_Human"){
+    db.title <- "KEGG"
+  }
+  if(db == "WikiPathways_2019_Human"){
+    db.title <- "WikiPathways"
+    }
+  if(db == "Panther_2016"){
+    db.title <- "Panther"
+  }
+  if(db == "GO_Biological_Process_2018"){
+    db.title <- "GO_BP"
+  }
+
+  heatmap.GSEA.list[[db]] <-
+    ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) +
+        geom_tile(width = 0.95, height = 0.95) +
+        # coord_equal() +
+        theme_bw() +
+        theme(legend.position = "bottom", legend.title=element_text(size=font.size)) +
+        scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75)
+        # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"),
+              axis.text.y = element_text(size=font.size, colour = "black"),
+              axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12),
+              axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12),
+              legend.text=element_text(size=font.size),
+              plot.title = element_text(size=font.size+10)) +
+        scale_x_discrete(limits = cohorts.sorted) +
+        scale_y_discrete(limits = terms.sorted) +
+        labs(title = db.title, x = "", y = "") +
+        guides(fill = guide_colourbar(barwidth = 30, barheight = 7)) +
+        guides(color = guide_legend(title.position = "top",
+                                    title.hjust = 0.5,
+                                    label.position = "left")) +
+    ## Add a border to avoid trunked axis legends
+      theme(
+        panel.background = element_rect(fill = "white"),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+        plot.background = element_rect(
+          fill = "#fefefe",
+          colour = "white",
+          size = 1))
+}
+
+enriched.terms.gg <- plot_grid(heatmap.GSEA.list[[db3]],
+                               heatmap.GSEA.list[[db1]],
+                               heatmap.GSEA.list[[db2]],
+                               nrow = 2, align = "hv", labels = c('A)', 'B)', 'C)', ''), label_size = 150,
+                               label_colour = "black", hjust = -7, vjust = 1,
+                               rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1))
+
+## Combine plots
+enriched.terms.gg
+
+rm(heatmap.GSEA.list)
+rm(enriched.terms.gg)
+```
+\end{landscape}
+
+
+
+\pagebreak
+```{r Survival_BCSS, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Breast cancer specific survival (BCSS, y-axis) plots for selected miRNAs. Kaplan-Meier survival curves were calculated using the METABRIC cohort. Samples were separated into two groups according to the level of miRNA expression (above/below the median).", fig.height = 30, fig.width = 25, fig.align = "center"}
+
+# setwd("/home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Supp_Material")
+load("Survival_plots/BCSS_survival_plots.RData") ## selected.mirnas.bcss.plot
+# names(selected.mirnas.bcss.plot)
+
+bcss.examples <-
+suppressWarnings(
+plot_grid(selected.mirnas.bcss.plot[["hsa-mir-29a-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-1290"]],
+          selected.mirnas.bcss.plot[["hsa-mir-21-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-181c-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-342-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-145-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-145-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-18a-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-615-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-708-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-29a-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-20a-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-1247-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-17-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-10a-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-92a-1-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-17-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-155-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-339-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-378a-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-21-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-708-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-30b-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-342-3p"]],
+          nrow = 5)
+)
+
+bcss.examples +
+      theme(
+    panel.background = element_rect(fill = NA, colour = "#fefefe"),
+    plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
+    plot.background = element_rect(
+      fill = NA,
+      colour = NA,
+      size = 1
+    )
+  )
+
+```
+
+
+\pagebreak
+```{r Survival_OS, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Overall survival (OS, y-axis) plots for selected miRNAs. Kaplan-Meier survival curves were calculated using the METABRIC cohort. Samples were separated into two groups according to the level of miRNA expression (above/below the median).", fig.height = 32, fig.width = 25, fig.align = "center"}
+
+load("Survival_plots/OS_survival_plots.RData") ## selected.mirnas.os.plot
+
+os.examples <-
+suppressWarnings(
+plot_grid(
+  selected.mirnas.os.plot[["hsa-mir-20a-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-29a-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-145-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-1290"]],
+  selected.mirnas.os.plot[["hsa-mir-21-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-181c-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-92a-1-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-145-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-342-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-342-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-155-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-708-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-21-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-10a-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-30b-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-615-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-17-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-18a-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-339-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-17-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-29a-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-1247-5p"]],
+  selected.mirnas.os.plot[["hsa-mir-378a-3p"]],
+  selected.mirnas.os.plot[["hsa-mir-708-3p"]],
+          nrow = 6)
+)
+
+suppressWarnings(
+os.examples +
+      theme(
+    panel.background = element_rect(fill = NA, colour = "#fefefe"),
+    plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
+    plot.background = element_rect(
+      fill = NA,
+      colour = NA,
+      size = 1
+    )
+  )
+)
+```
+
+
+
+
+
+<!-- To check: 10-12-2021 -->
+
+
 
 
 \pagebreak
@@ -1170,295 +1476,3 @@ rm(enriched.terms.gg)
 
 ```
 \end{landscape}
-
-
-
-                                
-                                      
-                                      
-\pagebreak
-```{r Predicted_genes_breast_cancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Predicted protein-coding genes in the BASIS cohort using all samples, ER+ samples and ER- samples, and in the TCGA BRCA-US cohort (columns). Predictions were obtained applying the xseq tool on each dataset independently considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "650px", out.height="530px", fig.align = "center"}
-
-knitr::include_graphics("BASIS_vs_TCGA/BRCA_predicted_genes.jpeg", dpi = 100)
-```
-
-
-
-\pagebreak
-\begin{landscape}
-```{r FEA_breast_cancer_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted protein-coding genes in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A), WikiPathways (B), Panther (C), and KEGG (D). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 75, fig.width = 115, fig.align = "center"}
-
-## From: /storage/mathelierarea/processed/jamondra/Projects/dysmir/R_scripts/BASIS/Heatmap_enriched_terms_breast_cancer.R
-
-
-load("BASIS_vs_TCGA/RData/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list
-
-db1 <- "KEGG_2019_Human"
-db2 <- "WikiPathways_2019_Human"
-db3 <- "Panther_2016"
-db4 <- "GO_Biological_Process_2018"
-DBs <- c(db1, db2, db3, db4)
-
-db <- names(heatmap.GSEA.axis.list)
-font.size <- 80
-mt <- c("PCG.TFBS")
-heatmap.GSEA.list <- list()
-for(db in DBs){
-
-  fea.df <- heatmap.GSEA.axis.list[[db]][[mt]][["df"]]
-
-  cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[mt]][["x_axis"]]
-  terms.sorted <- heatmap.GSEA.axis.list[[db]][[mt]][["y_axis"]]
-
-  db.title <- NULL
-  if(db == "KEGG_2019_Human"){
-    db.title <- "KEGG"
-  }
-  if(db == "WikiPathways_2019_Human"){
-    db.title <- "WikiPathways"
-    }
-  if(db == "Panther_2016"){
-    db.title <- "Panther"
-  }
-  if(db == "GO_Biological_Process_2018"){
-    db.title <- "GO_BP"
-  }
-
-  heatmap.GSEA.list[[db]] <-
-    ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) +
-        geom_tile(width = 0.95, height = 0.95) +
-        # coord_equal() +
-        theme_bw() +
-        theme(legend.position = "bottom", legend.title=element_text(size=font.size)) +
-        scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75)
-        # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"),
-              axis.text.y = element_text(size=font.size, colour = "black"),
-              axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12),
-              axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12),
-              legend.text=element_text(size=font.size),
-              plot.title = element_text(size=font.size+10)) +
-        scale_x_discrete(limits = cohorts.sorted) +
-        scale_y_discrete(limits = terms.sorted) +
-        labs(title = db.title, x = "", y = "") +
-        guides(fill = guide_colourbar(barwidth = 30, barheight = 7)) +
-        guides(color = guide_legend(title.position = "top",
-                                    title.hjust = 0.5,
-                                    label.position = "left")) +
-    ## Add a border to avoid trunked axis legends
-      theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
-}
-
-
-# font.size <- 1
-# null.hm <- ggplot(mtcars, aes(x=cyl)) +
-#             geom_bar() +
-#             theme(legend.position = "none")
-
-
-enriched.terms.gg <- plot_grid(heatmap.GSEA.list[[db4]],
-                               heatmap.GSEA.list[[db2]],
-                               heatmap.GSEA.list[[db3]],
-                               heatmap.GSEA.list[[db1]],
-                               nrow = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)'), label_size = 150,
-                               label_colour = "black", hjust = -7, vjust = 2,
-                               rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1))
-
-## Combine plots
-enriched.terms.gg
-
-rm(heatmap.GSEA.list)
-rm(enriched.terms.gg)
-```
-
-
-```{r FEA_breast_cancer_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated target genes of predicted miRNAs in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A), WikiPathways (B), and Panther (C). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 70, fig.width = 115, fig.align = "center"}
-
-## From: /storage/mathelierarea/processed/jamondra/Projects/dysmir/R_scripts/BASIS/Heatmap_enriched_terms_breast_cancer.R
-
-
-load("BASIS_vs_TCGA/RData/GSEA_enrichment_pancancer_heatmap_ordered_labels.RData")  ## heatmap.GSEA.axis.list
-
-## No KEGG for miRNAs
-db1 <- "WikiPathways_2019_Human"
-db2 <- "Panther_2016"
-db3 <- "GO_Biological_Process_2018"
-DBs <- c(db1, db2, db3)
-
-db <- names(heatmap.GSEA.axis.list)
-font.size <- 80
-mt <- c("premiRNA.TFBS")
-heatmap.GSEA.list <- list()
-for(db in DBs){
-
-  fea.df <- heatmap.GSEA.axis.list[[db]][[mt]][["df"]]
-
-  cohorts.sorted <- heatmap.GSEA.axis.list[[db]][[mt]][["x_axis"]]
-  terms.sorted <- heatmap.GSEA.axis.list[[db]][[mt]][["y_axis"]]
-
-  db.title <- NULL
-  if(db == "KEGG_2019_Human"){
-    db.title <- "KEGG"
-  }
-  if(db == "WikiPathways_2019_Human"){
-    db.title <- "WikiPathways"
-    }
-  if(db == "Panther_2016"){
-    db.title <- "Panther"
-  }
-  if(db == "GO_Biological_Process_2018"){
-    db.title <- "GO_BP"
-  }
-
-  heatmap.GSEA.list[[db]] <-
-    ggplot(fea.df, aes(x = Cohort, y = Term, fill = Significance)) +
-        geom_tile(width = 0.95, height = 0.95) +
-        # coord_equal() +
-        theme_bw() +
-        theme(legend.position = "bottom", legend.title=element_text(size=font.size)) +
-        scale_fill_viridis_c(option = "A",direction = -1, breaks = floor(seq(0, max(fea.df$Significance), length.out = 4)), limits = c(0, max(fea.df$Significance))) + # limits = c(0, 75)
-        # scale_fill_distiller(palette = "PuRd", direction = +1, breaks = gg.breaks) +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust=1, size=font.size, colour= "black"),
-              axis.text.y = element_text(size=font.size, colour = "black"),
-              axis.title.y = element_text(size=font.size,colour = "black",vjust=0.12),
-              axis.title.x = element_text(size=font.size,colour = "black",vjust=0.12),
-              legend.text=element_text(size=font.size),
-              plot.title = element_text(size=font.size+10)) +
-        scale_x_discrete(limits = cohorts.sorted) +
-        scale_y_discrete(limits = terms.sorted) +
-        labs(title = db.title, x = "", y = "") +
-        guides(fill = guide_colourbar(barwidth = 30, barheight = 7)) +
-        guides(color = guide_legend(title.position = "top",
-                                    title.hjust = 0.5,
-                                    label.position = "left")) +
-    ## Add a border to avoid trunked axis legends
-      theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
-}
-
-enriched.terms.gg <- plot_grid(heatmap.GSEA.list[[db3]],
-                               heatmap.GSEA.list[[db1]],
-                               heatmap.GSEA.list[[db2]],
-                               nrow = 2, align = "hv", labels = c('A)', 'B)', 'C)', ''), label_size = 150,
-                               label_colour = "black", hjust = -7, vjust = 1,
-                               rel_heights = c(1, 1, 1,1), rel_widths = c(1, 1, 1,1))
-
-## Combine plots
-enriched.terms.gg
-
-rm(heatmap.GSEA.list)
-rm(enriched.terms.gg)
-```
-\end{landscape}
-
-
-
-\pagebreak
-```{r Survival_BCSS, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Breast cancer specific survival (BCSS, y-axis) plots for selected miRNAs. Kaplan-Meier survival curves were calculated using the METABRIC cohort. Samples were separated into two groups according to the level of miRNA expression (above/below the median).", fig.height = 30, fig.width = 25, fig.align = "center"}
-
-# setwd("/home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Supp_Material")
-load("Survival_plots/BCSS_survival_plots.RData") ## selected.mirnas.bcss.plot
-# names(selected.mirnas.bcss.plot)
-
-bcss.examples <-
-suppressWarnings(
-plot_grid(selected.mirnas.bcss.plot[["hsa-mir-29a-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-1290"]],
-          selected.mirnas.bcss.plot[["hsa-mir-21-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-181c-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-342-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-145-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-145-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-18a-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-615-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-708-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-29a-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-20a-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-1247-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-17-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-10a-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-92a-1-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-17-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-155-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-339-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-378a-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-21-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-708-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-30b-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-342-3p"]],
-          nrow = 5)
-)
-
-bcss.examples +
-      theme(
-    panel.background = element_rect(fill = NA, colour = "#fefefe"),
-    plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-    plot.background = element_rect(
-      fill = NA,
-      colour = NA,
-      size = 1
-    )
-  )
-
-```
-
-
-\pagebreak
-```{r Survival_OS, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Overall survival (OS, y-axis) plots for selected miRNAs. Kaplan-Meier survival curves were calculated using the METABRIC cohort. Samples were separated into two groups according to the level of miRNA expression (above/below the median).", fig.height = 32, fig.width = 25, fig.align = "center"}
-
-load("Survival_plots/OS_survival_plots.RData") ## selected.mirnas.os.plot
-
-os.examples <-
-suppressWarnings(
-plot_grid(
-  selected.mirnas.os.plot[["hsa-mir-20a-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-29a-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-145-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-1290"]],
-  selected.mirnas.os.plot[["hsa-mir-21-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-181c-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-92a-1-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-145-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-342-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-342-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-155-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-708-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-21-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-10a-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-30b-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-615-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-17-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-18a-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-339-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-17-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-29a-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-1247-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-378a-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-708-3p"]],
-          nrow = 6)
-)
-
-suppressWarnings(
-os.examples +
-      theme(
-    panel.background = element_rect(fill = NA, colour = "#fefefe"),
-    plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-    plot.background = element_rect(
-      fill = NA,
-      colour = NA,
-      size = 1
-    )
-  )
-)
-```
