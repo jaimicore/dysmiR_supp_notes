@@ -50,9 +50,12 @@ suppressPackageStartupMessages(library(ggnetwork))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(ggrepel))
 
 pdf.options(encoding = 'ISOLatin2')
 options(device = "cairo_pdf")
+
+cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC")
 
 
 ## Custom
@@ -363,7 +366,6 @@ suppressMessages(tfbs.vs.exon.mutations )
 \pagebreak
 ```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts, genes that could not be connected are not shown. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"}
 
-cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC")
 
 net.list <- vector(mode = "list", length = length(cohorts))
 for (co in cohorts) {
@@ -1188,6 +1190,94 @@ os.examples +
 
 
 
+\pagebreak
+```{r Ratio_mutated_vs_selected, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Ratio of dysregulated vs mutated samples. Each panel represents a cohort with all the evaluated genes ranked by the DAC probability. The color of each gene corresponds to the ratio between the number of samples with SSD >= 0.5 (i.e., with high association of dysregulation) divided by the number of mutated samples. The black line corresponds to the cohort-specific threshold defined by FDR of 0.05.", fig.height = 32, fig.width = 25, fig.align = "center"}
+
+
+xseq.th <- list('BRCA-US'   = 0.5,
+                'HNSC-US'   = 0.9999984,
+                'LIHC-US'   = 0.9990923,
+                'LUAD-US'   = 0.9999987,
+                'LUSC-US'   = 0.9999835,
+                'STAD-US'   = 0.9999981,
+                'UCEC-US'   = 0.9999773,
+                "BASIS_All" = 0.5,
+                "BASIS_ER+" = 0.5,
+                "BASIS_ER-" = 0.9837910)
+
+
+cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
+
+
+rank.plot.list <- vector(mode = "list", length = length(cohorts))
+for (co in cohorts.all) {
+  
+  if (!grepl(co, pattern = "BASIS")) {
+    co <- paste0(co, "-US")
+    
+    load(paste0("xseq_results/xseq_trans_premiRNA_all_mutation_types_all_effects_", co, "_mirna_network_targetScanClean.Rdata")) ## xseq.pred.all.concat
+    
+  } else {
+    
+    load(paste0("xseq_results/", co, "_miRNA.Rdata"))
+    
+  }
+  
+  
+
+  
+  xseq.pred.mirna <- xseq.pred.all.concat %>% 
+                    select(sample, gene, prob_mut, prob_gene) %>% 
+                    distinct() %>% 
+                    group_by(gene, prob_gene) %>% 
+                    summarise(N_mutated_samples  = n(),
+                              N_selected_samples = sum(prob_mut >= 0.5)) %>% 
+                    mutate(Ratio = N_selected_samples/N_mutated_samples,
+                           Lab   = ifelse(prob_gene >= xseq.th[[co]], yes = gene, no = "")) %>% 
+                    arrange(desc(prob_gene))
+xseq.pred.mirna$Rank <- seq_len(nrow(xseq.pred.mirna))
+xseq.pred.mirna$Lab  <- gsub(xseq.pred.mirna$Lab, pattern = "::.+$", replacement = "", perl = T)
+
+
+rank.plot <- ggplot(xseq.pred.mirna, aes(y = prob_gene, x = Rank, colour = Ratio, size = N_mutated_samples, label = gene)) +
+                geom_line(data = xseq.pred.mirna, aes(x = Rank, y = prob_gene), inherit.aes = F, color = '#9ecae1', alpha = 0.35) + 
+                geom_hline(yintercept = xseq.th[[co]]) +
+                geom_point(shape = 20) +
+                theme_bw() +
+                ylim(c(0, 1)) +
+                labs(x = "Rank", y = "DAC probability", title = co) +
+                geom_label_repel(aes(label = Lab),
+                                 box.padding = 0.1,
+                                 direction = "both", 
+                                 force = 40,
+                                 max.overlaps = 30,
+                                 size = 2.5,
+                                 color = "black",
+                                 max.iter = 20000,
+                                 segment.color = '#d9d9d9')
+
+rank.plot.list[[co]] <- rank.plot
+  
+}
+
+ranks.w.ratio.selected.mut <- plot_grid(rank.plot.list[["BASIS_All"]],
+                                        rank.plot.list[["BASIS_ER+"]],
+                                        rank.plot.list[["BASIS_ER-"]],
+                                        rank.plot.list[["BRCA-US"]],
+                                        rank.plot.list[["HNSC-US"]],
+                                        rank.plot.list[["LIHC-US"]],
+                                        rank.plot.list[["LUAD-US"]],
+                                        rank.plot.list[["LUSC-US"]],
+                                        rank.plot.list[["STAD-US"]],
+                                        rank.plot.list[["UCEC-US"]],
+                                        NULL,
+                                        ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)', "H)", "I)", "J)"), label_size = 30,
+                                        label_colour = "black", hjust = 0, vjust = 1.3,
+                                        rel_heights = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+
+
+ranks.w.ratio.selected.mut
+```
 
 
 <!-- To check: 10-12-2021 -->
