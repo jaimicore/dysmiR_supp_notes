@@ -165,6 +165,23 @@ rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamon
 
 
 
+###################
+##  ##
+###########
+mkdir xseq_results ;
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/ICGC/results_ICGC/*-US/premiRNA/xseq/trans/RData/xseq_trans_premiRNA_all_mutation_types_all_effects_*-US_mirna_network_targetScanClean.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_results/
+
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/All/miRNA/xseq/trans/targetScan_clean_nb_conn_100_minW_0.8_minscore_0.8/tables/xseq_trans_miRNA_all_mutation_types_all_effects_BASIS_network_targetScan_clean.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_results/BASIS_All_miRNA.Rdata
+
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/ER+/miRNA/xseq/trans/targetScan_clean_nb_conn_100_minW_0.8_minscore_0.8/tables/xseq_trans_miRNA_all_mutation_types_all_effects_BASIS_network_targetScan_clean.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_results/BASIS_ER+_miRNA.Rdata
+
+
+rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/BASIS/results_436_samples/ER-/miRNA/xseq/trans/targetScan_clean_nb_conn_100_minW_0.8_minscore_0.8/tables/xseq_trans_miRNA_all_mutation_types_all_effects_BASIS_network_targetScan_clean.Rdata /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscripts/dysmiR/dysmiR_supp_notes/xseq_results/BASIS_ER-_miRNA.Rdata
+
+
 
 
 ###############
