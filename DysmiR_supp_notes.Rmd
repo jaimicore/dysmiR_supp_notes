@@ -1611,7 +1611,7 @@ TF.genes              <- xseq.sup.mat.tab$Human_TF_names
 
 
 ## A subset with only the TFBS associated to the genes analyzed by xseq across the cohorts
-TFBS.xseq.analyzed.genes <- all.associated.features.tab %>% 
+TFBS.xseq.analyzed.genes.tfbs <- all.associated.features.tab %>% 
                               filter(Associated_gene %in% xseq.analyzed.genes) %>% 
                               distinct()
 
@@ -1624,20 +1624,20 @@ TFBS.xseq.analyzed.genes <- all.associated.features.tab %>%
 #                               mutate(Predicted_gene = ifelse(Associated_gene %in% predicted.genes.pancancer, yes = "Predicted", no = "Non-predicted"))
 
 
-Nb.TFBSs.per.gene <- TFBS.xseq.analyzed.genes %>% 
+Nb.TFBSs.per.pcg <- TFBS.xseq.analyzed.genes.tfbs %>% 
                         distinct() %>% 
                         group_by(Associated_gene) %>% 
                         summarise(Nb_TFBS = n(), .groups = "drop") %>% 
                         arrange(desc(Nb_TFBS))
 
-Nb.TFBSs.per.gene$Predicted     <- ifelse(Nb.TFBSs.per.gene$Associated_gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
+Nb.TFBSs.per.pcg$Predicted     <- ifelse(Nb.TFBSs.per.pcg$Associated_gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
 
-Nb.TFBSs.per.gene$Non_Predicted <- ifelse(!Nb.TFBSs.per.gene$Associated_gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
-Nb.TFBSs.per.gene$Cancer <- ifelse(Nb.TFBSs.per.gene$Associated_gene %in% reported.cancer.genes, yes = "Cancer gene", no = "")
-Nb.TFBSs.per.gene$TF <- ifelse(Nb.TFBSs.per.gene$Associated_gene %in% TF.genes, yes = "TF", no = "")
+Nb.TFBSs.per.pcg$Non_Predicted <- ifelse(!Nb.TFBSs.per.pcg$Associated_gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
+Nb.TFBSs.per.pcg$Cancer <- ifelse(Nb.TFBSs.per.pcg$Associated_gene %in% reported.cancer.genes, yes = "Cancer gene", no = "")
+Nb.TFBSs.per.pcg$TF <- ifelse(Nb.TFBSs.per.pcg$Associated_gene %in% TF.genes, yes = "TF", no = "")
 
 
-Nb.TFBSs.per.gene.classes <- reshape2::melt(Nb.TFBSs.per.gene,
+Nb.TFBSs.per.pcg.classes <- reshape2::melt(Nb.TFBSs.per.pcg,
                                id.vars = c("Nb_TFBS", "Associated_gene"),
                                measure.vars = c("Predicted", "Non_Predicted", "Cancer", "TF")) %>% 
                       filter(value != "") %>% 
@@ -1646,7 +1646,7 @@ Nb.TFBSs.per.gene.classes <- reshape2::melt(Nb.TFBSs.per.gene,
 
 
 ## Plot 1: ECDF
-TFBS.distr.ecdf.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = Nb_TFBS, colour = Class)) +
+TFBS.distr.ecdf.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = Nb_TFBS, colour = Class)) +
         stat_ecdf(size = 1.15, pad = FALSE) +
         theme_bw() +
         scale_color_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) + 
@@ -1655,7 +1655,7 @@ TFBS.distr.ecdf.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = Nb_TFBS, colou
 
 
 ## Plot 2: histogram with real values
-TFBS.distr.hist.real.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = Nb_TFBS, fill = Class)) +
+TFBS.distr.hist.real.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = Nb_TFBS, fill = Class)) +
         geom_histogram(binwidth = 50, position = "identity") +
         scale_fill_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) +
         theme_bw() +
@@ -1665,7 +1665,7 @@ TFBS.distr.hist.real.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = Nb_TFBS, 
 
 
 ## Plot 3: histogram with log2 transformed values
-TFBS.distr.hist.log2.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = log2(Nb_TFBS), fill = Class)) +
+TFBS.distr.hist.log2.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = log2(Nb_TFBS), fill = Class)) +
         geom_histogram(binwidth = 0.1, position = "identity") +
         scale_fill_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) +
         theme_bw() +
@@ -1673,7 +1673,7 @@ TFBS.distr.hist.log2.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = log2(Nb_T
 
 
 ## Plot 4: histogram with log10 transformed values
-TFBS.distr.hist.log10.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = log10(Nb_TFBS), fill = Class)) +
+TFBS.distr.hist.log10.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = log10(Nb_TFBS), fill = Class)) +
         geom_histogram(binwidth = 0.1, position = "identity") +
         scale_fill_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) +
         theme_bw() +
@@ -1682,8 +1682,8 @@ TFBS.distr.hist.log10.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = log10(Nb
 
 
 
-# predicted.TFBS.values <- subset(Nb.TFBSs.per.gene, Predicted_gene == "Predicted")$Nb_TFBS
-# non.predicted.TFBS.values <- subset(Nb.TFBSs.per.gene, Predicted_gene == "Non-predicted")$Nb_TFBS
+# predicted.TFBS.values <- subset(Nb.TFBSs.per.pcg, Predicted_gene == "Predicted")$Nb_TFBS
+# non.predicted.TFBS.values <- subset(Nb.TFBSs.per.pcg, Predicted_gene == "Non-predicted")$Nb_TFBS
 
 # predicted.TFBS.values     <- log10(predicted.TFBS.values)
 # non.predicted.TFBS.values <- log10(non.predicted.TFBS.values)
@@ -1711,21 +1711,21 @@ TFBS.distr.hist.log10.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = log10(Nb
 ```{r Nb_connections_per_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Distribution of number of associated TFBSs (A and B) and number of targets in the regulatory network (C and D) among predicted, non-predicted, TFs and cancer-related protein-coding genes represented as Cumulative Distribution Function and Histogram of frequencies. The maximum number of targets of each protein-coding gene in the regulatory network was restricted to 1000.", fig.height = 10, fig.width = 10, fig.align = "center"}
 
 ## Genes in the network that were analyzed by xseq
-xseq.net.ppi.analyzed.genes <- xseq.net.ppi %>% 
+Nb.targets.per.pcg <- xseq.net.ppi %>% 
                                 filter(Gene %in% xseq.analyzed.genes) %>% 
                                 group_by(Gene) %>% 
                                 summarise(Nb_target = n(), .groups = "drop") %>% 
                                 arrange(desc(Nb_target))
 
 
-xseq.net.ppi.analyzed.genes$Predicted     <- ifelse(xseq.net.ppi.analyzed.genes$Gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
-xseq.net.ppi.analyzed.genes$Non_Predicted <- ifelse(!xseq.net.ppi.analyzed.genes$Gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
-xseq.net.ppi.analyzed.genes$Cancer        <- ifelse(xseq.net.ppi.analyzed.genes$Gene %in% reported.cancer.genes, yes = "Cancer gene", no = "")
-xseq.net.ppi.analyzed.genes$TF            <- ifelse(xseq.net.ppi.analyzed.genes$Gene %in% TF.genes, yes = "TF", no = "")
+Nb.targets.per.pcg$Predicted     <- ifelse(Nb.targets.per.pcg$Gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
+Nb.targets.per.pcg$Non_Predicted <- ifelse(!Nb.targets.per.pcg$Gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
+Nb.targets.per.pcg$Cancer        <- ifelse(Nb.targets.per.pcg$Gene %in% reported.cancer.genes, yes = "Cancer gene", no = "")
+Nb.targets.per.pcg$TF            <- ifelse(Nb.targets.per.pcg$Gene %in% TF.genes, yes = "TF", no = "")
 
 
 
-xseq.net.ppi.analyzed.genes.classes <- reshape2::melt(xseq.net.ppi.analyzed.genes,
+Nb.targets.per.pcg.classes <- reshape2::melt(Nb.targets.per.pcg,
                                         id.vars = c("Gene", "Nb_target"),
                                         measure.vars = c("Predicted", "Non_Predicted", "Cancer", "TF")) %>% 
                                         filter(value != "") %>% 
@@ -1734,7 +1734,7 @@ xseq.net.ppi.analyzed.genes.classes <- reshape2::melt(xseq.net.ppi.analyzed.gene
 
 
 ## Plot 1: ECDF
-conn.distr.ecdf.plot <- ggplot(xseq.net.ppi.analyzed.genes.classes, aes(x = Nb_target, colour = Class)) +
+conn.distr.ecdf.plot <- ggplot(Nb.targets.per.pcg.classes, aes(x = Nb_target, colour = Class)) +
         stat_ecdf(size = 1.15, pad = FALSE) +
         theme_bw() +
         scale_color_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) + 
@@ -1743,7 +1743,7 @@ conn.distr.ecdf.plot <- ggplot(xseq.net.ppi.analyzed.genes.classes, aes(x = Nb_t
 
 
 ## Plot 2: histogram with real values
-conn.distr.hist.real.plot <- ggplot(xseq.net.ppi.analyzed.genes.classes, aes(x = Nb_target, fill = Class)) +
+conn.distr.hist.real.plot <- ggplot(Nb.targets.per.pcg.classes, aes(x = Nb_target, fill = Class)) +
         geom_histogram(binwidth = 25, position = "identity") +
         scale_fill_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) +
         theme_bw() +
@@ -1984,7 +1984,7 @@ enriched.terms.gg <- plot_grid(TFBS.distr.ecdf.plot,
                                conn.distr.hist.real.plot,
                                ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)'), label_size = 13,
                                label_colour = "black", hjust = -0.25, vjust = 1.15,
-                               rel_heights = c(1, 1, 1, 1), rel_widths = c(1, 1, 1, 1),
+                               rel_heights = c(1, 1, 1, 1), rel_widths = c(1.5, 1, 1.5, 1),
                                axis = "right")
 
 ## Combine plots
@@ -1995,22 +1995,43 @@ enriched.terms.gg
 
 ```{r Corr, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="A", fig.height = 10, fig.width = 8, fig.align = "center"}
 
-# xseq.net.ppi.analyzed.genes.classes <- xseq.net.ppi.analyzed.genes.classes %>%
-#                                         rename(Value = Nb_target) %>%
-#                                         mutate(Type = "Nb_Targets")
-# 
-# Nb.TFBSs.per.gene.classes <- Nb.TFBSs.per.gene.classes %>%
-#                               rename(Gene  = Associated_gene,
-#                                      Value = Nb_TFBS) %>%
-#                               select(Gene, Value, Class) %>%
-#                               mutate(Type = "Nb_TFBS")
-# 
-# 
-# xseq.net.ppi.analyzed.genes.classes %>% head()
-# Nb.TFBSs.per.gene.classes %>% head()
-# 
-# aa <- rbind(xseq.net.ppi.analyzed.genes.classes, Nb.TFBSs.per.gene.classes)
-# aa %>% arrange(desc(Gene)) %>% head(10)
+analyzed.pcg.summary <- Nb.targets.per.pcg %>% 
+                          select(Gene, Nb_target, Predicted) %>% 
+                          rename(Associated_gene = Gene) %>% 
+                          left_join(Nb.TFBSs.per.pcg, by = "Associated_gene") %>% 
+                          rename(Predicted = Predicted.x,
+                                 Gene      = Associated_gene) %>% 
+                          select(Gene, Nb_target, Nb_TFBS, Predicted, Cancer, TF) %>% 
+                          mutate(Predicted = ifelse(Predicted == "", yes = "Non-Predicted", no = Predicted))
+
+
+## The following variables have the analyzed and predicted gene in each cohort 
+## genes.in.cohort.list
+## selected.genes.list
+aa <- sapply(genes.in.cohort.list, data.frame)
+names(aa) <- names(genes.in.cohort.list)
+bb <- aa[11:20] ## 1-10 entries are NULL
+names(bb)
+
+
+## 
+for (cn in names(bb)) {
+  
+  colnames(bb[[cn]]) <- cn
+  bb[[cn]]$Predicted <-   ifelse(bb[[cn]][[1]] %in% selected.genes.list[[cn]], yes = "Predicted", no = "Non-Predicted")
+  
+}
+
+## Generate a Scatter plot + Marginal with each cohort 
+
+p2 <- ggplot(analyzed.pcg.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = cols.point) +
+  theme(legend.position = "bottom") 
+
+library(ggExtra)
+ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
 
 ```
 
