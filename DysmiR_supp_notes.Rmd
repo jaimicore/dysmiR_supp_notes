@@ -35,22 +35,24 @@ header-includes:
 ```{r setup, include=FALSE, cache=TRUE, echo=FALSE, eval=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 suppressPackageStartupMessages(library(bookdown))
+suppressPackageStartupMessages(library(Cairo))
 suppressPackageStartupMessages(library(ComplexHeatmap))
 suppressPackageStartupMessages(library(cowplot))
-suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(UpSetR))
-suppressPackageStartupMessages(library(scales))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(emojifont))
-suppressPackageStartupMessages(library(Cairo))
-suppressPackageStartupMessages(library(leaflet))
+suppressPackageStartupMessages(library(GGally))
+suppressPackageStartupMessages(library(ggExtra))
+suppressPackageStartupMessages(library(ggnetwork))
+suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggplotify))
 suppressPackageStartupMessages(library(ggpubr))
-suppressPackageStartupMessages(library(ggsignif))
-suppressPackageStartupMessages(library(ggnetwork))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(tidyr))
-suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(ggrepel))
+suppressPackageStartupMessages(library(ggsignif))
+suppressPackageStartupMessages(library(leaflet))
+suppressPackageStartupMessages(library(scales))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(UpSetR))
 suppressPackageStartupMessages(library(xseq))
 
 
@@ -201,7 +203,6 @@ load("Nb_connections_per_gene/targetScan_clean_miRNA-mRNA_network.Rdata") ## net
 xseq.net.mirna <- network.to.export
 xseq.net.mirna <- FilterNetwork(xseq.net.mirna, max.num.conn = 100, min.conn.strength = 0.8)
 xseq.net.mirna <- xseq.net.to.df(xseq.net.mirna)
-
 
 
 # Laptop -> Biotin
@@ -1573,6 +1574,7 @@ cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
 
 selected.genes.list  <- vector(mode = "list", length = length(cohorts.all))
 genes.in.cohort.list <- vector(mode = "list", length = length(cohorts.all))
+Nb.mut.samples.pcg   <- list()
 
 for (co in cohorts.all) {
   
@@ -1594,6 +1596,14 @@ for (co in cohorts.all) {
                     select(sample, gene, prob_mut, prob_gene) %>% 
                     distinct() %>% 
                     arrange(desc(prob_gene)) 
+  
+  
+  Nb.mut.samples.pcg[[co]] <- xseq.pred.pcg %>% 
+                                group_by(gene) %>% 
+                                summarise(Nb_samples = n()) %>% 
+                                arrange(desc(Nb_samples)) %>% 
+                                rename(Gene = gene) %>% 
+                                mutate(Cohort = co)
   
   
   genes.in.cohort.list[[co]] <- unique(xseq.pred.pcg$gene)
@@ -1773,6 +1783,7 @@ cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
 
 selected.miRNA.list  <- vector(mode = "list", length = length(cohorts.all))
 miRNA.in.cohort.list <- vector(mode = "list", length = length(cohorts.all))
+Nb.mut.samples.mirna <- list()
 
 for (co in cohorts.all) { 
 
@@ -1791,6 +1802,27 @@ for (co in cohorts.all) {
                       select(sample, gene, prob_mut, prob_gene) %>% 
                       distinct() %>% 
                       arrange(desc(prob_gene)) 
+  
+  
+  
+      Nb.mut.samples.mirna[[co]] <- xseq.pred.mirna %>% 
+                                group_by(gene) %>% 
+                                summarise(Nb_samples = n()) %>% 
+                                arrange(desc(Nb_samples)) %>% 
+                                rename(Gene = gene) %>% 
+                                mutate(Cohort = co)
+      
+  if (grepl(co, pattern = "BASIS")) {
+      Nb.mut.samples.mirna[[co]] <- merge(Nb.mut.samples.mirna[[co]], mirna.premirna.dict,
+                                          by.x = "Gene",
+                                          by.y = "miR",
+                                          allow.cartesian = TRUE) %>% 
+                                    select(mature_ID, Nb_samples, Cohort) %>% 
+                                    rename(Gene = mature_ID) %>% 
+                                    tibble()
+    
+  }
+
   
   
   miRNA.in.cohort.list[[co]] <- unique(xseq.pred.mirna$gene)
@@ -1877,9 +1909,9 @@ Nb.TFBSs.per.miRNA$miRNA <- ifelse(Nb.TFBSs.per.miRNA$Associated_gene %in% miRNA
 Nb.TFBSs.per.miRNA.classes <- reshape2::melt(Nb.TFBSs.per.miRNA,
                                 id.vars = c("Nb_TFBS", "Associated_gene"),
                                 measure.vars = c("Predicted", "Non_Predicted", "Cancer", "miRNA")) %>% 
-                              filter(value != "") %>% 
-                              within(rm(variable)) %>% 
-                              rename(Class = value)
+                                filter(value != "") %>% 
+                                within(rm(variable)) %>% 
+                                rename(Class = value)
 
 cols <- c("Cancer miRNA" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "miRNA" = "#d95f02")
 
@@ -1993,7 +2025,12 @@ enriched.terms.gg
 
 
 
-```{r Corr, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="A", fig.height = 10, fig.width = 8, fig.align = "center"}
+```{r Corr_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Number of TFBS and targets of predicted and non-predicted protein-coding genes.", fig.height = 10, fig.width = 8, fig.align = "center"}
+
+analyzed.genes.cohort.list <- sapply(genes.in.cohort.list, data.frame)
+names(analyzed.genes.cohort.list) <- names(genes.in.cohort.list)
+analyzed.genes.cohort.list <- analyzed.genes.cohort.list[11:20] ## 1-10 entries are NULL
+# names(analyzed.genes.cohort.list)
 
 analyzed.pcg.summary <- Nb.targets.per.pcg %>% 
                           select(Gene, Nb_target, Predicted) %>% 
@@ -2004,25 +2041,9 @@ analyzed.pcg.summary <- Nb.targets.per.pcg %>%
                           select(Gene, Nb_target, Nb_TFBS, Predicted, Cancer, TF) %>% 
                           mutate(Predicted = ifelse(Predicted == "", yes = "Non-Predicted", no = Predicted))
 
-
-## The following variables have the analyzed and predicted gene in each cohort 
-## genes.in.cohort.list
-## selected.genes.list
-aa <- sapply(genes.in.cohort.list, data.frame)
-names(aa) <- names(genes.in.cohort.list)
-bb <- aa[11:20] ## 1-10 entries are NULL
-names(bb)
+cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
 
 
-## 
-for (cn in names(bb)) {
-  
-  colnames(bb[[cn]]) <- cn
-  bb[[cn]]$Predicted <-   ifelse(bb[[cn]][[1]] %in% selected.genes.list[[cn]], yes = "Predicted", no = "Non-Predicted")
-  
-}
-
-## Generate a Scatter plot + Marginal with each cohort 
 
 p2 <- ggplot(analyzed.pcg.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
   geom_point() +
@@ -2030,12 +2051,262 @@ p2 <- ggplot(analyzed.pcg.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Pred
   scale_color_manual(values = cols.point) +
   theme(legend.position = "bottom") 
 
-library(ggExtra)
+ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
+```
+
+
+
+```{r eCDF_plot1_pcg, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in protein-coding genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
+
+analyzed.pcg.cohorts.summary <- lapply(Nb.mut.samples.pcg, function(l){
+                                  merge(l, analyzed.pcg.summary, by = "Gene") %>% 
+                                  reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
+                                                 measure.vars = c("Predicted", "Cancer", "TF")) %>% 
+                                                 filter(value != "") %>% 
+                                                 within(rm(variable)) %>% 
+                                                 rename(Class = value)
+                                })
+
+###############
+## Example 1 ##
+###############
+
+# aa <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
+#   ggplot(aes(x = Nb_TFBS, colour = Class)) +
+#                     stat_ecdf(size = 1.15, pad = FALSE) +
+#                     theme_bw() +
+#                     scale_color_manual(values = cols) + 
+#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+#                     theme(legend.position = "none") +
+#                     facet_wrap(. ~ Cohort, ncol = 1)
+# 
+# 
+# bb <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
+#   ggplot(aes(x = Nb_target, colour = Class)) +
+#                     stat_ecdf(size = 1.15, pad = FALSE) +
+#                     theme_bw() +
+#                     scale_color_manual(values = cols) + 
+#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+#                     theme(legend.position = "none") +
+#                     facet_wrap(. ~ Cohort, ncol = 1)
+# 
+# 
+# cc <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
+#   ggplot(aes(x = Nb_samples, colour = Class)) +
+#                     stat_ecdf(size = 1.15, pad = FALSE) +
+#                     theme_bw() +
+#                     scale_color_manual(values = cols) + 
+#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+#                     theme(legend.position = "none") +
+#                     facet_wrap(. ~ Cohort, ncol = 1)
+# 
+# enriched.terms.gg <- plot_grid(aa,
+#                                bb,
+#                                cc,
+#                                ncol = 3, align = "hv", hjust = -0.25, vjust = 1.15,
+#                                rel_heights = c(1, 1), rel_widths = c(1, 1),
+#                                axis = "right")
+# enriched.terms.gg
+
+
+
+###############
+## Example 2 ##
+###############
+
+cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
+
+nn <-
+reshape2::melt(rbindlist(analyzed.pcg.cohorts.summary),
+               id.vars = c("Gene", "Cohort", "Class"),
+               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
+               filter(value != "")
+
+cols.subset <- c("BASIS_All", "BASIS_ER+", "BASIS_ER-", "BRCA-US", "HNSC-US")
+
+nn %>%
+  filter(Cohort %in% cols.subset) %>% 
+  ggplot(aes(x = value, colour = Class)) +
+                    stat_ecdf(size = 1.15, pad = FALSE) +
+                    theme_bw() +
+                    scale_color_manual(values = cols) +
+                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+                    theme(legend.position = "bottom") +
+                    facet_grid(vars(Cohort), vars(variable), scales = "free")
+
+
+
+# View(analyzed.pcg.cohorts.summary[[10]])
+# cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
+# 
+# 
+# cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
+# 
+# ecdf.tfbs <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_TFBS, colour = Class)) +
+#                     stat_ecdf(size = 1.15, pad = FALSE) +
+#                     theme_bw() +
+#                     scale_color_manual(values = cols) + 
+#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+#                     theme(legend.position = "none") 
+# 
+# ecdf.targets <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_target, colour = Class)) +
+#                        stat_ecdf(size = 1.15, pad = FALSE) +
+#                        theme_bw() +
+#                        scale_color_manual(values = cols) + 
+#                        labs(x = "Nb of targets of protein-coding genes", y = "ECDF") +
+#                        theme(legend.position = "none") 
+# 
+# ecdf.samples <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_samples, colour = Class)) +
+#                        stat_ecdf(size = 1.15, pad = FALSE) +
+#                        theme_bw() +
+#                        scale_color_manual(values = cols) + 
+#                        labs(x = "Nb of mutated samples", y = "ECDF") +
+#                        theme(legend.position = "right") 
+# 
+# 
+# enriched.terms.gg <- plot_grid(ecdf.tfbs,
+#                                ecdf.targets,
+#                                ecdf.samples,
+#                                ncol = 3, align = "hv", labels = c('A)', 'B)', 'C)'), label_size = 20,
+#                                label_colour = "black", hjust = -0.25, vjust = 1.15,
+#                                rel_heights = c(1, 1, 1), rel_widths = c(1, 1, 1),
+#                                axis = "right")
+# 
+# ## Combine plots
+# enriched.terms.gg
+```
+
+
+
+```{r eCDF_plot2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in protein-coding genes. (Part 2)", fig.height = 10, fig.width = 8, fig.align = "center"}
+
+cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
+
+nn <-
+reshape2::melt(rbindlist(analyzed.pcg.cohorts.summary),
+               id.vars = c("Gene", "Cohort", "Class"),
+               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
+               filter(value != "")
+
+
+cols.subset <- c("LIHC-US", "LUAD-US", "LUSC-US", "STAD-US", "UCEC-US")
+
+nn %>%
+  filter(Cohort %in% cols.subset) %>% 
+  ggplot(aes(x = value, colour = Class)) +
+                    stat_ecdf(size = 1.15, pad = FALSE) +
+                    theme_bw() +
+                    scale_color_manual(values = cols) +
+                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+                    theme(legend.position = "bottom") +
+                    facet_grid(vars(Cohort), vars(variable), scales = "free")
+
+```
+
+
+
+```{r Corr_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Number of TFBS and targets of predicted and non-predicted protein-coding genes.", fig.height = 10, fig.width = 8, fig.align = "center"}
+
+analyzed.mirnas.cohort.list <- sapply(miRNA.in.cohort.list, data.frame)
+names(analyzed.mirnas.cohort.list) <- names(miRNA.in.cohort.list)
+analyzed.mirnas.cohort.list <- analyzed.mirnas.cohort.list[11:20] ## 1-10 entries are NULL
+
+Nb.targets.per.mirna <- xseq.net.mirna.analyzed.genes
+
+analyzed.mirna.summary <- Nb.targets.per.mirna %>% 
+                          select(Gene, Nb_target, Predicted) %>% 
+                          rename(Associated_gene = Gene) %>% 
+                          left_join(Nb.TFBSs.per.miRNA, by = "Associated_gene") %>% 
+                          rename(Predicted = Predicted.x,
+                                 Gene      = Associated_gene) %>% 
+                          select(Gene, Nb_target, Nb_TFBS, Predicted, Cancer) %>% 
+                          mutate(Predicted = ifelse(Predicted == "", yes = "Non-Predicted", no = Predicted))
+
+cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
+
+
+
+p2 <- ggplot(analyzed.mirna.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = cols.point) +
+  theme(legend.position = "bottom") 
+
 ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
 
 ```
 
 
+
+```{r eCDF_plot1_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in miRNA genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
+
+analyzed.mirna.cohorts.summary <- lapply(Nb.mut.samples.mirna, function(l){
+                                  merge(l, analyzed.mirna.summary, by = "Gene") %>% 
+                                  reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
+                                                 measure.vars = c("Predicted", "Cancer")) %>% 
+                                                 filter(value != "") %>% 
+                                                 within(rm(variable)) %>% 
+                                                 rename(Class = value)
+                                })
+
+
+cols <- c("Cancer miRNA" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77")
+
+nn <-
+reshape2::melt(rbindlist(analyzed.mirna.cohorts.summary),
+               id.vars = c("Gene", "Cohort", "Class"),
+               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
+               filter(value != "")
+
+cols.subset <- c("BASIS_All", "BASIS_ER+", "BASIS_ER-", "BRCA-US", "HNSC-US")
+
+nn %>%
+  filter(Cohort %in% cols.subset) %>% 
+  ggplot(aes(x = value, colour = Class)) +
+                    stat_ecdf(size = 1.15, pad = FALSE) +
+                    theme_bw() +
+                    scale_color_manual(values = cols) +
+                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+                    theme(legend.position = "bottom") +
+                    facet_grid(vars(Cohort), vars(variable), scales = "free")
+
+```
+
+
+
+```{r eCDF_plot2_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in miRNA genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
+
+analyzed.mirna.cohorts.summary <- lapply(Nb.mut.samples.mirna, function(l){
+                                  merge(l, analyzed.mirna.summary, by = "Gene") %>% 
+                                  reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
+                                                 measure.vars = c("Predicted", "Cancer")) %>% 
+                                                 filter(value != "") %>% 
+                                                 within(rm(variable)) %>% 
+                                                 rename(Class = value)
+                                })
+
+
+cols <- c("Cancer miRNA" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77")
+
+nn <-
+reshape2::melt(rbindlist(analyzed.mirna.cohorts.summary),
+               id.vars = c("Gene", "Cohort", "Class"),
+               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
+               filter(value != "")
+
+cols.subset <- c("LIHC-US", "LUAD-US", "LUSC-US", "STAD-US", "UCEC-US")
+
+nn %>%
+  filter(Cohort %in% cols.subset) %>% 
+  ggplot(aes(x = value, colour = Class)) +
+                    stat_ecdf(size = 1.15, pad = FALSE) +
+                    theme_bw() +
+                    scale_color_manual(values = cols) +
+                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+                    theme(legend.position = "bottom") +
+                    facet_grid(vars(Cohort), vars(variable), scales = "free")
+
+```
 
 
 ```{r TFBS_mut_rdata, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, }
