@@ -12,7 +12,7 @@ author:
 subtitle: 'Supplemental Material'
 date: 'Last update: `r Sys.Date()`'
 geometry: margin=1.5cm
-output: 
+output:
   pdf_document
 bibliography: References.bib
 biblio-style: apalike
@@ -35,32 +35,27 @@ header-includes:
 ```{r setup, include=FALSE, cache=TRUE, echo=FALSE, eval=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 suppressPackageStartupMessages(library(bookdown))
-suppressPackageStartupMessages(library(Cairo))
 suppressPackageStartupMessages(library(ComplexHeatmap))
 suppressPackageStartupMessages(library(cowplot))
-suppressPackageStartupMessages(library(data.table))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(emojifont))
-suppressPackageStartupMessages(library(GGally))
-suppressPackageStartupMessages(library(ggExtra))
-suppressPackageStartupMessages(library(ggnetwork))
 suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(UpSetR))
+suppressPackageStartupMessages(library(scales))
+suppressPackageStartupMessages(library(emojifont))
+suppressPackageStartupMessages(library(Cairo))
+suppressPackageStartupMessages(library(leaflet))
 suppressPackageStartupMessages(library(ggplotify))
 suppressPackageStartupMessages(library(ggpubr))
-suppressPackageStartupMessages(library(ggrepel))
 suppressPackageStartupMessages(library(ggsignif))
-suppressPackageStartupMessages(library(leaflet))
-suppressPackageStartupMessages(library(scales))
+suppressPackageStartupMessages(library(ggnetwork))
+suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(tidyr))
-suppressPackageStartupMessages(library(UpSetR))
-suppressPackageStartupMessages(library(xseq))
-
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(ggrepel))
+suppressPackageStartupMessages(library(png))
+suppressPackageStartupMessages(library(jpeg))
 
 pdf.options(encoding = 'ISOLatin2')
 options(device = "cairo_pdf")
-
-load("Nb_TFBSs_per_gene/TFBS_associated_with_GeneHancer_target_genes_PCG_miRNA_hg19.RData")
-load("Nb_TFBSs_per_gene/Xseq_supp_material_tables.Rdata")
 
 cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC")
 
@@ -147,64 +142,6 @@ xseq.th.mirna <- list('BRCA-US'   = 0.5,
                 "BASIS_ER-" = 0.9837910)
 
 
-xseq.net.to.df <- function(net) {
-  
-  gene.names <- names(net)
-  
-  net.df <- lapply(seq_along(gene.names), function(i){
-    
-    df <- data.frame(net[[i]])
-    
-    df <- df %>% 
-      mutate(Gene = gene.names[i], Target = rownames(df))
-    df <- df[,c(2,3,1)]
-    colnames(df) <- c("Gene", "Target", "Weight")
-    
-    df
-  })
-  
-  net.df <- do.call(rbind, net.df)
-  
-  return(net.df)
-}
-
-
-####################################
-## Load miRNA <-> pre-miRNA table ##
-####################################
-dict.load <- load("miR_premiR_dict/hsa_mir_to_premir.RData")
-mirna.premirna.dict <- get(dict.load)
-rm(dict.load)
-
-mirna.premirna.dict$miR    <- tolower(mirna.premirna.dict$miR)
-mirna.premirna.dict$premiR <- tolower(mirna.premirna.dict$premiR)
-
-## Add a column with a unique Id for the mature miRNAs
-mirna.premirna.dict <- mirna.premirna.dict %>% 
-                        mutate(mature_ID = paste(miR, premiR, sep = "::"))
-
-## Get the names for those miRNAs encoded by two or more precursors
-mirnas.two.precursors <- mirna.premirna.dict$miR[duplicated(mirna.premirna.dict$miR)]
-
-
-######################
-## Xseq ppi network ##
-######################
-load("Nb_connections_per_gene/xseq_PPI_network.Rdata") ## network.to.export
-xseq.net.ppi <- network.to.export
-xseq.net.ppi <- FilterNetwork(xseq.net.ppi, max.num.conn = 1000, min.conn.strength = 0.8)
-xseq.net.ppi <- xseq.net.to.df(xseq.net.ppi)
-
-
-########################
-## Xseq miRNA network ##
-########################
-load("Nb_connections_per_gene/targetScan_clean_miRNA-mRNA_network.Rdata") ## network.to.export
-xseq.net.mirna <- network.to.export
-xseq.net.mirna <- FilterNetwork(xseq.net.mirna, max.num.conn = 100, min.conn.strength = 0.8)
-xseq.net.mirna <- xseq.net.to.df(xseq.net.mirna)
-
-
 # Laptop -> Biotin
 # rsync -rptuvl /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Supp_Material jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/Manuscript
 
@@ -264,7 +201,7 @@ library(ggplot2)
 load("Mutation_frequency/Fraction_of_somatic_mutations_in_TFBSs.RData")
 
 Fraction.mut.in.tfbs.gg <- Fraction.mut.in.tfbs.gg +
-                            theme_minimal() +
+                            theme_classic() +
                             theme(
                               panel.background = element_rect(fill = "white"),
                               # plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
@@ -273,7 +210,8 @@ Fraction.mut.in.tfbs.gg <- Fraction.mut.in.tfbs.gg +
                                 colour = "white",
                                 size = 1
                               )
-                            )
+                            ) +
+                            theme(legend.position = "none") 
 
 suppressWarnings(print(Fraction.mut.in.tfbs.gg))
 
@@ -357,7 +295,7 @@ TFBS.exonic.mut.rate.facet
 
 
 \pagebreak
-```{r TFBS_flanks, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Mutation rates in TFBSs and their flanking regions. Left: ±50 bp, center: ±250 bp, right: ±500 bp.", fig.height = 12.5, fig.width = 11, fig.align = "center"}
+```{r TFBS_flanks, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Mutation rates in TFBSs and their flanking regions. Left: ±50 bp, center: ±250 bp, right: ±500 bp.", fig.height = 9, fig.width = 7, fig.align = "center"}
 
 load("Mutation_rate/Mut_rates_TFBS_vs_flanks_facet_all_cohorts.RData")
 tfbs.vs.flanks.gg.all + add_space
@@ -369,7 +307,7 @@ tfbs.vs.flanks.gg.all + add_space
 
 
 \pagebreak
-```{r Exon_flanks, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Mutation rates in exons and their flanking regions. Left: ±50 bp, center: ±250 bp, right: ±500 bp.", fig.height = 12.5, fig.width = 11, fig.align = "center"}
+```{r Exon_flanks, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Mutation rates in exons and their flanking regions. Left: ±50 bp, center: ±250 bp, right: ±500 bp.", fig.height = 10, fig.width = 8, fig.align = "center"}
 
 load("Mutation_rate/Mut_rates_Exons_vs_flanks_facet_all_cohorts.RData")
 exons.vs.flanks.gg.all + add_space
@@ -381,7 +319,7 @@ exons.vs.flanks.gg.all + add_space
 
 
 \pagebreak
-```{r GeneHancer_associations, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="TFBS-gene associations. When a TFBS (purple box) lies within an GeneHancer-annotated cis-regulatory element (CRE; pink box), the TFBS is linked to its target genes according to GeneHancer, (see TFBS$_B$ and TFBS$_C$). When a TFBS is outside an annotated CRE (see TFBS$_A$, TFBS$_D$, and TFBS$_E$), it is associated with the closest TSS.", out.width = "500px", fig.align = "center"}
+```{r GeneHancer_associations, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="TFBS-gene associations. When a TFBS (purple box) lies within an GeneHancer-annotated cis-regulatory element (CRE; pink box), the TFBS is linked to its target genes according to GeneHancer, (see TFBS$_B$ and TFBS$_C$). When a TFBS is outside an annotated CRE (see TFBS$_A$, TFBS$_D$, and TFBS$_E$), it is associated with the closest TSS.", out.width = 500, fig.align = "center"}
 
 knitr::include_graphics("GeneHancer/TFBS_CRE_association-1.png", dpi = 100)
 ```
@@ -391,7 +329,7 @@ knitr::include_graphics("GeneHancer/TFBS_CRE_association-1.png", dpi = 100)
 
 
 \pagebreak
-```{r xseq_model_explained, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Likelihood association of mutations with gene expression dysregulation in xseq. Example with a network of target genes for a given miRNA. A) Gene regulatory status. For each target $i$ connected to the miRNA gene $X$ associated with a cis-regulatory mutation, xseq decomposes the expression distribution of $i$ (using all samples in the cohort) as a 3-component mixture model (down, neutral, and up). Next, xseq computes the posterior probability of observing the expression of $i$ in the mutated sample $S$ as belonging to the down, neutral, and up components. The component with the highest posterior probability provides information about the regulatory status of $i$ (down, neutral, or up). This step is repeated for each gene in the network and for each sample in the cohort. B) The sample-specific network dysregulation probability is calculated from the down and up regulation posterior probabilities of all the genes in the network for a given samples where the mutation was observed. C) The posterior probabilities of sample-specific dysregulation are used to compute the posterior probability of association between a cis-regulatory mutated miRNA and its target network dysregulation across a cohort. For a detailed explanation of the parameters and the graphical model, see the xseq publication by Ding et al., Nature Communications, 2015.", fig.align = "center", out.width = "500px"}
+```{r xseq_model_explained, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Likelihood association of mutations with gene expression dysregulation in xseq. Example with a network of target genes for a given miRNA. A) Gene regulatory status. For each target $i$ connected to the miRNA gene $X$ associated with a cis-regulatory mutation, xseq decomposes the expression distribution of $i$ (using all samples in the cohort) as a 3-component mixture model (down, neutral, and up). Next, xseq computes the posterior probability of observing the expression of $i$ in the mutated sample $S$ as belonging to the down, neutral, and up components. The component with the highest posterior probability provides information about the regulatory status of $i$ (down, neutral, or up). This step is repeated for each gene in the network and for each sample in the cohort. B) The sample-specific network dysregulation probability is calculated from the down and up regulation posterior probabilities of all the genes in the network for a given samples where the mutation was observed. C) The posterior probabilities of sample-specific dysregulation are used to compute the posterior probability of association between a cis-regulatory mutated miRNA and its target network dysregulation across a cohort. For a detailed explanation of the parameters and the graphical model, see the xseq publication by Ding et al., Nature Communications, 2015.", fig.align = "center", out.width = 500}
 
 knitr::include_graphics("Model/Xseq_explained.png", dpi = 100)
 ```
@@ -401,7 +339,7 @@ knitr::include_graphics("Model/Xseq_explained.png", dpi = 100)
 
 
 \pagebreak
-```{r Predicted_PCG_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in BRCA-US, HNSC-US, LIHC-US, and LUSC-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Cancer-associated genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "650px", out.height="550px", fig.align = "center"}
+```{r Predicted_PCG_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in BRCA-US, HNSC-US, LIHC-US, and LUSC-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Cancer-associated genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "650pt", out.height = "550pt", fig.align = "center"}
 
 knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_sep_by_cohort_P1.jpeg", dpi = 100)
 ```
@@ -411,7 +349,7 @@ knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatma
 
 
 \pagebreak
-```{r Predicted_PCG_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in LUAD-US, STAD-US, and UCEC-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Cancer-associated genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "700px", out.height="575px", fig.align = "center"}
+```{r Predicted_PCG_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Protein-coding genes predicted in LUAD-US, STAD-US, and UCEC-US TCGA cohorts. Predictions were obtained applying the xseq tool when considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations, independently. Cancer-associated genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "700pt", out.height="575pt", fig.align = "center"}
 
 knitr::include_graphics("Highlighted_genes_pancancer/xseq_trans_pancancer_heatmap_PCG_sep_by_cohort_P2.jpeg", dpi = 100)
 ```
@@ -453,7 +391,7 @@ suppressMessages(tfbs.vs.exon.mutations )
 
 
 \pagebreak
-```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts, genes that could not be connected are not shown. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center"}
+```{r Aggregated_networks_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network of predicted genes in A) BRCA, B) HNSC, C) LIHC, D) LUAD, E) LUSC, and F) STAD cohorts, genes that could not be connected are not shown. The node colors indicate the number of samples where the gene was predicted. TFs genes are highlighted with orange background.", fig.height = 30, fig.width = 25, fig.align = "center", message=FALSE, warning=FALSE}
 
 
 net.list <- vector(mode = "list", length = length(cohorts))
@@ -486,8 +424,8 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
 
 
 
-<!-- ```{r Figure3, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="", ig.height = 18, fig.width = 15, fig.align = "center"} -->
 
+<!-- ```{r Figure3, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="", ig.height = 18, fig.width = 15, fig.align = "center"} -->
 
 <!--   cohorts <- c("BRCA", "HNSC", "LIHC", "LUAD", "LUSC", "STAD", "UCEC") -->
 
@@ -505,7 +443,6 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
 <!--     subgraph.list[[co]] <- gene.cluster -->
 
 <!--   } -->
-
 
 
 <!--   nb.subgraphs.per.cohort.df <- rbindlist(subgraph.list) %>% -->
@@ -533,20 +470,18 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
 <!--                                   labs(y = "Number of subgraphs", x = "") -->
 
 
-
-
-
 <!--   agg.nets.fig <- -->
-<!--   plot_grid(nb.subgraphs.per.cohort.gg, -->
-<!--             net.list[["UCEC"]], -->
+<!--   plot_grid(net.list[["UCEC"]], -->
+<!--             nb.subgraphs.per.cohort.gg, -->
 <!--             nrow = 1, labels = c('A)', 'B)'), -->
 <!--             align = "hv", -->
-<!--             label_size = 35, vjust = 1.25, hjust = 0, rel_widths = c(1, 1)) -->
-
-
+<!--             label_size = 30, vjust = 1.25, hjust = -1, rel_widths = c(1, 1)) -->
 
 <!--   agg.nets.fig -->
+
+
 <!-- ``` -->
+
 
 
 
@@ -865,7 +800,7 @@ rm(enriched.terms.gg)
 
 \pagebreak
 \begin{landscape}
-```{r miRNAs_predicted_pancancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNAs predicted by xseq in the seven TCGA cohorts. Cell colors indicate the posterior probability computed over the corresponding cohort. Red stars indicate that the miRNA is annotated as a cancer-associated miRNA in miRCancer. Blue stars indicate that the miRNA was reported as a cancer-associated miRNA in the specific cancer type where it is predicted by xseq, according to miRCancer annotation.", out.width = "675px", out.height = "700px", fig.align = "center"}
+```{r miRNAs_predicted_pancancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNAs predicted by xseq in the seven TCGA cohorts. Cell colors indicate the posterior probability computed over the corresponding cohort. Red stars indicate that the miRNA is annotated as a cancer-associated miRNA in miRCancer. Blue stars indicate that the miRNA was reported as a cancer-associated miRNA in the specific cancer type where it is predicted by xseq, according to miRCancer annotation.", out.width = "675pt", out.height = "700pt", fig.align = "center"}
 
 ## This plot is generated in this script:summary_xseq_trans_ICGC_primiRNA_genes_ALL_projects_Fig5.R
 knitr::include_graphics("Highlighted_genes_pancancer/Mature_miRNAs_pancancer.jpeg", dpi = 100)
@@ -982,24 +917,15 @@ rm(dysreg.network.fraction.plot)
                                       
                                       
 \pagebreak
-```{r Predicted_genes_breast_cancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Predicted protein-coding genes in the BASIS cohort using all samples, ER+ samples and ER- samples, and in the TCGA BRCA-US cohort (columns). Predictions were obtained applying the xseq tool on each dataset independently considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "650px", out.height="530px", fig.align = "center"}
+```{r Predicted_genes_breast_cancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Predicted protein-coding genes in the BASIS cohort using all samples, ER+ samples and ER- samples, and in the TCGA BRCA-US cohort (columns). Predictions were obtained applying the xseq tool on each dataset independently considering protein-coding genes mutated through either LoF (red triangles) or cis-regulatory (TFBS; green triangles) mutations. Genes known as cancer genes (red stars) and TFs (blue stars) are highlighted and hypergeometric tests p-values for enrichment are provided in the legend (Material and methods).", out.width = "650pt", out.height="530pt", fig.align = "center"}
 
 knitr::include_graphics("BASIS_vs_TCGA/BRCA_predicted_genes.jpeg", dpi = 100)
 ```
 
 
-\pagebreak
+
 \begin{landscape}
-```{r Breast_Cancer_agg_net, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network representing the predicted protein-coding genes in BASIS (all samples), BASIS ER+, ER- and BRCA-US cohorts. The name of the genes predicted in two or more cohorts are displayed many times with different colors.", out.width = "600px", out.height="430px", fig.align = "center"}
-
-knitr::include_graphics("BASIS_vs_TCGA/BRCA_agg_net.jpeg", dpi = 100)
-
-```
-
-
-
 \pagebreak
-
 ```{r FEA_breast_cancer_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted protein-coding genes in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A), WikiPathways (B), Panther (C), and KEGG (D). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 75, fig.width = 115, fig.align = "center"}
 
 ## From: /storage/mathelierarea/processed/jamondra/Projects/dysmir/R_scripts/BASIS/Heatmap_enriched_terms_breast_cancer.R
@@ -1090,6 +1016,16 @@ enriched.terms.gg
 rm(heatmap.GSEA.list)
 rm(enriched.terms.gg)
 ```
+
+
+
+\pagebreak
+```{r Breast_Cancer_agg_net, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network representing the predicted protein-coding genes in BASIS (all samples), BASIS ER+, ER- and BRCA-US cohorts. The name of the genes predicted in two or more cohorts are displayed many times with different colors.", out.width = "700pt", out.height="470pt", fig.align = "center"}
+
+knitr::include_graphics("BASIS_vs_TCGA/BRCA_agg_net.jpeg", dpi = 100)
+
+```
+
 
 
 ```{r FEA_breast_cancer_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated target genes of predicted miRNAs in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A), WikiPathways (B), and Panther (C). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 70, fig.width = 115, fig.align = "center"}
@@ -1277,6 +1213,161 @@ os.examples +
 )
 ```
 
+
+
+\pagebreak
+```{r Ratio_mutated_vs_selected_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Ratio of dysregulated vs mutated samples in the miRNA analysis. Each panel represents a cohort with all the evaluated miRNAs ranked by the DAC probability. The color of each dot corresponds to the ratio between the number of samples with SSD >= 0.5 (i.e., with high association of dysregulation) divided by the number of mutated samples. The black line corresponds to the cohort-specific threshold defined by FDR of 0.05.", fig.height = 32, fig.width = 25, fig.align = "center", warning = FALSE}
+
+
+cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
+
+
+rank.plot.list <- vector(mode = "list", length = length(cohorts))
+for (co in cohorts.all) {
+  
+  if (!grepl(co, pattern = "BASIS")) {
+    co <- paste0(co, "-US")
+    
+    load(paste0("xseq_results/miRNA/xseq_trans_premiRNA_all_mutation_types_all_effects_", co, "_mirna_network_targetScanClean.Rdata")) ## xseq.pred.all.concat
+    
+  } else {
+    
+    load(paste0("xseq_results/miRNA/", co, "_miRNA.Rdata"))
+    
+  }
+  
+  
+
+  
+  xseq.pred.mirna <- xseq.pred.all.concat %>% 
+                    select(sample, gene, prob_mut, prob_gene) %>% 
+                    distinct() %>% 
+                    group_by(gene, prob_gene) %>% 
+                    summarise(N_mutated_samples  = n(),
+                              N_selected_samples = sum(prob_mut >= 0.5), .groups = "drop") %>% 
+                    mutate(Ratio = N_selected_samples/N_mutated_samples,
+                           Lab   = ifelse(prob_gene >= xseq.th.mirna[[co]], yes = gene, no = "")) %>% 
+                    arrange(desc(prob_gene))
+xseq.pred.mirna$Rank <- seq_len(nrow(xseq.pred.mirna))
+xseq.pred.mirna$Lab  <- gsub(xseq.pred.mirna$Lab, pattern = "::.+$", replacement = "", perl = T)
+
+
+rank.plot <- ggplot(xseq.pred.mirna, aes(y = prob_gene, x = Rank, colour = Ratio, size = N_mutated_samples, label = gene)) +
+                geom_line(data = xseq.pred.mirna, aes(x = Rank, y = prob_gene), inherit.aes = F, color = '#9ecae1', alpha = 0.35) + 
+                geom_hline(yintercept = xseq.th.mirna[[co]]) +
+                geom_point(shape = 20) +
+                theme_bw() +
+                ylim(c(0, 1)) +
+                labs(x = "Rank", y = "DAC probability", title = co) +
+                geom_label_repel(aes(label = Lab),
+                                 box.padding = 0.1,
+                                 direction = "both", 
+                                 force = 40,
+                                 max.overlaps = 30,
+                                 size = 2.5,
+                                 color = "black",
+                                 max.iter = 20000,
+                                 segment.color = '#d9d9d9')
+
+rank.plot.list[[co]] <- rank.plot
+  
+}
+
+ranks.w.ratio.selected.mut <- plot_grid(rank.plot.list[["BASIS_All"]],
+                                        rank.plot.list[["BASIS_ER+"]],
+                                        rank.plot.list[["BASIS_ER-"]],
+                                        rank.plot.list[["BRCA-US"]],
+                                        rank.plot.list[["HNSC-US"]],
+                                        rank.plot.list[["LIHC-US"]],
+                                        rank.plot.list[["LUAD-US"]],
+                                        rank.plot.list[["LUSC-US"]],
+                                        rank.plot.list[["STAD-US"]],
+                                        rank.plot.list[["UCEC-US"]],
+                                        ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)', "H)", "I)", "J)"), label_size = 30,
+                                        label_colour = "black", hjust = 0, vjust = 1.3,
+                                        rel_heights = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+
+
+ranks.w.ratio.selected.mut
+```
+
+
+
+
+
+\pagebreak
+```{r Ratio_mutated_vs_selected_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Ratio of dysregulated vs mutated samples in the protein-coding gene analysis. Each panel represents a cohort with all the evaluated genes ranked by the DAC probability. The color of each dot corresponds to the ratio between the number of samples with SSD >= 0.5 (i.e., with high association of dysregulation) divided by the number of mutated samples. The black line corresponds to the cohort-specific threshold defined by FDR of 0.05.", fig.height = 32, fig.width = 25, fig.align = "center", warning = FALSE}
+
+
+cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
+
+
+rank.plot.list <- vector(mode = "list", length = length(cohorts))
+for (co in cohorts.all) {
+  
+  if (!grepl(co, pattern = "BASIS")) {
+    co <- paste0(co, "-US")
+    
+    load(paste0("xseq_results/PCG/xseq_trans_protein_coding_all_mutation_types_all_effects_", co, "_PPI_network_xseq.Rdata")) ## xseq.pred.all.concat
+    
+  } else {
+    
+    load(paste0("xseq_results/PCG/", co, "_PCG.Rdata"))
+    
+  }
+  
+  
+  xseq.pred.pcg <- xseq.pred.all.concat %>% 
+                    filter(mut_effect == "TFBS") %>% 
+                    select(sample, gene, prob_mut, prob_gene) %>% 
+                    distinct() %>% 
+                    group_by(gene, prob_gene) %>% 
+                    summarise(N_mutated_samples  = n(),
+                              N_selected_samples = sum(prob_mut >= 0.5),
+                              .groups = "drop") %>% 
+                    mutate(Ratio = N_selected_samples/N_mutated_samples,
+                           Lab   = ifelse(prob_gene >= xseq.th.pcg[[co]], yes = gene, no = "")) %>% 
+                    arrange(desc(prob_gene))
+  xseq.pred.pcg$Rank <- seq_len(nrow(xseq.pred.pcg))
+
+  rank.plot <- ggplot(xseq.pred.pcg, aes(y = prob_gene, x = Rank, colour = Ratio, size = N_mutated_samples, label = gene)) +
+                geom_line(data = xseq.pred.pcg, aes(x = Rank, y = prob_gene), inherit.aes = F, color = '#9ecae1', alpha = 0.35) + 
+                geom_hline(yintercept = xseq.th.pcg[[co]]) +
+                geom_point(shape = 20) +
+                theme_bw() +
+                ylim(c(0, 1)) +
+                labs(x = "Rank", y = "DAC probability", title = co) +
+                geom_label_repel(aes(label = Lab),
+                                 box.padding = 0.1,
+                                 direction = "both", 
+                                 force = 40,
+                                 max.overlaps = 30,
+                                 size = 2.5,
+                                 color = "black",
+                                 max.iter = 20000,
+                                 segment.color = '#d9d9d9')
+
+rank.plot.list[[co]] <- rank.plot
+  
+}
+
+ranks.w.ratio.selected.mut <- plot_grid(rank.plot.list[["BASIS_All"]],
+                                        rank.plot.list[["BASIS_ER+"]],
+                                        rank.plot.list[["BASIS_ER-"]],
+                                        rank.plot.list[["BRCA-US"]],
+                                        rank.plot.list[["HNSC-US"]],
+                                        rank.plot.list[["LIHC-US"]],
+                                        rank.plot.list[["LUAD-US"]],
+                                        rank.plot.list[["LUSC-US"]],
+                                        rank.plot.list[["STAD-US"]],
+                                        rank.plot.list[["UCEC-US"]],
+                                        ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)', "H)", "I)", "J)"), label_size = 30,
+                                        label_colour = "black", hjust = 0, vjust = 1.3,
+                                        rel_heights = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+
+
+ranks.w.ratio.selected.mut
+```
 
 <!-- To check: 10-12-2021 -->
 
@@ -1566,15 +1657,12 @@ rm(enriched.terms.gg)
 \end{landscape}
 
 
+```{r Nb_TFBS_per_gene, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE }
 
-```{r Nb_TFBS_per_gene_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="", fig.align = "center"}
-
-# Distribution of associated TFBSs among predicted, non-predicted, TFs and cancer-related protein-coding genes represented as A) Cumulative Distribution Function, and B) Histogram of frequencies.
 cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
 
 selected.genes.list  <- vector(mode = "list", length = length(cohorts.all))
 genes.in.cohort.list <- vector(mode = "list", length = length(cohorts.all))
-Nb.mut.samples.pcg   <- list()
 
 for (co in cohorts.all) {
   
@@ -1598,14 +1686,6 @@ for (co in cohorts.all) {
                     arrange(desc(prob_gene)) 
   
   
-  Nb.mut.samples.pcg[[co]] <- xseq.pred.pcg %>% 
-                                group_by(gene) %>% 
-                                summarise(Nb_samples = n()) %>% 
-                                arrange(desc(Nb_samples)) %>% 
-                                rename(Gene = gene) %>% 
-                                mutate(Cohort = co)
-  
-  
   genes.in.cohort.list[[co]] <- unique(xseq.pred.pcg$gene)
   selected.genes.list[[co]]  <- unique(subset(xseq.pred.pcg, prob_gene >= xseq.th.pcg[[co]])$gene)
 
@@ -1615,13 +1695,18 @@ predicted.genes.pancancer <- unique(as.vector(unlist(selected.genes.list)))
 xseq.analyzed.genes       <- unique(as.vector(unlist(genes.in.cohort.list)))
 
 
+load("Nb_TFBSs_per_gene/TFBS_associated_with_GeneHancer_target_genes_PCG_miRNA_hg19.RData")
+
+load("Nb_TFBSs_per_gene/Xseq_supp_material_tables.Rdata")
+
+
 reported.cancer.genes <- xseq.sup.mat.tab$inToGen_names
 TF.genes              <- xseq.sup.mat.tab$Human_TF_names
 
 
 
 ## A subset with only the TFBS associated to the genes analyzed by xseq across the cohorts
-TFBS.xseq.analyzed.genes.tfbs <- all.associated.features.tab %>% 
+TFBS.xseq.analyzed.genes <- all.associated.features.tab %>% 
                               filter(Associated_gene %in% xseq.analyzed.genes) %>% 
                               distinct()
 
@@ -1634,679 +1719,100 @@ TFBS.xseq.analyzed.genes.tfbs <- all.associated.features.tab %>%
 #                               mutate(Predicted_gene = ifelse(Associated_gene %in% predicted.genes.pancancer, yes = "Predicted", no = "Non-predicted"))
 
 
-Nb.TFBSs.per.pcg <- TFBS.xseq.analyzed.genes.tfbs %>% 
+Nb.TFBSs.per.gene <- TFBS.xseq.analyzed.genes %>% 
                         distinct() %>% 
                         group_by(Associated_gene) %>% 
                         summarise(Nb_TFBS = n(), .groups = "drop") %>% 
                         arrange(desc(Nb_TFBS))
 
-Nb.TFBSs.per.pcg$Predicted     <- ifelse(Nb.TFBSs.per.pcg$Associated_gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
+Nb.TFBSs.per.gene$Predicted     <- ifelse(Nb.TFBSs.per.gene$Associated_gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
 
-Nb.TFBSs.per.pcg$Non_Predicted <- ifelse(!Nb.TFBSs.per.pcg$Associated_gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
-Nb.TFBSs.per.pcg$Cancer <- ifelse(Nb.TFBSs.per.pcg$Associated_gene %in% reported.cancer.genes, yes = "Cancer gene", no = "")
-Nb.TFBSs.per.pcg$TF <- ifelse(Nb.TFBSs.per.pcg$Associated_gene %in% TF.genes, yes = "TF", no = "")
+Nb.TFBSs.per.gene$Non_Predicted <- ifelse(!Nb.TFBSs.per.gene$Associated_gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
+Nb.TFBSs.per.gene$Cancer <- ifelse(Nb.TFBSs.per.gene$Associated_gene %in% reported.cancer.genes, yes = "Cancer gene", no = "")
+Nb.TFBSs.per.gene$TF <- ifelse(Nb.TFBSs.per.gene$Associated_gene %in% TF.genes, yes = "TF", no = "")
 
 
-Nb.TFBSs.per.pcg.classes <- reshape2::melt(Nb.TFBSs.per.pcg,
+Nb.TFBSs.per.gene.classes <- reshape2::melt(Nb.TFBSs.per.gene,
                                id.vars = c("Nb_TFBS", "Associated_gene"),
                                measure.vars = c("Predicted", "Non_Predicted", "Cancer", "TF")) %>% 
                       filter(value != "") %>% 
                       within(rm(variable)) %>% 
                       rename(Class = value)
 
+head(Nb.TFBSs.per.gene)
+
+
+#1b9e77
+#d95f02
+#7570b3
+
 
 ## Plot 1: ECDF
-TFBS.distr.ecdf.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = Nb_TFBS, colour = Class)) +
+TFBS.distr.ecdf.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = Nb_TFBS, colour = Class)) +
         stat_ecdf(size = 1.15, pad = FALSE) +
         theme_bw() +
         scale_color_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) + 
-        labs(x = "Nb of TFBSs assigned to genes", y = "ECDF") +
-        theme(legend.position = "none") 
+        labs(x = "Nb of TFBSs assigned to genes", y = "ECDF", title = "Distribution of TFBSs among predicyed and non-predicted genes")
 
 
 ## Plot 2: histogram with real values
-TFBS.distr.hist.real.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = Nb_TFBS, fill = Class)) +
-        geom_histogram(binwidth = 50, position = "identity") +
+TFBS.distr.hist.real.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = Nb_TFBS, fill = Class)) +
+        # geom_histogram(binwidth = 50) +
+  geom_histogram() +
         scale_fill_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) +
-        theme_bw() +
-        labs(x = "Nb of TFBSs assigned to genes", y = "Frequency") +
-        facet_grid(Class ~ .) +
-        theme(legend.position = "right") 
+        theme_bw()
 
 
 ## Plot 3: histogram with log2 transformed values
-TFBS.distr.hist.log2.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = log2(Nb_TFBS), fill = Class)) +
-        geom_histogram(binwidth = 0.1, position = "identity") +
+TFBS.distr.hist.log2.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = log2(Nb_TFBS), fill = Class)) +
+        geom_histogram(binwidth = 0.5) +
         scale_fill_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) +
-        theme_bw() +
-        facet_grid(Class ~ .)
+        theme_bw()
 
 
 ## Plot 4: histogram with log10 transformed values
-TFBS.distr.hist.log10.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = log10(Nb_TFBS), fill = Class)) +
-        geom_histogram(binwidth = 0.1, position = "identity") +
+TFBS.distr.hist.log10.plot <- ggplot(Nb.TFBSs.per.gene.classes, aes(x = log10(Nb_TFBS), fill = Class)) +
+        geom_histogram(binwidth = 0.1) +
         scale_fill_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) +
-        theme_bw() +
-        facet_grid(Class ~ .)
+        theme_bw()
 
 
 
 
-# predicted.TFBS.values <- subset(Nb.TFBSs.per.pcg, Predicted_gene == "Predicted")$Nb_TFBS
-# non.predicted.TFBS.values <- subset(Nb.TFBSs.per.pcg, Predicted_gene == "Non-predicted")$Nb_TFBS
-
-# predicted.TFBS.values     <- log10(predicted.TFBS.values)
-# non.predicted.TFBS.values <- log10(non.predicted.TFBS.values)
-
+# predicted.TFBS.values <- subset(Nb.TFBSs.per.gene, Predicted_gene == "Predicted")$Nb_TFBS
+# non.predicted.TFBS.values <- subset(Nb.TFBSs.per.gene, Predicted_gene == "Non-predicted")$Nb_TFBS
+# 
+# # predicted.TFBS.values     <- log10(predicted.TFBS.values)
+# # non.predicted.TFBS.values <- log10(non.predicted.TFBS.values)
+# 
 # fligner.test(x = list(predicted.TFBS.values, non.predicted.TFBS.values))
 # 
 # 
 # wilcox.test(x = predicted.TFBS.values, y = non.predicted.TFBS.values, alternative = "two.sided", paired = FALSE, conf.int = 0.95)
 
 
-# enriched.terms.gg <- plot_grid(TFBS.distr.ecdf.plot,
-#                                TFBS.distr.hist.real.plot,
-#                                ncol = 1, align = "v", labels = c('A)', 'B)'), label_size = 13,
-#                                label_colour = "black", hjust = -0.25, vjust = 1.15,
-#                                rel_heights = c(1, 1.5), rel_widths = c(1, 1),
-#                                axis = "right")
-# 
-# ## Combine plots
-# enriched.terms.gg
-```
 
 
 
 
-```{r Nb_connections_per_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Distribution of number of associated TFBSs (A and B) and number of targets in the regulatory network (C and D) among predicted, non-predicted, TFs and cancer-related protein-coding genes represented as Cumulative Distribution Function and Histogram of frequencies. The maximum number of targets of each protein-coding gene in the regulatory network was restricted to 1000.", fig.height = 10, fig.width = 10, fig.align = "center"}
-
-## Genes in the network that were analyzed by xseq
-Nb.targets.per.pcg <- xseq.net.ppi %>% 
-                                filter(Gene %in% xseq.analyzed.genes) %>% 
-                                group_by(Gene) %>% 
-                                summarise(Nb_target = n(), .groups = "drop") %>% 
-                                arrange(desc(Nb_target))
-
-
-Nb.targets.per.pcg$Predicted     <- ifelse(Nb.targets.per.pcg$Gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
-Nb.targets.per.pcg$Non_Predicted <- ifelse(!Nb.targets.per.pcg$Gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
-Nb.targets.per.pcg$Cancer        <- ifelse(Nb.targets.per.pcg$Gene %in% reported.cancer.genes, yes = "Cancer gene", no = "")
-Nb.targets.per.pcg$TF            <- ifelse(Nb.targets.per.pcg$Gene %in% TF.genes, yes = "TF", no = "")
-
-
-
-Nb.targets.per.pcg.classes <- reshape2::melt(Nb.targets.per.pcg,
-                                        id.vars = c("Gene", "Nb_target"),
-                                        measure.vars = c("Predicted", "Non_Predicted", "Cancer", "TF")) %>% 
-                                        filter(value != "") %>% 
-                                        within(rm(variable)) %>% 
-                                        rename(Class = value)
-
-
-## Plot 1: ECDF
-conn.distr.ecdf.plot <- ggplot(Nb.targets.per.pcg.classes, aes(x = Nb_target, colour = Class)) +
-        stat_ecdf(size = 1.15, pad = FALSE) +
-        theme_bw() +
-        scale_color_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) + 
-        labs(x = "Nb of connections in network - Protein-coding genes", y = "ECDF") +
-        theme(legend.position = "none") 
-
-
-## Plot 2: histogram with real values
-conn.distr.hist.real.plot <- ggplot(Nb.targets.per.pcg.classes, aes(x = Nb_target, fill = Class)) +
-        geom_histogram(binwidth = 25, position = "identity") +
-        scale_fill_manual(values = c("#E69F00", "#56B4E9", "#1b9e77", "#d95f02")) +
-        theme_bw() +
-        labs(x = "Nb of TFBSs assigned to genes", y = "Frequency") +
-        facet_grid(Class ~ .) +
-        theme(legend.position = "right") 
-
+TFBS.distr.ecdf.plot
+TFBS.distr.hist.real.plot
+TFBS.distr.hist.log2.plot
+TFBS.distr.hist.log10.plot
 
 enriched.terms.gg <- plot_grid(TFBS.distr.ecdf.plot,
                                TFBS.distr.hist.real.plot,
-                               conn.distr.ecdf.plot,
-                               conn.distr.hist.real.plot,
-                               ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)'), label_size = 13,
+                               TFBS.distr.hist.log2.plot,
+                               TFBS.distr.hist.log10.plot,
+
+                               ncol = 2, align = "hv", labels = c('A)', 'B)', "C)", "D)"), label_size = 15,
                                label_colour = "black", hjust = -0.25, vjust = 1.15,
-                               rel_heights = c(1, 1, 1, 1), rel_widths = c(1, 1, 1, 1),
-                               axis = "right")
+                               rel_heights = c(1, 1, 1, 1))
 
 ## Combine plots
 enriched.terms.gg
 ```
 
-
-
-```{r Nb_TFBS_per_gene_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="", fig.height = 10, fig.width = 8, fig.align = "center"}
-
-cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
-
-selected.miRNA.list  <- vector(mode = "list", length = length(cohorts.all))
-miRNA.in.cohort.list <- vector(mode = "list", length = length(cohorts.all))
-Nb.mut.samples.mirna <- list()
-
-for (co in cohorts.all) { 
-
-   if (!grepl(co, pattern = "BASIS")) { 
-     co <- paste0(co, "-US") 
-
-     load(paste0("xseq_results/miRNA/xseq_trans_premiRNA_all_mutation_types_all_effects_", co, "_mirna_network_targetScanClean.Rdata")) ## xseq.pred.all.concat 
-
-   } else { 
-     load(paste0("xseq_results/miRNA/", co, "_miRNA.Rdata")) 
-   } 
-  
-  ## Parse xseq output
-  xseq.pred.mirna <- xseq.pred.all.concat %>% 
-                      filter(mut_effect == "TFBS") %>% 
-                      select(sample, gene, prob_mut, prob_gene) %>% 
-                      distinct() %>% 
-                      arrange(desc(prob_gene)) 
-  
-  
-  
-      Nb.mut.samples.mirna[[co]] <- xseq.pred.mirna %>% 
-                                group_by(gene) %>% 
-                                summarise(Nb_samples = n()) %>% 
-                                arrange(desc(Nb_samples)) %>% 
-                                rename(Gene = gene) %>% 
-                                mutate(Cohort = co)
-      
-  if (grepl(co, pattern = "BASIS")) {
-      Nb.mut.samples.mirna[[co]] <- merge(Nb.mut.samples.mirna[[co]], mirna.premirna.dict,
-                                          by.x = "Gene",
-                                          by.y = "miR",
-                                          allow.cartesian = TRUE) %>% 
-                                    select(mature_ID, Nb_samples, Cohort) %>% 
-                                    rename(Gene = mature_ID) %>% 
-                                    tibble()
-    
-  }
-
-  
-  
-  miRNA.in.cohort.list[[co]] <- unique(xseq.pred.mirna$gene)
-  selected.miRNA.list[[co]]  <- unique(subset(xseq.pred.mirna, prob_gene >= xseq.th.mirna[[co]])$gene)
-
-}
-
-
-miRNA.names.list <- list(Predicted = unique(as.vector(unlist(selected.miRNA.list))),
-                         Analyzed  = unique(as.vector(unlist(miRNA.in.cohort.list))))
-
-
-reported.cancer.miRNA <- xseq.sup.mat.tab$mirna_cancer_genes %>% 
-                          mutate(ID = paste(miRNA, premiRNA, sep = "::")) %>% 
-                          select(ID) %>% 
-                          distinct() %>% 
-                          unlist() %>% 
-                          as.vector() %>% 
-                          tolower()
-
-
-
-miRNA.genes           <- xseq.sup.mat.tab$mirna_history_mirbase %>% 
-                          mutate(ID = paste(miRNA, premiRNA, sep = "::")) %>% 
-                          select(ID) %>% 
-                          distinct() %>% 
-                          unlist() %>% 
-                          as.vector() %>% 
-                          tolower()
-
-
-## The TFBSs are associated to premiRNA, not to mature miRNAs, convert the premiRNA 
-## names to mature miRNA before matching the miRNA analyzed by xseq
-for (l in 1:length(miRNA.names.list)) {
-  
-  l.tmp <- miRNA.names.list[[l]][which(!grepl(miRNA.names.list[[l]], pattern = "::"))]
-  l.tmp <- data.frame(miRNA_names = tolower(l.tmp))
-
-  l.tmp <- merge(l.tmp, mirna.premirna.dict,
-                 by.x = "miRNA_names",
-                 by.y = "miR",
-                 allow.cartesian = TRUE)
-  
-  miRNA.names.list[[l]] <- c(miRNA.names.list[[l]], l.tmp$mature_ID)
-
-}
-predicted.genes.pancancer <- miRNA.names.list[[1]][grepl(miRNA.names.list[[1]],pattern = "::")]
-xseq.analyzed.genes       <- miRNA.names.list[[2]][grepl(miRNA.names.list[[2]],pattern = "::")]
-
-
-all.associated.features.tab.mir <- all.associated.features.tab %>% 
-                                    filter(grepl(Associated_gene, pattern = "^hsa-"))
-
-all.associated.features.tab.mir <- merge(all.associated.features.tab.mir, mirna.premirna.dict,
-                                      by.x = "Associated_gene",
-                                      by.y = "premiR",
-                                      allow.cartesian = TRUE) %>% 
-                                    within(rm(Associated_gene, miR)) %>% 
-                                    rename(Associated_gene = mature_ID)
-
-## A subset with only the TFBS associated to the genes analyzed by xseq across the cohorts
-# TFBS.xseq.analyzed.miRNA <- all.associated.features.tab %>% 
-#                               filter(Associated_gene %in% xseq.analyzed.genes) %>% 
-#                               distinct()
-
-
-Nb.TFBSs.per.miRNA <- all.associated.features.tab.mir %>% 
-                        distinct() %>% 
-                        group_by(Associated_gene) %>% 
-                        summarise(Nb_TFBS = n(), .groups = "drop") %>% 
-                        arrange(desc(Nb_TFBS))
-
-
-Nb.TFBSs.per.miRNA$Predicted     <- ifelse(Nb.TFBSs.per.miRNA$Associated_gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
-Nb.TFBSs.per.miRNA$Non_Predicted <- ifelse(!Nb.TFBSs.per.miRNA$Associated_gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
-
-
-Nb.TFBSs.per.miRNA$Cancer <- ifelse(Nb.TFBSs.per.miRNA$Associated_gene %in% reported.cancer.miRNA, yes = "Cancer miRNA", no = "")
-Nb.TFBSs.per.miRNA$miRNA <- ifelse(Nb.TFBSs.per.miRNA$Associated_gene %in% miRNA.genes, yes = "miRNA", no = "")
-
-
-
-
-Nb.TFBSs.per.miRNA.classes <- reshape2::melt(Nb.TFBSs.per.miRNA,
-                                id.vars = c("Nb_TFBS", "Associated_gene"),
-                                measure.vars = c("Predicted", "Non_Predicted", "Cancer", "miRNA")) %>% 
-                                filter(value != "") %>% 
-                                within(rm(variable)) %>% 
-                                rename(Class = value)
-
-cols <- c("Cancer miRNA" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "miRNA" = "#d95f02")
-
-
-Nb.TFBSs.per.miRNA.classes$Class <- factor(Nb.TFBSs.per.miRNA.classes$Class, levels = c("Cancer miRNA", "Non-Predicted", "Predicted", "miRNA"))
-
-
-## Plot 1: ECDF
-TFBS.distr.ecdf.plot <- ggplot(Nb.TFBSs.per.miRNA.classes, aes(x = Nb_TFBS, colour = Class)) +
-        stat_ecdf(size = 1.15, pad = FALSE) +
-        theme_bw() +
-        scale_color_manual(values = cols) + 
-        labs(x = "Nb of TFBSs assigned to miRNA genes", y = "ECDF") +
-        theme(legend.position = "none") 
-
-
-## Plot 2: histogram with real values
-TFBS.distr.hist.real.plot <- ggplot(Nb.TFBSs.per.miRNA.classes, aes(x = Nb_TFBS, fill = Class)) +
-        geom_histogram(binwidth = 50, position = "identity") +
-        scale_fill_manual(values = cols) +
-        theme_bw() +
-        labs(x = "Nb of TFBSs assigned to miRNA genes", y = "Frequency") +
-        facet_grid(Class ~ .) +
-        theme(legend.position = "right")
-
-
-
-# enriched.terms.gg <- plot_grid(TFBS.distr.ecdf.plot,
-#                                TFBS.distr.hist.real.plot,
-#                                ncol = 1, align = "v", labels = c('A)', 'B)'), label_size = 13,
-#                                label_colour = "black", hjust = -0.25, vjust = 1.15,
-#                                rel_heights = c(1, 1.5), rel_widths = c(1, 1),
-#                                axis = "right")
-# 
-# ## Combine plots
-# enriched.terms.gg
-```
-
-
-
-```{r Nb_connections_per_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Distribution of number of associated TFBSs (A and B) and number of targets in the regulatory network (C and D) among predicted, non-predicted, TFs and cancer-related miRNA genes represented as Cumulative Distribution Function and Histogram of frequencies. The maximum number of targets of each miRNA in the miRNA network was restricted to 100.", fig.height = 8, fig.width = 9, fig.align = "center"}
-
-# predicted.genes.pancancer
-# xseq.analyzed.genes
-# reported.cancer.miRNA
-# miRNA.genes
-# 
-# xseq.net.mirna
-
-xseq.net.mirna <- merge(xseq.net.mirna, mirna.premirna.dict,
-                         by.x = "Gene",
-                         by.y = "miR",
-                         allow.cartesian = TRUE)
-
-
-## Genes in the network that were analyzed by xseq
-xseq.net.mirna.analyzed.genes <- xseq.net.mirna %>% 
-                                filter(mature_ID %in% xseq.analyzed.genes) %>% 
-                                group_by(mature_ID) %>% 
-                                summarise(Nb_target = n(), .groups = "drop") %>% 
-                                arrange(desc(Nb_target)) %>% 
-                                rename(Gene = mature_ID)
-
-
-xseq.net.mirna.analyzed.genes$Predicted     <- ifelse(xseq.net.mirna.analyzed.genes$Gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
-xseq.net.mirna.analyzed.genes$Non_Predicted <- ifelse(!xseq.net.mirna.analyzed.genes$Gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
-xseq.net.mirna.analyzed.genes$Cancer        <- ifelse(xseq.net.mirna.analyzed.genes$Gene %in% reported.cancer.miRNA, yes = "Cancer miRNA", no = "")
-xseq.net.mirna.analyzed.genes$miRNA            <- ifelse(xseq.net.mirna.analyzed.genes$Gene %in% miRNA.genes, yes = "miRNA", no = "")
-
-
-
-xseq.net.mirna.analyzed.genes.classes <- reshape2::melt(xseq.net.mirna.analyzed.genes,
-                                        id.vars = c("Gene", "Nb_target"),
-                                        measure.vars = c("Predicted", "Non_Predicted", "Cancer", "miRNA")) %>% 
-                                        filter(value != "") %>% 
-                                        within(rm(variable)) %>% 
-                                        rename(Class = value)
-
-
-## Plot 1: ECDF
-conn.distr.ecdf.plot <- ggplot(xseq.net.mirna.analyzed.genes.classes, aes(x = Nb_target, colour = Class)) +
-        stat_ecdf(size = 1.15, pad = FALSE) +
-        theme_bw() +
-        scale_color_manual(values = cols) + 
-        labs(x = "Nb of targets - miRNA genes", y = "ECDF") +
-        theme(legend.position = "none") 
-
-
-## Plot 2: histogram with real values
-conn.distr.hist.real.plot <- ggplot(xseq.net.mirna.analyzed.genes.classes, aes(x = Nb_target, fill = Class)) +
-        geom_histogram(binwidth = 5, position = "identity") +
-        scale_fill_manual(values = cols) +
-        theme_bw() +
-        labs(x = "Nb of TFBSs assigned to miRNA genes", y = "Frequency") +
-        facet_grid(Class ~ .) +
-        theme(legend.position = "right") 
-
-
-enriched.terms.gg <- plot_grid(TFBS.distr.ecdf.plot,
-                               TFBS.distr.hist.real.plot,
-                               conn.distr.ecdf.plot,
-                               conn.distr.hist.real.plot,
-                               ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)'), label_size = 13,
-                               label_colour = "black", hjust = -0.25, vjust = 1.15,
-                               rel_heights = c(1, 1, 1, 1), rel_widths = c(1.5, 1, 1.5, 1),
-                               axis = "right")
-
-## Combine plots
-enriched.terms.gg
-```
-
-
-
-```{r Corr_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Number of TFBS and targets of predicted and non-predicted protein-coding genes.", fig.height = 10, fig.width = 8, fig.align = "center"}
-
-analyzed.genes.cohort.list <- sapply(genes.in.cohort.list, data.frame)
-names(analyzed.genes.cohort.list) <- names(genes.in.cohort.list)
-analyzed.genes.cohort.list <- analyzed.genes.cohort.list[11:20] ## 1-10 entries are NULL
-# names(analyzed.genes.cohort.list)
-
-analyzed.pcg.summary <- Nb.targets.per.pcg %>% 
-                          select(Gene, Nb_target, Predicted) %>% 
-                          rename(Associated_gene = Gene) %>% 
-                          left_join(Nb.TFBSs.per.pcg, by = "Associated_gene") %>% 
-                          rename(Predicted = Predicted.x,
-                                 Gene      = Associated_gene) %>% 
-                          select(Gene, Nb_target, Nb_TFBS, Predicted, Cancer, TF) %>% 
-                          mutate(Predicted = ifelse(Predicted == "", yes = "Non-Predicted", no = Predicted))
-
-cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
-
-
-
-p2 <- ggplot(analyzed.pcg.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_manual(values = cols.point) +
-  theme(legend.position = "bottom") 
-
-ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
-```
-
-
-
-```{r eCDF_plot1_pcg, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in protein-coding genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
-
-analyzed.pcg.cohorts.summary <- lapply(Nb.mut.samples.pcg, function(l){
-                                  merge(l, analyzed.pcg.summary, by = "Gene") %>% 
-                                  reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
-                                                 measure.vars = c("Predicted", "Cancer", "TF")) %>% 
-                                                 filter(value != "") %>% 
-                                                 within(rm(variable)) %>% 
-                                                 rename(Class = value)
-                                })
-
-###############
-## Example 1 ##
-###############
-
-# aa <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
-#   ggplot(aes(x = Nb_TFBS, colour = Class)) +
-#                     stat_ecdf(size = 1.15, pad = FALSE) +
-#                     theme_bw() +
-#                     scale_color_manual(values = cols) + 
-#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-#                     theme(legend.position = "none") +
-#                     facet_wrap(. ~ Cohort, ncol = 1)
-# 
-# 
-# bb <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
-#   ggplot(aes(x = Nb_target, colour = Class)) +
-#                     stat_ecdf(size = 1.15, pad = FALSE) +
-#                     theme_bw() +
-#                     scale_color_manual(values = cols) + 
-#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-#                     theme(legend.position = "none") +
-#                     facet_wrap(. ~ Cohort, ncol = 1)
-# 
-# 
-# cc <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
-#   ggplot(aes(x = Nb_samples, colour = Class)) +
-#                     stat_ecdf(size = 1.15, pad = FALSE) +
-#                     theme_bw() +
-#                     scale_color_manual(values = cols) + 
-#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-#                     theme(legend.position = "none") +
-#                     facet_wrap(. ~ Cohort, ncol = 1)
-# 
-# enriched.terms.gg <- plot_grid(aa,
-#                                bb,
-#                                cc,
-#                                ncol = 3, align = "hv", hjust = -0.25, vjust = 1.15,
-#                                rel_heights = c(1, 1), rel_widths = c(1, 1),
-#                                axis = "right")
-# enriched.terms.gg
-
-
-
-###############
-## Example 2 ##
-###############
-
-cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
-
-nn <-
-reshape2::melt(rbindlist(analyzed.pcg.cohorts.summary),
-               id.vars = c("Gene", "Cohort", "Class"),
-               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
-               filter(value != "")
-
-cols.subset <- c("BASIS_All", "BASIS_ER+", "BASIS_ER-", "BRCA-US", "HNSC-US")
-
-nn %>%
-  filter(Cohort %in% cols.subset) %>% 
-  ggplot(aes(x = value, colour = Class)) +
-                    stat_ecdf(size = 1.15, pad = FALSE) +
-                    theme_bw() +
-                    scale_color_manual(values = cols) +
-                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-                    theme(legend.position = "bottom") +
-                    facet_grid(vars(Cohort), vars(variable), scales = "free")
-
-
-
-# View(analyzed.pcg.cohorts.summary[[10]])
-# cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
-# 
-# 
-# cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
-# 
-# ecdf.tfbs <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_TFBS, colour = Class)) +
-#                     stat_ecdf(size = 1.15, pad = FALSE) +
-#                     theme_bw() +
-#                     scale_color_manual(values = cols) + 
-#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-#                     theme(legend.position = "none") 
-# 
-# ecdf.targets <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_target, colour = Class)) +
-#                        stat_ecdf(size = 1.15, pad = FALSE) +
-#                        theme_bw() +
-#                        scale_color_manual(values = cols) + 
-#                        labs(x = "Nb of targets of protein-coding genes", y = "ECDF") +
-#                        theme(legend.position = "none") 
-# 
-# ecdf.samples <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_samples, colour = Class)) +
-#                        stat_ecdf(size = 1.15, pad = FALSE) +
-#                        theme_bw() +
-#                        scale_color_manual(values = cols) + 
-#                        labs(x = "Nb of mutated samples", y = "ECDF") +
-#                        theme(legend.position = "right") 
-# 
-# 
-# enriched.terms.gg <- plot_grid(ecdf.tfbs,
-#                                ecdf.targets,
-#                                ecdf.samples,
-#                                ncol = 3, align = "hv", labels = c('A)', 'B)', 'C)'), label_size = 20,
-#                                label_colour = "black", hjust = -0.25, vjust = 1.15,
-#                                rel_heights = c(1, 1, 1), rel_widths = c(1, 1, 1),
-#                                axis = "right")
-# 
-# ## Combine plots
-# enriched.terms.gg
-```
-
-
-
-```{r eCDF_plot2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in protein-coding genes. (Part 2)", fig.height = 10, fig.width = 8, fig.align = "center"}
-
-cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
-
-nn <-
-reshape2::melt(rbindlist(analyzed.pcg.cohorts.summary),
-               id.vars = c("Gene", "Cohort", "Class"),
-               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
-               filter(value != "")
-
-
-cols.subset <- c("LIHC-US", "LUAD-US", "LUSC-US", "STAD-US", "UCEC-US")
-
-nn %>%
-  filter(Cohort %in% cols.subset) %>% 
-  ggplot(aes(x = value, colour = Class)) +
-                    stat_ecdf(size = 1.15, pad = FALSE) +
-                    theme_bw() +
-                    scale_color_manual(values = cols) +
-                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-                    theme(legend.position = "bottom") +
-                    facet_grid(vars(Cohort), vars(variable), scales = "free")
-
-```
-
-
-
-```{r Corr_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Number of TFBS and targets of predicted and non-predicted protein-coding genes.", fig.height = 10, fig.width = 8, fig.align = "center"}
-
-analyzed.mirnas.cohort.list <- sapply(miRNA.in.cohort.list, data.frame)
-names(analyzed.mirnas.cohort.list) <- names(miRNA.in.cohort.list)
-analyzed.mirnas.cohort.list <- analyzed.mirnas.cohort.list[11:20] ## 1-10 entries are NULL
-
-Nb.targets.per.mirna <- xseq.net.mirna.analyzed.genes
-
-analyzed.mirna.summary <- Nb.targets.per.mirna %>% 
-                          select(Gene, Nb_target, Predicted) %>% 
-                          rename(Associated_gene = Gene) %>% 
-                          left_join(Nb.TFBSs.per.miRNA, by = "Associated_gene") %>% 
-                          rename(Predicted = Predicted.x,
-                                 Gene      = Associated_gene) %>% 
-                          select(Gene, Nb_target, Nb_TFBS, Predicted, Cancer) %>% 
-                          mutate(Predicted = ifelse(Predicted == "", yes = "Non-Predicted", no = Predicted))
-
-cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
-
-
-
-p2 <- ggplot(analyzed.mirna.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_manual(values = cols.point) +
-  theme(legend.position = "bottom") 
-
-ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
-
-```
-
-
-
-```{r eCDF_plot1_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in miRNA genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
-
-analyzed.mirna.cohorts.summary <- lapply(Nb.mut.samples.mirna, function(l){
-                                  merge(l, analyzed.mirna.summary, by = "Gene") %>% 
-                                  reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
-                                                 measure.vars = c("Predicted", "Cancer")) %>% 
-                                                 filter(value != "") %>% 
-                                                 within(rm(variable)) %>% 
-                                                 rename(Class = value)
-                                })
-
-
-cols <- c("Cancer miRNA" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77")
-
-nn <-
-reshape2::melt(rbindlist(analyzed.mirna.cohorts.summary),
-               id.vars = c("Gene", "Cohort", "Class"),
-               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
-               filter(value != "")
-
-cols.subset <- c("BASIS_All", "BASIS_ER+", "BASIS_ER-", "BRCA-US", "HNSC-US")
-
-nn %>%
-  filter(Cohort %in% cols.subset) %>% 
-  ggplot(aes(x = value, colour = Class)) +
-                    stat_ecdf(size = 1.15, pad = FALSE) +
-                    theme_bw() +
-                    scale_color_manual(values = cols) +
-                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-                    theme(legend.position = "bottom") +
-                    facet_grid(vars(Cohort), vars(variable), scales = "free")
-
-```
-
-
-
-```{r eCDF_plot2_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in miRNA genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
-
-analyzed.mirna.cohorts.summary <- lapply(Nb.mut.samples.mirna, function(l){
-                                  merge(l, analyzed.mirna.summary, by = "Gene") %>% 
-                                  reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
-                                                 measure.vars = c("Predicted", "Cancer")) %>% 
-                                                 filter(value != "") %>% 
-                                                 within(rm(variable)) %>% 
-                                                 rename(Class = value)
-                                })
-
-
-cols <- c("Cancer miRNA" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77")
-
-nn <-
-reshape2::melt(rbindlist(analyzed.mirna.cohorts.summary),
-               id.vars = c("Gene", "Cohort", "Class"),
-               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
-               filter(value != "")
-
-cols.subset <- c("LIHC-US", "LUAD-US", "LUSC-US", "STAD-US", "UCEC-US")
-
-nn %>%
-  filter(Cohort %in% cols.subset) %>% 
-  ggplot(aes(x = value, colour = Class)) +
-                    stat_ecdf(size = 1.15, pad = FALSE) +
-                    theme_bw() +
-                    scale_color_manual(values = cols) +
-                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-                    theme(legend.position = "bottom") +
-                    facet_grid(vars(Cohort), vars(variable), scales = "free")
-
-```
 
 
 ```{r TFBS_mut_rdata, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, }
@@ -2342,158 +1848,3 @@ nn %>%
 # save(TFBS.mut.list, file = "/storage/mathelierarea/processed/jamondra/Projects/dysmir/TFBS_mutations_per_cohort.Rdata")
 
 ```
-
-
-<!-- \pagebreak -->
-<!-- ```{r Ratio_mutated_vs_selected_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Ratio of dysregulated vs mutated samples in the miRNA analysis. Each panel represents a cohort with all the evaluated miRNAs ranked by the DAC probability. The color of each dot corresponds to the ratio between the number of samples with SSD >= 0.5 (i.e., with high association of dysregulation) divided by the number of mutated samples. The black line corresponds to the cohort-specific threshold defined by FDR of 0.05.", fig.height = 32, fig.width = 25, fig.align = "center", warning = FALSE} -->
-
-
-<!-- cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-") -->
-
-
-<!-- rank.plot.list <- vector(mode = "list", length = length(cohorts)) -->
-<!-- for (co in cohorts.all) { -->
-
-<!--   if (!grepl(co, pattern = "BASIS")) { -->
-<!--     co <- paste0(co, "-US") -->
-
-<!--     load(paste0("xseq_results/miRNA/xseq_trans_premiRNA_all_mutation_types_all_effects_", co, "_mirna_network_targetScanClean.Rdata")) ## xseq.pred.all.concat -->
-
-<!--   } else { -->
-
-<!--     load(paste0("xseq_results/miRNA/", co, "_miRNA.Rdata")) -->
-
-<!--   } -->
-
-
-
-
-<!--   xseq.pred.mirna <- xseq.pred.all.concat %>%  -->
-<!--                     select(sample, gene, prob_mut, prob_gene) %>%  -->
-<!--                     distinct() %>%  -->
-<!--                     group_by(gene, prob_gene) %>%  -->
-<!--                     summarise(N_mutated_samples  = n(), -->
-<!--                               N_selected_samples = sum(prob_mut >= 0.5), .groups = "drop") %>%  -->
-<!--                     mutate(Ratio = N_selected_samples/N_mutated_samples, -->
-<!--                            Lab   = ifelse(prob_gene >= xseq.th.mirna[[co]], yes = gene, no = "")) %>%  -->
-<!--                     arrange(desc(prob_gene)) -->
-<!-- xseq.pred.mirna$Rank <- seq_len(nrow(xseq.pred.mirna)) -->
-<!-- xseq.pred.mirna$Lab  <- gsub(xseq.pred.mirna$Lab, pattern = "::.+$", replacement = "", perl = T) -->
-
-
-<!-- rank.plot <- ggplot(xseq.pred.mirna, aes(y = prob_gene, x = Rank, colour = Ratio, size = N_mutated_samples, label = gene)) + -->
-<!--                 geom_line(data = xseq.pred.mirna, aes(x = Rank, y = prob_gene), inherit.aes = F, color = '#9ecae1', alpha = 0.35) +  -->
-<!--                 geom_hline(yintercept = xseq.th.mirna[[co]]) + -->
-<!--                 geom_point(shape = 20) + -->
-<!--                 theme_bw() + -->
-<!--                 ylim(c(0, 1)) + -->
-<!--                 labs(x = "Rank", y = "DAC probability", title = co) + -->
-<!--                 geom_label_repel(aes(label = Lab), -->
-<!--                                  box.padding = 0.1, -->
-<!--                                  direction = "both",  -->
-<!--                                  force = 40, -->
-<!--                                  max.overlaps = 30, -->
-<!--                                  size = 2.5, -->
-<!--                                  color = "black", -->
-<!--                                  max.iter = 20000, -->
-<!--                                  segment.color = '#d9d9d9') -->
-
-<!-- rank.plot.list[[co]] <- rank.plot -->
-
-<!-- } -->
-
-<!-- ranks.w.ratio.selected.mut <- plot_grid(rank.plot.list[["BASIS_All"]], -->
-<!--                                         rank.plot.list[["BASIS_ER+"]], -->
-<!--                                         rank.plot.list[["BASIS_ER-"]], -->
-<!--                                         rank.plot.list[["BRCA-US"]], -->
-<!--                                         rank.plot.list[["HNSC-US"]], -->
-<!--                                         rank.plot.list[["LIHC-US"]], -->
-<!--                                         rank.plot.list[["LUAD-US"]], -->
-<!--                                         rank.plot.list[["LUSC-US"]], -->
-<!--                                         rank.plot.list[["STAD-US"]], -->
-<!--                                         rank.plot.list[["UCEC-US"]], -->
-<!--                                         ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)', "H)", "I)", "J)"), label_size = 30, -->
-<!--                                         label_colour = "black", hjust = 0, vjust = 1.3, -->
-<!--                                         rel_heights = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)) -->
-
-
-<!-- ranks.w.ratio.selected.mut -->
-<!-- ``` -->
-
-
-
-
-
-<!-- \pagebreak -->
-<!-- ```{r Ratio_mutated_vs_selected_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Ratio of dysregulated vs mutated samples in the protein-coding gene analysis. Each panel represents a cohort with all the evaluated genes ranked by the DAC probability. The color of each dot corresponds to the ratio between the number of samples with SSD >= 0.5 (i.e., with high association of dysregulation) divided by the number of mutated samples. The black line corresponds to the cohort-specific threshold defined by FDR of 0.05.", fig.height = 32, fig.width = 25, fig.align = "center", warning = FALSE} -->
-
-
-<!-- cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-") -->
-
-
-<!-- rank.plot.list <- vector(mode = "list", length = length(cohorts)) -->
-<!-- for (co in cohorts.all) { -->
-
-<!--   if (!grepl(co, pattern = "BASIS")) { -->
-<!--     co <- paste0(co, "-US") -->
-
-<!--     load(paste0("xseq_results/PCG/xseq_trans_protein_coding_all_mutation_types_all_effects_", co, "_PPI_network_xseq.Rdata")) ## xseq.pred.all.concat -->
-
-<!--   } else { -->
-
-<!--     load(paste0("xseq_results/PCG/", co, "_PCG.Rdata")) -->
-
-<!--   } -->
-
-
-<!--   xseq.pred.pcg <- xseq.pred.all.concat %>%  -->
-<!--                     filter(mut_effect == "TFBS") %>%  -->
-<!--                     select(sample, gene, prob_mut, prob_gene) %>%  -->
-<!--                     distinct() %>%  -->
-<!--                     group_by(gene, prob_gene) %>%  -->
-<!--                     summarise(N_mutated_samples  = n(), -->
-<!--                               N_selected_samples = sum(prob_mut >= 0.5), -->
-<!--                               .groups = "drop") %>%  -->
-<!--                     mutate(Ratio = N_selected_samples/N_mutated_samples, -->
-<!--                            Lab   = ifelse(prob_gene >= xseq.th.pcg[[co]], yes = gene, no = "")) %>%  -->
-<!--                     arrange(desc(prob_gene)) -->
-<!--   xseq.pred.pcg$Rank <- seq_len(nrow(xseq.pred.pcg)) -->
-
-<!--   rank.plot <- ggplot(xseq.pred.pcg, aes(y = prob_gene, x = Rank, colour = Ratio, size = N_mutated_samples, label = gene)) + -->
-<!--                 geom_line(data = xseq.pred.pcg, aes(x = Rank, y = prob_gene), inherit.aes = F, color = '#9ecae1', alpha = 0.35) +  -->
-<!--                 geom_hline(yintercept = xseq.th.pcg[[co]]) + -->
-<!--                 geom_point(shape = 20) + -->
-<!--                 theme_bw() + -->
-<!--                 ylim(c(0, 1)) + -->
-<!--                 labs(x = "Rank", y = "DAC probability", title = co) + -->
-<!--                 geom_label_repel(aes(label = Lab), -->
-<!--                                  box.padding = 0.1, -->
-<!--                                  direction = "both",  -->
-<!--                                  force = 40, -->
-<!--                                  max.overlaps = 30, -->
-<!--                                  size = 2.5, -->
-<!--                                  color = "black", -->
-<!--                                  max.iter = 20000, -->
-<!--                                  segment.color = '#d9d9d9') -->
-
-<!-- rank.plot.list[[co]] <- rank.plot -->
-
-<!-- } -->
-
-<!-- ranks.w.ratio.selected.mut <- plot_grid(rank.plot.list[["BASIS_All"]], -->
-<!--                                         rank.plot.list[["BASIS_ER+"]], -->
-<!--                                         rank.plot.list[["BASIS_ER-"]], -->
-<!--                                         rank.plot.list[["BRCA-US"]], -->
-<!--                                         rank.plot.list[["HNSC-US"]], -->
-<!--                                         rank.plot.list[["LIHC-US"]], -->
-<!--                                         rank.plot.list[["LUAD-US"]], -->
-<!--                                         rank.plot.list[["LUSC-US"]], -->
-<!--                                         rank.plot.list[["STAD-US"]], -->
-<!--                                         rank.plot.list[["UCEC-US"]], -->
-<!--                                         ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)', "H)", "I)", "J)"), label_size = 30, -->
-<!--                                         label_colour = "black", hjust = 0, vjust = 1.3, -->
-<!--                                         rel_heights = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)) -->
-
-
-<!-- ranks.w.ratio.selected.mut -->
-<!-- ``` -->
