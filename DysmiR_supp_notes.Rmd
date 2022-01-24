@@ -1178,40 +1178,48 @@ rm(enriched.terms.gg)
 
 
 \pagebreak
-```{r Survival_BCSS, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Breast cancer specific survival (BCSS, y-axis) plots for selected miRNAs. Kaplan-Meier survival curves were calculated using the METABRIC cohort. Samples were separated into two groups according to the level of miRNA expression (above/below the median).", fig.height = 30, fig.width = 25, fig.align = "center", warning = FALSE}
+```{r Survival_BCSS, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Breast cancer specific survival (BCSS, y-axis) plots for selected miRNAs. Kaplan-Meier survival curves were calculated using the METABRIC cohort. Samples were separated into two groups according to the level of miRNA expression (above/below the median).", fig.height = 30, fig.width = 25, fig.align = "center", warning = FALSE, message=FALSE}
 
 # setwd("/home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscript/Supp_Material")
 load("Survival_plots/BCSS_survival_plots.RData") ## selected.mirnas.bcss.plot
 # names(selected.mirnas.bcss.plot)
 
+
 bcss.examples <-
 suppressWarnings(
-plot_grid(selected.mirnas.bcss.plot[["hsa-mir-29a-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-1290"]],
+plot_grid(selected.mirnas.bcss.plot[["hsa-mir-10a-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-17-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-17-5p"]],
+          # selected.mirnas.bcss.plot[["hsa-mir-18a-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-18a-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-20a-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-20a-5p"]],
           selected.mirnas.bcss.plot[["hsa-mir-21-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-181c-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-342-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-21-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-29a-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-29a-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-92a-1-5p"]],
           selected.mirnas.bcss.plot[["hsa-mir-145-3p"]],
           selected.mirnas.bcss.plot[["hsa-mir-145-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-18a-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-615-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-708-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-29a-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-20a-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-1247-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-17-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-10a-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-92a-1-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-17-3p"]],
           selected.mirnas.bcss.plot[["hsa-mir-155-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-181c-3p"]],
+          # selected.mirnas.bcss.plot[["hsa-mir-196b-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-205-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-205-5p"]],
           selected.mirnas.bcss.plot[["hsa-mir-339-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-378a-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-21-5p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-708-3p"]],
-          selected.mirnas.bcss.plot[["hsa-mir-30b-3p"]],
           selected.mirnas.bcss.plot[["hsa-mir-342-3p"]],
-          nrow = 5)
-)
+          selected.mirnas.bcss.plot[["hsa-mir-342-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-378a-3p"]],
+          # selected.mirnas.bcss.plot[["hsa-mir-508-3p"]],
+          # selected.mirnas.bcss.plot[["hsa-mir-508-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-590-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-615-3p"]],
+          # selected.mirnas.bcss.plot[["hsa-mir-615-5p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-629-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-708-3p"]],
+          selected.mirnas.bcss.plot[["hsa-mir-708-5p"]],
+          # selected.mirnas.bcss.plot[["hsa-mir-1247-3p"]],
+          ncol = 5))
 
 bcss.examples +
       theme(
@@ -1228,37 +1236,45 @@ bcss.examples +
 
 
 \pagebreak
-```{r Survival_OS, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Overall survival (OS, y-axis) plots for selected miRNAs. Kaplan-Meier survival curves were calculated using the METABRIC cohort. Samples were separated into two groups according to the level of miRNA expression (above/below the median).", fig.height = 32, fig.width = 25, fig.align = "center", warning = FALSE}
+```{r Survival_OS, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Overall survival (OS, y-axis) plots for selected miRNAs. Kaplan-Meier survival curves were calculated using the METABRIC cohort. Samples were separated into two groups according to the level of miRNA expression (above/below the median).", fig.height = 32, fig.width = 25, fig.align = "center", warning = FALSE, message=FALSE}
 
+## 
 load("Survival_plots/OS_survival_plots.RData") ## selected.mirnas.os.plot
 
 os.examples <-
 suppressWarnings(
-plot_grid(
-  selected.mirnas.os.plot[["hsa-mir-20a-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-29a-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-145-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-1290"]],
-  selected.mirnas.os.plot[["hsa-mir-21-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-181c-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-92a-1-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-145-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-342-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-342-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-155-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-708-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-21-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-10a-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-30b-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-615-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-17-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-18a-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-339-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-17-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-29a-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-1247-5p"]],
-  selected.mirnas.os.plot[["hsa-mir-378a-3p"]],
-  selected.mirnas.os.plot[["hsa-mir-708-3p"]],
+plot_grid(selected.mirnas.os.plot[["hsa-mir-10a-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-17-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-17-5p"]],
+          # selected.mirnas.os.plot[["hsa-mir-18a-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-18a-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-20a-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-20a-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-21-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-21-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-29a-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-29a-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-92a-1-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-145-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-145-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-155-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-181c-3p"]],
+          # selected.mirnas.os.plot[["hsa-mir-196b-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-205-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-205-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-339-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-342-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-342-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-378a-3p"]],
+          # selected.mirnas.os.plot[["hsa-mir-508-3p"]],
+          # selected.mirnas.os.plot[["hsa-mir-508-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-590-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-615-3p"]],
+          # selected.mirnas.os.plot[["hsa-mir-615-5p"]],
+          # selected.mirnas.os.plot[["hsa-mir-629-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-708-3p"]],
+          selected.mirnas.os.plot[["hsa-mir-708-5p"]],
+          selected.mirnas.os.plot[["hsa-mir-1247-3p"]],
           nrow = 6)
 )
 
@@ -2014,7 +2030,7 @@ for (l in 1:length(mirna.in.cohort.list)) {
 selected.mirna.list  <- sapply(selected.mirna.list, function(x){
                           x[grepl(x, pattern = "::")]
                         })
-mirna.in.cohort.list <- sapply(selected.mirna.list, function(x){
+mirna.in.cohort.list <- sapply(mirna.in.cohort.list, function(x){
                           x[grepl(x, pattern = "::")]
                         })
 ```
