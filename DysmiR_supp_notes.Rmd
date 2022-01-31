@@ -392,7 +392,7 @@ knitr::include_graphics("GeneHancer/TFBS_CRE_association-1.png", dpi = 100)
 
 
 \pagebreak
-```{r xseq_model_explained, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Likelihood association of mutations with gene expression dysregulation in xseq. Example with a network of target genes for a given miRNA. A) Gene regulatory status. For each target $i$ connected to the miRNA gene $X$ associated with a cis-regulatory mutation, xseq decomposes the expression distribution of $i$ (using all samples in the cohort) as a 3-component mixture model (down, neutral, and up). Next, xseq computes the posterior probability of observing the expression of $i$ in the mutated sample $S$ as belonging to the down, neutral, and up components. The component with the highest posterior probability provides information about the regulatory status of $i$ (down, neutral, or up). This step is repeated for each gene in the network and for each sample in the cohort. B) The sample-specific network dysregulation probability is calculated from the down and up regulation posterior probabilities of all the genes in the network for a given samples where the mutation was observed. C) The posterior probabilities of sample-specific dysregulation are used to compute the posterior probability of association between a cis-regulatory mutated miRNA and its target network dysregulation across a cohort. For a detailed explanation of the parameters and the graphical model, see the xseq publication by Ding et al., Nature Communications, 2015.", fig.align = "center", out.width = 500}
+```{r xseq_model_explained, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Likelihood association of mutations with gene expression dysregulation in xseq. Taking advantage of the gene expression information (RNA-seq, microarrays), xseq identifies genes whose partners in a regulatory network have expression values deviated from neutral observed values, an enrichment of both upregulated and downregulated genes within a network is evaluated in individual samples and then across a cohort. Example with a network of target genes for a given miRNA. A) Gene regulatory status. For each target $i$ connected to the miRNA gene $X$ associated with a cis-regulatory mutation, xseq decomposes the expression distribution of $i$ (using all samples in the cohort) as a 3-component mixture model (down, neutral, and up). Next, xseq computes the posterior probability of observing the expression of $i$ in the mutated sample $S$ as belonging to the down, neutral, and up components. The component with the highest posterior probability provides information about the regulatory status of $i$ (down, neutral, or up). This step is repeated for each gene in the network and for each sample in the cohort. B) The sample-specific network dysregulation probability is calculated from the down and up regulation posterior probabilities of all the genes in the network for a given samples where the mutation was observed. C) The posterior probabilities of sample-specific dysregulation are used to compute the posterior probability of association between a cis-regulatory mutated miRNA and its target network dysregulation across a cohort. For a detailed explanation of the parameters and the graphical model, see the xseq publication by Ding et al., Nature Communications, 2015.", fig.align = "center", out.width = 500}
 
 knitr::include_graphics("Model/Xseq_explained.png", dpi = 100)
 ```
@@ -1294,411 +1294,6 @@ os.examples +
 
 
 
-\pagebreak
-```{r Ratio_mutated_vs_selected_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Ratio of dysregulated vs mutated samples in the miRNA analysis. Each panel represents a cohort with all the evaluated miRNAs ranked by the DAC probability. The color of each dot corresponds to the ratio between the number of samples with SSD >= 0.5 (i.e., with high association of dysregulation) divided by the number of mutated samples. The black line corresponds to the cohort-specific threshold defined by FDR of 0.05.", fig.height = 32, fig.width = 25, fig.align = "center", warning = FALSE}
-
-
-cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
-
-
-rank.plot.list <- vector(mode = "list", length = length(cohorts))
-for (co in cohorts.all) {
-  
-  if (!grepl(co, pattern = "BASIS")) {
-    co <- paste0(co, "-US")
-    
-    load(paste0("xseq_results/miRNA/xseq_trans_premiRNA_all_mutation_types_all_effects_", co, "_mirna_network_targetScanClean.Rdata")) ## xseq.pred.all.concat
-    
-  } else {
-    
-    load(paste0("xseq_results/miRNA/", co, "_miRNA.Rdata"))
-    
-  }
-  
-  
-
-  
-  xseq.pred.mirna <- xseq.pred.all.concat %>% 
-                    select(sample, gene, prob_mut, prob_gene) %>% 
-                    distinct() %>% 
-                    group_by(gene, prob_gene) %>% 
-                    summarise(N_mutated_samples  = n(),
-                              N_selected_samples = sum(prob_mut >= 0.5), .groups = "drop") %>% 
-                    mutate(Ratio = N_selected_samples/N_mutated_samples,
-                           Lab   = ifelse(prob_gene >= xseq.th.mirna[[co]], yes = gene, no = "")) %>% 
-                    arrange(desc(prob_gene))
-xseq.pred.mirna$Rank <- seq_len(nrow(xseq.pred.mirna))
-xseq.pred.mirna$Lab  <- gsub(xseq.pred.mirna$Lab, pattern = "::.+$", replacement = "", perl = T)
-
-
-rank.plot <- ggplot(xseq.pred.mirna, aes(y = prob_gene, x = Rank, colour = Ratio, size = N_mutated_samples, label = gene)) +
-                geom_line(data = xseq.pred.mirna, aes(x = Rank, y = prob_gene), inherit.aes = F, color = '#9ecae1', alpha = 0.35) + 
-                geom_hline(yintercept = xseq.th.mirna[[co]]) +
-                geom_point(shape = 20) +
-                theme_bw() +
-                ylim(c(0, 1)) +
-                labs(x = "Rank", y = "DAC probability", title = co) +
-                geom_label_repel(aes(label = Lab),
-                                 box.padding = 0.1,
-                                 direction = "both", 
-                                 force = 40,
-                                 max.overlaps = 30,
-                                 size = 2.5,
-                                 color = "black",
-                                 max.iter = 20000,
-                                 segment.color = '#d9d9d9')
-
-rank.plot.list[[co]] <- rank.plot
-  
-}
-
-ranks.w.ratio.selected.mut <- plot_grid(rank.plot.list[["BASIS_All"]],
-                                        rank.plot.list[["BASIS_ER+"]],
-                                        rank.plot.list[["BASIS_ER-"]],
-                                        rank.plot.list[["BRCA-US"]],
-                                        rank.plot.list[["HNSC-US"]],
-                                        rank.plot.list[["LIHC-US"]],
-                                        rank.plot.list[["LUAD-US"]],
-                                        rank.plot.list[["LUSC-US"]],
-                                        rank.plot.list[["STAD-US"]],
-                                        rank.plot.list[["UCEC-US"]],
-                                        ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)', "H)", "I)", "J)"), label_size = 30,
-                                        label_colour = "black", hjust = 0, vjust = 1.3,
-                                        rel_heights = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
-
-
-ranks.w.ratio.selected.mut
-```
-
-
-
-
-
-\pagebreak
-```{r Ratio_mutated_vs_selected_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Ratio of dysregulated vs mutated samples in the protein-coding gene analysis. Each panel represents a cohort with all the evaluated genes ranked by the DAC probability. The color of each dot corresponds to the ratio between the number of samples with SSD >= 0.5 (i.e., with high association of dysregulation) divided by the number of mutated samples. The black line corresponds to the cohort-specific threshold defined by FDR of 0.05.", fig.height = 32, fig.width = 25, fig.align = "center", warning = FALSE}
-
-
-cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
-
-
-rank.plot.list <- vector(mode = "list", length = length(cohorts))
-for (co in cohorts.all) {
-  
-  if (!grepl(co, pattern = "BASIS")) {
-    co <- paste0(co, "-US")
-    
-    load(paste0("xseq_results/PCG/xseq_trans_protein_coding_all_mutation_types_all_effects_", co, "_PPI_network_xseq.Rdata")) ## xseq.pred.all.concat
-    
-  } else {
-    
-    load(paste0("xseq_results/PCG/", co, "_PCG.Rdata"))
-    
-  }
-  
-  
-  xseq.pred.pcg <- xseq.pred.all.concat %>% 
-                    filter(mut_effect == "TFBS") %>% 
-                    select(sample, gene, prob_mut, prob_gene) %>% 
-                    distinct() %>% 
-                    group_by(gene, prob_gene) %>% 
-                    summarise(N_mutated_samples  = n(),
-                              N_selected_samples = sum(prob_mut >= 0.5),
-                              .groups = "drop") %>% 
-                    mutate(Ratio = N_selected_samples/N_mutated_samples,
-                           Lab   = ifelse(prob_gene >= xseq.th.pcg[[co]], yes = gene, no = "")) %>% 
-                    arrange(desc(prob_gene))
-  xseq.pred.pcg$Rank <- seq_len(nrow(xseq.pred.pcg))
-
-  rank.plot <- ggplot(xseq.pred.pcg, aes(y = prob_gene, x = Rank, colour = Ratio, size = N_mutated_samples, label = gene)) +
-                geom_line(data = xseq.pred.pcg, aes(x = Rank, y = prob_gene), inherit.aes = F, color = '#9ecae1', alpha = 0.35) + 
-                geom_hline(yintercept = xseq.th.pcg[[co]]) +
-                geom_point(shape = 20) +
-                theme_bw() +
-                ylim(c(0, 1)) +
-                labs(x = "Rank", y = "DAC probability", title = co) +
-                geom_label_repel(aes(label = Lab),
-                                 box.padding = 0.1,
-                                 direction = "both", 
-                                 force = 40,
-                                 max.overlaps = 30,
-                                 size = 2.5,
-                                 color = "black",
-                                 max.iter = 20000,
-                                 segment.color = '#d9d9d9')
-
-rank.plot.list[[co]] <- rank.plot
-  
-}
-
-ranks.w.ratio.selected.mut <- plot_grid(rank.plot.list[["BASIS_All"]],
-                                        rank.plot.list[["BASIS_ER+"]],
-                                        rank.plot.list[["BASIS_ER-"]],
-                                        rank.plot.list[["BRCA-US"]],
-                                        rank.plot.list[["HNSC-US"]],
-                                        rank.plot.list[["LIHC-US"]],
-                                        rank.plot.list[["LUAD-US"]],
-                                        rank.plot.list[["LUSC-US"]],
-                                        rank.plot.list[["STAD-US"]],
-                                        rank.plot.list[["UCEC-US"]],
-                                        ncol = 2, align = "hv", labels = c('A)', 'B)', 'C)', 'D)', 'E)', 'F)', 'G)', "H)", "I)", "J)"), label_size = 30,
-                                        label_colour = "black", hjust = 0, vjust = 1.3,
-                                        rel_heights = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
-
-
-ranks.w.ratio.selected.mut
-```
-
-
-
-
-
-\pagebreak
-\begin{landscape}
-```{r FEA_BASIS_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes in the BASIS cohort. The barplots represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes when considering protein-coding genes with LoF mutations (PCGs::LoF; A-C), protein-coding genes with cis-regulatory mutations (PCG::TFBS; B-D), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; E). Enriched terms from KEGG 2021 Human (A-B) and WikiPathways (C-E) are provided.", fig.height = 100, fig.width = 180, fig.align = "center"}
-load("FEA_heatmaps/Enriched_terms_plots_BASIS.RData")  ## GSEA.enrich.plots
-##########
-## KEGG ##
-##########
-## KEGG TFBS PCG
-gene.names <- GSEA.enrich.plots[["KEGG_2021_Human"]][["PCG.TFBS"]][["gene_names"]]
-basis.pcg.tfbs.kegg <- GSEA.enrich.plots[["KEGG_2021_Human"]][["PCG.TFBS"]][["plot"]]
-basis.pcg.tfbs.kegg.plot <-
-basis.pcg.tfbs.kegg +
-  scale_x_discrete(limits = gene.names) +
-  scale_fill_distiller(palette = "Blues", direction = +1) +
-  labs(title = " PCG.TFBS - KEGG") +
-  theme(text = element_text(size = 90),
-        axis.text.x = element_text(hjust=1, size = 100),
-        axis.text.y = element_text(hjust=1, size = 100)) +
-  guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-        theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
-## KEGG LoF
-# gene.names <- GSEA.enrich.plots[["KEGG_2019_Human"]][["PCG.LoF"]][["gene_names"]]
-# basis.pcg.lof.kegg <- GSEA.enrich.plots[["KEGG_2019_Human"]][["PCG.LoF"]][["plot"]]
-# 
-# basis.pcg.lof.kegg.plot <-
-# basis.pcg.lof.kegg +
-#   scale_x_discrete(limits = gene.names) +
-#   scale_fill_distiller(palette = "Blues", direction = +1) +
-#   guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-#   labs(title = " PCG.LoF - KEGG") +
-#   theme(text = element_text(size = 100),
-#           axis.text.x = element_text(hjust=1, size = 100),
-#           axis.text.y = element_text(hjust=1, size = 100)) +
-#         theme(
-#         panel.background = element_rect(fill = "white"),
-#         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-#         plot.background = element_rect(
-#           fill = "#fefefe",
-#           colour = "white",
-#           size = 1))
-##################
-## WikiPathways ##
-##################
-## WikiPathways TFBS PCG
-gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.TFBS"]][["gene_names"]]
-basis.pcg.tfbs.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.TFBS"]][["plot"]]
-basis.pcg.tfbs.wiki.plot <-
-basis.pcg.tfbs.wiki +
-  scale_x_discrete(limits = gene.names) +
-scale_fill_distiller(palette = "Blues", direction = +1) +
-labs(title = "PCG.TFBS - WikiPathways") +
-guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-theme(text = element_text(size = 100),
-          axis.text.x = element_text(hjust=1, size = 100),
-          axis.text.y = element_text(hjust=1, size = 100)) +
-        theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
-## WikiPathways LoF
-# gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.LoF"]][["gene_names"]]
-# basis.pcg.lof.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.LoF"]][["plot"]]
-# 
-# basis.pcg.lof.wiki.plot <-
-# basis.pcg.lof.wiki +
-#   scale_x_discrete(limits = gene.names) +
-# scale_fill_distiller(palette = "Blues", direction = +1) +
-# guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-# labs(title = "PCG.LoF - WikiPathways") +
-# theme(text = element_text(size = 100),
-#           axis.text.x = element_text(hjust=1, size = 100),
-#           axis.text.y = element_text(hjust=1, size = 100)) +
-#         theme(
-#         panel.background = element_rect(fill = "white"),
-#         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-#         plot.background = element_rect(
-#           fill = "#fefefe",
-#           colour = "white",
-#           size = 1))
-## WikiPathways TFBS miRNA
-# gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["premiRNA.TFBS"]][["gene_names"]]
-# basis.premiRNA.tfbs.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["premiRNA.TFBS"]][["plot"]]
-# 
-# basis.premiRNA.tfbs.wiki.plot <-
-# basis.premiRNA.tfbs.wiki +
-#   scale_x_discrete(limits = gene.names) +
-# scale_fill_distiller(palette = "Blues", direction = +1) +
-# guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-# labs(title = "miRNA.TFBS - WikiPathways") +
-# theme(text = element_text(size = 100),
-#           axis.text.x = element_text(hjust=1, size = 100),
-#           axis.text.y = element_text(hjust=1, size = 100)) #+
-# #         theme(
-# #         panel.background = element_rect(fill = "white"),
-# #         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-# #         plot.background = element_rect(
-# #           fill = "#fefefe",
-# #           colour = "white",
-# #           size = 1))
-# enriched.terms.gg <- plot_grid(basis.pcg.tfbs.kegg.plot,
-#                                basis.pcg.tfbs.wiki.plot,
-#                                ncol = 2, align = "hv", labels = c('A)', 'B)'), label_size = 150,
-#                                label_colour = "black", hjust = -2, vjust = 3,
-#                                rel_heights = c(1, 1))
-# 
-# ## Combine plots
-# enriched.terms.gg
-# 
-# rm(GSEA.enrich.plots)
-# rm(enriched.terms.gg)
-```
-
-
-
-
-```{r FEA_BASIS_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes in the BASIS cohort. The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes when considering protein-coding genes with LoF mutations (PCGs::LoF; A-C), protein-coding genes with cis-regulatory mutations (PCG::TFBS; B-D), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; E). Enriched terms from GO biological processes (GO-BP; A-B) and Panther 2016 (C-E) are provided.", fig.height = 100, fig.width = 200, fig.align = "center"}
-load("FEA_heatmaps/Enriched_terms_plots_BASIS.RData")  ## GSEA.enrich.plots
-###########################
-## GO Biological process ##
-###########################
-## GO-BP TFBS PCG
-gene.names <- GSEA.enrich.plots[["GO_Biological_Process_2021"]][["PCG.TFBS"]][["gene_names"]]
-basis.pcg.tfbs.go.bp <- GSEA.enrich.plots[["GO_Biological_Process_2021"]][["PCG.TFBS"]][["plot"]]
-basis.pcg.tfbs.go.bp.plot <-
-basis.pcg.tfbs.go.bp +
-  scale_x_discrete(limits = gene.names) +
-scale_fill_distiller(palette = "Blues", direction = +1) +
-guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-labs(title = "PCG.TFBS - GO-BP") +
-theme(text = element_text(size = 110),
-          axis.text.x = element_text(hjust=1, size = 110),
-          axis.text.y = element_text(hjust=1, size = 110)) +
-        theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
-## GO-BP LoF
-# gene.names <- GSEA.enrich.plots[["GO_Biological_Process_2018"]][["PCG.LoF"]][["gene_names"]]
-# basis.pcg.lof.go.bp <- GSEA.enrich.plots[["GO_Biological_Process_2018"]][["PCG.LoF"]][["plot"]]
-# 
-# basis.pcg.lof.go.bp.plot <-
-# basis.pcg.lof.go.bp +
-#   scale_x_discrete(limits = gene.names) +
-# scale_fill_distiller(palette = "Blues", direction = +1) +
-# guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-# labs(title = "PCG.LoF - GO-BP") +
-# theme(text = element_text(size = 110),
-#           axis.text.x = element_text(hjust=1, size = 110),
-#           axis.text.y = element_text(hjust=1, size = 110)) +
-#         theme(
-#         panel.background = element_rect(fill = "white"),
-#         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-#         plot.background = element_rect(
-#           fill = "#fefefe",
-#           colour = "white",
-#           size = 1))
-##################
-## Panther 2016 ##
-##################
-## Panther TFBS PCG
-gene.names <- GSEA.enrich.plots[["Panther_2016"]][["PCG.TFBS"]][["gene_names"]]
-basis.pcg.tfbs.panther <- GSEA.enrich.plots[["Panther_2016"]][["PCG.TFBS"]][["plot"]]
-basis.pcg.tfbs.panther.plot <-
-basis.pcg.tfbs.panther +
-  scale_x_discrete(limits = gene.names) +
-scale_fill_distiller(palette = "Blues", direction = +1) +
-guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-labs(title = "PCG.TFBS - Panther") +
-theme(text = element_text(size = 110),
-          axis.text.x = element_text(hjust=1, size = 110),
-          axis.text.y = element_text(hjust=1, size = 110)) +
-        theme(
-        panel.background = element_rect(fill = "white"),
-        plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-        plot.background = element_rect(
-          fill = "#fefefe",
-          colour = "white",
-          size = 1))
-## Panther LoF
-# gene.names <- GSEA.enrich.plots[["Panther_2016"]][["PCG.LoF"]][["gene_names"]]
-# basis.pcg.lof.panther <- GSEA.enrich.plots[["Panther_2016"]][["PCG.LoF"]][["plot"]]
-# 
-# basis.pcg.lof.panther.plot <-
-# basis.pcg.lof.panther +
-#   scale_x_discrete(limits = gene.names) +
-# scale_fill_distiller(palette = "Blues", direction = +1) +
-# guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-# labs(title = "PCG.LoF - Panther") +
-# theme(text = element_text(size = 110),
-#           axis.text.x = element_text(hjust=1, size = 110),
-#           axis.text.y = element_text(hjust=1, size = 110)) +
-#         theme(
-#         panel.background = element_rect(fill = "white"),
-#         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-#         plot.background = element_rect(
-#           fill = "#fefefe",
-#           colour = "white",
-#           size = 1))
-## Panther TFBS miRNA
-# gene.names <- GSEA.enrich.plots[["Panther_2016"]][["premiRNA.TFBS"]][["gene_names"]]
-# basis.premiRNA.tfbs.panther <- GSEA.enrich.plots[["Panther_2016"]][["premiRNA.TFBS"]][["plot"]]
-# 
-# basis.premiRNA.tfbs.panther.plot <-
-# basis.premiRNA.tfbs.panther +
-#   scale_x_discrete(limits = gene.names) +
-# scale_fill_distiller(palette = "Blues", direction = +1) +
-# guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) +
-# labs(title = "miRNA.TFBS- Panther") +
-# theme(text = element_text(size = 110),
-#           axis.text.x = element_text(hjust=1, size = 110),
-#           axis.text.y = element_text(hjust=1, size = 110)) +
-#         theme(
-#         panel.background = element_rect(fill = "white"),
-#         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"),
-#         plot.background = element_rect(
-#           fill = "#fefefe",
-#           colour = "white",
-#           size = 1))
-enriched.terms.gg <- plot_grid(basis.pcg.tfbs.go.bp.plot,
-                               basis.pcg.tfbs.kegg.plot,
-                               # NULL,NULL,
-                               basis.pcg.tfbs.wiki.plot,
-                               basis.pcg.tfbs.panther.plot,
-                               ncol = 2, align = "hv", labels = c('A)', 'B)', "C)", "D)"), label_size = 150,
-                               label_colour = "black", hjust = -5, vjust = 1,
-                               rel_heights = c(1, 1, 1, 1))
-## Combine plots
-enriched.terms.gg
-rm(GSEA.enrich.plots)
-rm(enriched.terms.gg)
-```
-\end{landscape}
-
-
-
 ```{r Nb_TFBS_per_gene_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="", fig.align = "center"}
 # Distribution of associated TFBSs among predicted, non-predicted, TFs and cancer-related protein-coding genes represented as A) Cumulative Distribution Function, and B) Histogram of frequencies.
 cohorts.all <- c(cohorts, "BASIS_All", "BASIS_ER+", "BASIS_ER-")
@@ -1820,7 +1415,7 @@ TFBS.distr.hist.log10.plot <- ggplot(Nb.TFBSs.per.pcg.classes, aes(x = log10(Nb_
 
 
 
-```{r Nb_connections_per_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Distribution of number of associated TFBSs (A and B) and number of targets in the regulatory network (C and D) among predicted, non-predicted, TFs and cancer-related protein-coding genes represented as Cumulative Distribution Function and Histogram of frequencies. The maximum number of targets of each protein-coding gene in the regulatory network was restricted to 1000.", fig.height = 10, fig.width = 10, fig.align = "center"}
+```{r Nb_connections_per_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Distribution of number of associated TFBSs (A and B) and number of targets in the regulatory network (C and D) among predicted, non-predicted, TFs and cancer-related protein-coding genes (aggregated from all evaluated cohorts) represented as Cumulative Distribution Function and Histogram of frequencies. The maximum number of targets of each protein-coding gene in the regulatory network was restricted to 1000.", fig.height = 10, fig.width = 10, fig.align = "center"}
 ## Genes in the network that were analyzed by xseq
 Nb.targets.per.pcg <- xseq.net.ppi %>% 
                                 filter(Gene %in% xseq.analyzed.genes) %>% 
@@ -1862,6 +1457,166 @@ enriched.terms.gg <- plot_grid(TFBS.distr.ecdf.plot,
                                axis = "right")
 ## Combine plots
 enriched.terms.gg
+```
+
+
+
+```{r eCDF_plot1_pcg, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulative Distribution Functions of number of TFBS, number of targets and number of mutations in protein-coding genes, separated by cohorts (part 1).", fig.height = 10, fig.width = 8, fig.align = "center"}
+
+analyzed.pcg.summary <- Nb.targets.per.pcg %>% 
+                          select(Gene, Nb_target, Predicted) %>% 
+                          rename(Associated_gene = Gene) %>% 
+                          left_join(Nb.TFBSs.per.pcg, by = "Associated_gene") %>% 
+                          rename(Predicted = Predicted.x,
+                                 Gene      = Associated_gene) %>% 
+                          select(Gene, Nb_target, Nb_TFBS, Predicted, Cancer, TF) %>% 
+                          mutate(Predicted = ifelse(Predicted == "", yes = "Non-Predicted", no = Predicted))
+
+analyzed.pcg.cohorts.summary <- lapply(Nb.mut.samples.pcg, function(l){
+                                  merge(l, analyzed.pcg.summary, by = "Gene") %>% 
+                                  reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
+                                                 measure.vars = c("Predicted", "Cancer", "TF")) %>% 
+                                                 filter(value != "") %>% 
+                                                 within(rm(variable)) %>% 
+                                                 rename(Class = value)
+                                })
+###############
+## Example 1 ##
+###############
+# aa <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
+#   ggplot(aes(x = Nb_TFBS, colour = Class)) +
+#                     stat_ecdf(size = 1.15, pad = FALSE) +
+#                     theme_bw() +
+#                     scale_color_manual(values = cols) + 
+#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+#                     theme(legend.position = "none") +
+#                     facet_wrap(. ~ Cohort, ncol = 1)
+# 
+# 
+# bb <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
+#   ggplot(aes(x = Nb_target, colour = Class)) +
+#                     stat_ecdf(size = 1.15, pad = FALSE) +
+#                     theme_bw() +
+#                     scale_color_manual(values = cols) + 
+#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+#                     theme(legend.position = "none") +
+#                     facet_wrap(. ~ Cohort, ncol = 1)
+# 
+# 
+# cc <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
+#   ggplot(aes(x = Nb_samples, colour = Class)) +
+#                     stat_ecdf(size = 1.15, pad = FALSE) +
+#                     theme_bw() +
+#                     scale_color_manual(values = cols) + 
+#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+#                     theme(legend.position = "none") +
+#                     facet_wrap(. ~ Cohort, ncol = 1)
+# 
+# enriched.terms.gg <- plot_grid(aa,
+#                                bb,
+#                                cc,
+#                                ncol = 3, align = "hv", hjust = -0.25, vjust = 1.15,
+#                                rel_heights = c(1, 1), rel_widths = c(1, 1),
+#                                axis = "right")
+# enriched.terms.gg
+
+###############
+## Example 2 ##
+###############
+cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
+nn <-
+reshape2::melt(rbindlist(analyzed.pcg.cohorts.summary),
+               id.vars = c("Gene", "Cohort", "Class"),
+               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
+               filter(value != "")
+cols.subset <- c("BASIS_All", "BASIS_ER+", "BASIS_ER-", "BRCA-US", "HNSC-US")
+nn %>%
+  filter(Cohort %in% cols.subset) %>% 
+  ggplot(aes(x = value, colour = Class)) +
+                    stat_ecdf(size = 1.15, pad = FALSE) +
+                    theme_bw() +
+                    scale_color_manual(values = cols) +
+                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+                    theme(legend.position = "bottom") +
+                    facet_grid(vars(Cohort), vars(variable), scales = "free")
+# View(analyzed.pcg.cohorts.summary[[10]])
+# cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
+# 
+# 
+# cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
+# 
+# ecdf.tfbs <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_TFBS, colour = Class)) +
+#                     stat_ecdf(size = 1.15, pad = FALSE) +
+#                     theme_bw() +
+#                     scale_color_manual(values = cols) + 
+#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+#                     theme(legend.position = "none") 
+# 
+# ecdf.targets <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_target, colour = Class)) +
+#                        stat_ecdf(size = 1.15, pad = FALSE) +
+#                        theme_bw() +
+#                        scale_color_manual(values = cols) + 
+#                        labs(x = "Nb of targets of protein-coding genes", y = "ECDF") +
+#                        theme(legend.position = "none") 
+# 
+# ecdf.samples <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_samples, colour = Class)) +
+#                        stat_ecdf(size = 1.15, pad = FALSE) +
+#                        theme_bw() +
+#                        scale_color_manual(values = cols) + 
+#                        labs(x = "Nb of mutated samples", y = "ECDF") +
+#                        theme(legend.position = "right") 
+# 
+# 
+# enriched.terms.gg <- plot_grid(ecdf.tfbs,
+#                                ecdf.targets,
+#                                ecdf.samples,
+#                                ncol = 3, align = "hv", labels = c('A)', 'B)', 'C)'), label_size = 20,
+#                                label_colour = "black", hjust = -0.25, vjust = 1.15,
+#                                rel_heights = c(1, 1, 1), rel_widths = c(1, 1, 1),
+#                                axis = "right")
+# 
+# ## Combine plots
+# enriched.terms.gg
+```
+
+
+
+```{r eCDF_plot2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulative Distribution Functions of number of TFBS, number of targets and number of mutations in protein-coding genes, separated by cohorts (part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
+cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
+nn <-
+reshape2::melt(rbindlist(analyzed.pcg.cohorts.summary),
+               id.vars = c("Gene", "Cohort", "Class"),
+               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
+               filter(value != "")
+cols.subset <- c("LIHC-US", "LUAD-US", "LUSC-US", "STAD-US", "UCEC-US")
+nn %>%
+  filter(Cohort %in% cols.subset) %>% 
+  ggplot(aes(x = value, colour = Class)) +
+                    stat_ecdf(size = 1.15, pad = FALSE) +
+                    theme_bw() +
+                    scale_color_manual(values = cols) +
+                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
+                    theme(legend.position = "bottom") +
+                    facet_grid(vars(Cohort), vars(variable), scales = "free")
+```
+
+
+
+```{r Corr_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Number of target genes and TFBS associated with the predicted and non-predicted protein-coding genes (all cohorts).", fig.height = 10, fig.width = 8, fig.align = "center"}
+analyzed.genes.cohort.list <- sapply(genes.in.cohort.list, data.frame)
+names(analyzed.genes.cohort.list) <- names(genes.in.cohort.list)
+analyzed.genes.cohort.list <- analyzed.genes.cohort.list[11:20] ## 1-10 entries are NULL
+
+
+
+cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
+
+p2 <- ggplot(analyzed.pcg.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = cols.point) +
+  theme(legend.position = "bottom") 
+ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
 ```
 
 
@@ -1968,15 +1723,17 @@ Nb.TFBSs.per.miRNA <- all.associated.features.tab.mir %>%
 Nb.TFBSs.per.miRNA$Predicted     <- ifelse(Nb.TFBSs.per.miRNA$Associated_gene %in% predicted.genes.pancancer, yes = "Predicted", no = "")
 Nb.TFBSs.per.miRNA$Non_Predicted <- ifelse(!Nb.TFBSs.per.miRNA$Associated_gene %in% predicted.genes.pancancer, yes = "Non-Predicted", no = "")
 Nb.TFBSs.per.miRNA$Cancer <- ifelse(Nb.TFBSs.per.miRNA$Associated_gene %in% reported.cancer.miRNA, yes = "Cancer miRNA", no = "")
-Nb.TFBSs.per.miRNA$miRNA <- ifelse(Nb.TFBSs.per.miRNA$Associated_gene %in% miRNA.genes, yes = "miRNA", no = "")
+# Nb.TFBSs.per.miRNA$miRNA <- ifelse(Nb.TFBSs.per.miRNA$Associated_gene %in% miRNA.genes, yes = "miRNA", no = "")
+
+
 Nb.TFBSs.per.miRNA.classes <- reshape2::melt(Nb.TFBSs.per.miRNA,
                                 id.vars = c("Nb_TFBS", "Associated_gene"),
-                                measure.vars = c("Predicted", "Non_Predicted", "Cancer", "miRNA")) %>% 
+                                measure.vars = c("Predicted", "Non_Predicted", "Cancer")) %>% 
                                 filter(value != "") %>% 
                                 within(rm(variable)) %>% 
                                 rename(Class = value)
-cols <- c("Cancer miRNA" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "miRNA" = "#d95f02")
-Nb.TFBSs.per.miRNA.classes$Class <- factor(Nb.TFBSs.per.miRNA.classes$Class, levels = c("Cancer miRNA", "Non-Predicted", "Predicted", "miRNA"))
+cols <- c("Cancer miRNA" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77")
+Nb.TFBSs.per.miRNA.classes$Class <- factor(Nb.TFBSs.per.miRNA.classes$Class, levels = c("Cancer miRNA", "Non-Predicted", "Predicted"))
 ## Plot 1: ECDF
 TFBS.distr.ecdf.plot <- ggplot(Nb.TFBSs.per.miRNA.classes, aes(x = Nb_TFBS, colour = Class)) +
         stat_ecdf(size = 1.15, pad = FALSE) +
@@ -1998,8 +1755,8 @@ TFBS.distr.hist.real.plot <- ggplot(Nb.TFBSs.per.miRNA.classes, aes(x = Nb_TFBS,
 ##############################
 ## Rename BASIS miRNA names ##
 ##############################
-selected.mirna.list
-mirna.in.cohort.list
+# selected.mirna.list
+# mirna.in.cohort.list
 for (l in 1:length(selected.mirna.list)) {
   
   l.tmp <- selected.mirna.list[[l]][which(!grepl(selected.mirna.list[[l]], pattern = "::"))]
@@ -2037,7 +1794,7 @@ mirna.in.cohort.list <- sapply(mirna.in.cohort.list, function(x){
 
 
 
-```{r Nb_connections_per_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Distribution of number of associated TFBSs (A and B) and number of targets in the regulatory network (C and D) among predicted, non-predicted, TFs and cancer-related miRNA genes represented as Cumulative Distribution Function and Histogram of frequencies. The maximum number of targets of each miRNA in the miRNA network was restricted to 100.", fig.height = 8, fig.width = 9, fig.align = "center"}
+```{r Nb_connections_per_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Distribution of number of associated TFBSs (A and B) and number of targets in the regulatory network (C and D) among predicted, non-predicted, and cancer-related miRNA genes (aggregated from all evaluated cohorts) represented as Cumulative Distribution Function and Histogram of frequencies. The maximum number of targets of each miRNA in the regulatory network was restricted to 100.", fig.height = 8, fig.width = 9, fig.align = "center"}
 # predicted.genes.pancancer
 # xseq.analyzed.genes
 # reported.cancer.miRNA
@@ -2093,7 +1850,7 @@ enriched.terms.gg
 ```
 
 
-```{r export_Rdata_selected_genes}
+```{r export_Rdata_selected_genes, cache=FALSE, include=FALSE, echo=FALSE, eval=TRUE}
 
 all.predicted.genes <- list(Predicted_PCG   = selected.pcg.list,
                             Analyzed_PCG    = pcg.in.cohort.list,
@@ -2105,161 +1862,9 @@ save(all.predicted.genes, file = "Predicted_genes_all_cohorts.RData")
 ```
 
 
-```{r Corr_PCG, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Number of TFBS and targets of predicted and non-predicted protein-coding genes.", fig.height = 10, fig.width = 8, fig.align = "center"}
-analyzed.genes.cohort.list <- sapply(genes.in.cohort.list, data.frame)
-names(analyzed.genes.cohort.list) <- names(genes.in.cohort.list)
-analyzed.genes.cohort.list <- analyzed.genes.cohort.list[11:20] ## 1-10 entries are NULL
-# names(analyzed.genes.cohort.list)
-analyzed.pcg.summary <- Nb.targets.per.pcg %>% 
-                          select(Gene, Nb_target, Predicted) %>% 
-                          rename(Associated_gene = Gene) %>% 
-                          left_join(Nb.TFBSs.per.pcg, by = "Associated_gene") %>% 
-                          rename(Predicted = Predicted.x,
-                                 Gene      = Associated_gene) %>% 
-                          select(Gene, Nb_target, Nb_TFBS, Predicted, Cancer, TF) %>% 
-                          mutate(Predicted = ifelse(Predicted == "", yes = "Non-Predicted", no = Predicted))
-cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
-p2 <- ggplot(analyzed.pcg.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_manual(values = cols.point) +
-  theme(legend.position = "bottom") 
-ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
-```
 
+```{r eCDF_plot1_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulative Distribution Functions of number of TFBS, number of targets and number of mutations in miRNA genes, separated by cohorts (part 1).", fig.height = 10, fig.width = 8, fig.align = "center"}
 
-
-```{r eCDF_plot1_pcg, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in protein-coding genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
-analyzed.pcg.cohorts.summary <- lapply(Nb.mut.samples.pcg, function(l){
-                                  merge(l, analyzed.pcg.summary, by = "Gene") %>% 
-                                  reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
-                                                 measure.vars = c("Predicted", "Cancer", "TF")) %>% 
-                                                 filter(value != "") %>% 
-                                                 within(rm(variable)) %>% 
-                                                 rename(Class = value)
-                                })
-###############
-## Example 1 ##
-###############
-# aa <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
-#   ggplot(aes(x = Nb_TFBS, colour = Class)) +
-#                     stat_ecdf(size = 1.15, pad = FALSE) +
-#                     theme_bw() +
-#                     scale_color_manual(values = cols) + 
-#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-#                     theme(legend.position = "none") +
-#                     facet_wrap(. ~ Cohort, ncol = 1)
-# 
-# 
-# bb <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
-#   ggplot(aes(x = Nb_target, colour = Class)) +
-#                     stat_ecdf(size = 1.15, pad = FALSE) +
-#                     theme_bw() +
-#                     scale_color_manual(values = cols) + 
-#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-#                     theme(legend.position = "none") +
-#                     facet_wrap(. ~ Cohort, ncol = 1)
-# 
-# 
-# cc <- rbindlist(analyzed.pcg.cohorts.summary) %>% 
-#   ggplot(aes(x = Nb_samples, colour = Class)) +
-#                     stat_ecdf(size = 1.15, pad = FALSE) +
-#                     theme_bw() +
-#                     scale_color_manual(values = cols) + 
-#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-#                     theme(legend.position = "none") +
-#                     facet_wrap(. ~ Cohort, ncol = 1)
-# 
-# enriched.terms.gg <- plot_grid(aa,
-#                                bb,
-#                                cc,
-#                                ncol = 3, align = "hv", hjust = -0.25, vjust = 1.15,
-#                                rel_heights = c(1, 1), rel_widths = c(1, 1),
-#                                axis = "right")
-# enriched.terms.gg
-###############
-## Example 2 ##
-###############
-cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
-nn <-
-reshape2::melt(rbindlist(analyzed.pcg.cohorts.summary),
-               id.vars = c("Gene", "Cohort", "Class"),
-               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
-               filter(value != "")
-cols.subset <- c("BASIS_All", "BASIS_ER+", "BASIS_ER-", "BRCA-US", "HNSC-US")
-nn %>%
-  filter(Cohort %in% cols.subset) %>% 
-  ggplot(aes(x = value, colour = Class)) +
-                    stat_ecdf(size = 1.15, pad = FALSE) +
-                    theme_bw() +
-                    scale_color_manual(values = cols) +
-                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-                    theme(legend.position = "bottom") +
-                    facet_grid(vars(Cohort), vars(variable), scales = "free")
-# View(analyzed.pcg.cohorts.summary[[10]])
-# cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
-# 
-# 
-# cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
-# 
-# ecdf.tfbs <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_TFBS, colour = Class)) +
-#                     stat_ecdf(size = 1.15, pad = FALSE) +
-#                     theme_bw() +
-#                     scale_color_manual(values = cols) + 
-#                     labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-#                     theme(legend.position = "none") 
-# 
-# ecdf.targets <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_target, colour = Class)) +
-#                        stat_ecdf(size = 1.15, pad = FALSE) +
-#                        theme_bw() +
-#                        scale_color_manual(values = cols) + 
-#                        labs(x = "Nb of targets of protein-coding genes", y = "ECDF") +
-#                        theme(legend.position = "none") 
-# 
-# ecdf.samples <- ggplot(analyzed.pcg.cohorts.summary[[10]], aes(x = Nb_samples, colour = Class)) +
-#                        stat_ecdf(size = 1.15, pad = FALSE) +
-#                        theme_bw() +
-#                        scale_color_manual(values = cols) + 
-#                        labs(x = "Nb of mutated samples", y = "ECDF") +
-#                        theme(legend.position = "right") 
-# 
-# 
-# enriched.terms.gg <- plot_grid(ecdf.tfbs,
-#                                ecdf.targets,
-#                                ecdf.samples,
-#                                ncol = 3, align = "hv", labels = c('A)', 'B)', 'C)'), label_size = 20,
-#                                label_colour = "black", hjust = -0.25, vjust = 1.15,
-#                                rel_heights = c(1, 1, 1), rel_widths = c(1, 1, 1),
-#                                axis = "right")
-# 
-# ## Combine plots
-# enriched.terms.gg
-```
-
-
-
-```{r eCDF_plot2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in protein-coding genes. (Part 2)", fig.height = 10, fig.width = 8, fig.align = "center"}
-cols <- c("Cancer gene" = "#E69F00", "Non-Predicted" = "#56B4E9", "Predicted" = "#1b9e77", "TF" = "#d95f02")
-nn <-
-reshape2::melt(rbindlist(analyzed.pcg.cohorts.summary),
-               id.vars = c("Gene", "Cohort", "Class"),
-               measure.vars = c("Nb_target", "Nb_TFBS", "Nb_samples")) %>%
-               filter(value != "")
-cols.subset <- c("LIHC-US", "LUAD-US", "LUSC-US", "STAD-US", "UCEC-US")
-nn %>%
-  filter(Cohort %in% cols.subset) %>% 
-  ggplot(aes(x = value, colour = Class)) +
-                    stat_ecdf(size = 1.15, pad = FALSE) +
-                    theme_bw() +
-                    scale_color_manual(values = cols) +
-                    labs(x = "Nb of TFBSs assigned to protein-coding genes", y = "ECDF") +
-                    theme(legend.position = "bottom") +
-                    facet_grid(vars(Cohort), vars(variable), scales = "free")
-```
-
-
-
-```{r Corr_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Number of TFBS and targets of predicted and non-predicted protein-coding genes.", fig.height = 10, fig.width = 8, fig.align = "center"}
 analyzed.mirnas.cohort.list <- sapply(miRNA.in.cohort.list, data.frame)
 names(analyzed.mirnas.cohort.list) <- names(miRNA.in.cohort.list)
 analyzed.mirnas.cohort.list <- analyzed.mirnas.cohort.list[11:20] ## 1-10 entries are NULL
@@ -2272,18 +1877,7 @@ analyzed.mirna.summary <- Nb.targets.per.mirna %>%
                                  Gene      = Associated_gene) %>% 
                           select(Gene, Nb_target, Nb_TFBS, Predicted, Cancer) %>% 
                           mutate(Predicted = ifelse(Predicted == "", yes = "Non-Predicted", no = Predicted))
-cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
-p2 <- ggplot(analyzed.mirna.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
-  geom_point() +
-  theme_bw() +
-  scale_color_manual(values = cols.point) +
-  theme(legend.position = "bottom") 
-ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
-```
 
-
-
-```{r eCDF_plot1_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in miRNA genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
 analyzed.mirna.cohorts.summary <- lapply(Nb.mut.samples.mirna, function(l){
                                   merge(l, analyzed.mirna.summary, by = "Gene") %>% 
                                   reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
@@ -2312,7 +1906,8 @@ nn %>%
 
 
 
-```{r eCDF_plot2_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulatide Distribution Functions of number of TFBS, number of targets and number of mutations in miRNA genes. (Part 1)", fig.height = 10, fig.width = 8, fig.align = "center"}
+```{r eCDF_plot2_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Empirical Cumulative Distribution Functions of number of TFBS, number of targets and number of mutations in miRNA genes, separated by cohorts (part 1).", fig.height = 10, fig.width = 8, fig.align = "center"}
+
 analyzed.mirna.cohorts.summary <- lapply(Nb.mut.samples.mirna, function(l){
                                   merge(l, analyzed.mirna.summary, by = "Gene") %>% 
                                   reshape2::melt(id.vars = c("Gene", "Nb_target", "Nb_TFBS", "Nb_samples", "Cohort"),
@@ -2338,6 +1933,20 @@ nn %>%
                     theme(legend.position = "bottom") +
                     facet_grid(vars(Cohort), vars(variable), scales = "free")
 ```
+
+
+
+```{r Corr_miRNA, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Number of target genes and TFBS associated with the predicted and non-predicted miRNA genes (all cohorts).", fig.height = 10, fig.width = 8, fig.align = "center", message=FALSE, warning=FALSE}
+
+cols.point <- c("Non-Predicted" = "#E69F00", "Predicted" = "#1b9e77")
+p2 <- ggplot(analyzed.mirna.summary, aes(x = Nb_target, y = Nb_TFBS, colour = Predicted)) +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = cols.point) +
+  theme(legend.position = "bottom") 
+ggMarginal(p2, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
+```
+
 
 
 ```{r TFBS_mut_rdata, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, }
@@ -2372,6 +1981,253 @@ nn %>%
 # 
 # save(TFBS.mut.list, file = "/storage/mathelierarea/processed/jamondra/Projects/dysmir/TFBS_mutations_per_cohort.Rdata")
 ```
+
+
+<!-- \pagebreak -->
+<!-- \begin{landscape} -->
+<!-- ```{r FEA_BASIS_1, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes in the BASIS cohort. The barplots represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes when considering protein-coding genes with LoF mutations (PCGs::LoF; A-C), protein-coding genes with cis-regulatory mutations (PCG::TFBS; B-D), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; E). Enriched terms from KEGG 2021 Human (A-B) and WikiPathways (C-E) are provided.", fig.height = 100, fig.width = 180, fig.align = "center"} -->
+<!-- load("FEA_heatmaps/Enriched_terms_plots_BASIS.RData")  ## GSEA.enrich.plots -->
+<!-- ########## -->
+<!-- ## KEGG ## -->
+<!-- ########## -->
+<!-- ## KEGG TFBS PCG -->
+<!-- gene.names <- GSEA.enrich.plots[["KEGG_2021_Human"]][["PCG.TFBS"]][["gene_names"]] -->
+<!-- basis.pcg.tfbs.kegg <- GSEA.enrich.plots[["KEGG_2021_Human"]][["PCG.TFBS"]][["plot"]] -->
+<!-- basis.pcg.tfbs.kegg.plot <- -->
+<!-- basis.pcg.tfbs.kegg + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!--   scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!--   labs(title = " PCG.TFBS - KEGG") + -->
+<!--   theme(text = element_text(size = 90), -->
+<!--         axis.text.x = element_text(hjust=1, size = 100), -->
+<!--         axis.text.y = element_text(hjust=1, size = 100)) + -->
+<!--   guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!--         theme( -->
+<!--         panel.background = element_rect(fill = "white"), -->
+<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!--         plot.background = element_rect( -->
+<!--           fill = "#fefefe", -->
+<!--           colour = "white", -->
+<!--           size = 1)) -->
+<!-- ## KEGG LoF -->
+<!-- # gene.names <- GSEA.enrich.plots[["KEGG_2019_Human"]][["PCG.LoF"]][["gene_names"]] -->
+<!-- # basis.pcg.lof.kegg <- GSEA.enrich.plots[["KEGG_2019_Human"]][["PCG.LoF"]][["plot"]] -->
+<!-- #  -->
+<!-- # basis.pcg.lof.kegg.plot <- -->
+<!-- # basis.pcg.lof.kegg + -->
+<!-- #   scale_x_discrete(limits = gene.names) + -->
+<!-- #   scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- #   guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- #   labs(title = " PCG.LoF - KEGG") + -->
+<!-- #   theme(text = element_text(size = 100), -->
+<!-- #           axis.text.x = element_text(hjust=1, size = 100), -->
+<!-- #           axis.text.y = element_text(hjust=1, size = 100)) + -->
+<!-- #         theme( -->
+<!-- #         panel.background = element_rect(fill = "white"), -->
+<!-- #         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!-- #         plot.background = element_rect( -->
+<!-- #           fill = "#fefefe", -->
+<!-- #           colour = "white", -->
+<!-- #           size = 1)) -->
+<!-- ################## -->
+<!-- ## WikiPathways ## -->
+<!-- ################## -->
+<!-- ## WikiPathways TFBS PCG -->
+<!-- gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.TFBS"]][["gene_names"]] -->
+<!-- basis.pcg.tfbs.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.TFBS"]][["plot"]] -->
+<!-- basis.pcg.tfbs.wiki.plot <- -->
+<!-- basis.pcg.tfbs.wiki + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!-- scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- labs(title = "PCG.TFBS - WikiPathways") + -->
+<!-- guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- theme(text = element_text(size = 100), -->
+<!--           axis.text.x = element_text(hjust=1, size = 100), -->
+<!--           axis.text.y = element_text(hjust=1, size = 100)) + -->
+<!--         theme( -->
+<!--         panel.background = element_rect(fill = "white"), -->
+<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!--         plot.background = element_rect( -->
+<!--           fill = "#fefefe", -->
+<!--           colour = "white", -->
+<!--           size = 1)) -->
+<!-- ## WikiPathways LoF -->
+<!-- # gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.LoF"]][["gene_names"]] -->
+<!-- # basis.pcg.lof.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["PCG.LoF"]][["plot"]] -->
+<!-- #  -->
+<!-- # basis.pcg.lof.wiki.plot <- -->
+<!-- # basis.pcg.lof.wiki + -->
+<!-- #   scale_x_discrete(limits = gene.names) + -->
+<!-- # scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- # guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- # labs(title = "PCG.LoF - WikiPathways") + -->
+<!-- # theme(text = element_text(size = 100), -->
+<!-- #           axis.text.x = element_text(hjust=1, size = 100), -->
+<!-- #           axis.text.y = element_text(hjust=1, size = 100)) + -->
+<!-- #         theme( -->
+<!-- #         panel.background = element_rect(fill = "white"), -->
+<!-- #         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!-- #         plot.background = element_rect( -->
+<!-- #           fill = "#fefefe", -->
+<!-- #           colour = "white", -->
+<!-- #           size = 1)) -->
+<!-- ## WikiPathways TFBS miRNA -->
+<!-- # gene.names <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["premiRNA.TFBS"]][["gene_names"]] -->
+<!-- # basis.premiRNA.tfbs.wiki <- GSEA.enrich.plots[["WikiPathways_2019_Human"]][["premiRNA.TFBS"]][["plot"]] -->
+<!-- #  -->
+<!-- # basis.premiRNA.tfbs.wiki.plot <- -->
+<!-- # basis.premiRNA.tfbs.wiki + -->
+<!-- #   scale_x_discrete(limits = gene.names) + -->
+<!-- # scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- # guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- # labs(title = "miRNA.TFBS - WikiPathways") + -->
+<!-- # theme(text = element_text(size = 100), -->
+<!-- #           axis.text.x = element_text(hjust=1, size = 100), -->
+<!-- #           axis.text.y = element_text(hjust=1, size = 100)) #+ -->
+<!-- # #         theme( -->
+<!-- # #         panel.background = element_rect(fill = "white"), -->
+<!-- # #         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!-- # #         plot.background = element_rect( -->
+<!-- # #           fill = "#fefefe", -->
+<!-- # #           colour = "white", -->
+<!-- # #           size = 1)) -->
+<!-- # enriched.terms.gg <- plot_grid(basis.pcg.tfbs.kegg.plot, -->
+<!-- #                                basis.pcg.tfbs.wiki.plot, -->
+<!-- #                                ncol = 2, align = "hv", labels = c('A)', 'B)'), label_size = 150, -->
+<!-- #                                label_colour = "black", hjust = -2, vjust = 3, -->
+<!-- #                                rel_heights = c(1, 1)) -->
+<!-- #  -->
+<!-- # ## Combine plots -->
+<!-- # enriched.terms.gg -->
+<!-- #  -->
+<!-- # rm(GSEA.enrich.plots) -->
+<!-- # rm(enriched.terms.gg) -->
+<!-- ``` -->
+
+
+
+
+<!-- ```{r FEA_BASIS_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated genes in the networks of predicted miRNA and protein-coding genes in the BASIS cohort. The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes when considering protein-coding genes with LoF mutations (PCGs::LoF; A-C), protein-coding genes with cis-regulatory mutations (PCG::TFBS; B-D), and miRNAs with cis-regulatory mutations (miRNAs::TFBS; E). Enriched terms from GO biological processes (GO-BP; A-B) and Panther 2016 (C-E) are provided.", fig.height = 100, fig.width = 200, fig.align = "center"} -->
+<!-- load("FEA_heatmaps/Enriched_terms_plots_BASIS.RData")  ## GSEA.enrich.plots -->
+<!-- ########################### -->
+<!-- ## GO Biological process ## -->
+<!-- ########################### -->
+<!-- ## GO-BP TFBS PCG -->
+<!-- gene.names <- GSEA.enrich.plots[["GO_Biological_Process_2021"]][["PCG.TFBS"]][["gene_names"]] -->
+<!-- basis.pcg.tfbs.go.bp <- GSEA.enrich.plots[["GO_Biological_Process_2021"]][["PCG.TFBS"]][["plot"]] -->
+<!-- basis.pcg.tfbs.go.bp.plot <- -->
+<!-- basis.pcg.tfbs.go.bp + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!-- scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- labs(title = "PCG.TFBS - GO-BP") + -->
+<!-- theme(text = element_text(size = 110), -->
+<!--           axis.text.x = element_text(hjust=1, size = 110), -->
+<!--           axis.text.y = element_text(hjust=1, size = 110)) + -->
+<!--         theme( -->
+<!--         panel.background = element_rect(fill = "white"), -->
+<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!--         plot.background = element_rect( -->
+<!--           fill = "#fefefe", -->
+<!--           colour = "white", -->
+<!--           size = 1)) -->
+<!-- ## GO-BP LoF -->
+<!-- # gene.names <- GSEA.enrich.plots[["GO_Biological_Process_2018"]][["PCG.LoF"]][["gene_names"]] -->
+<!-- # basis.pcg.lof.go.bp <- GSEA.enrich.plots[["GO_Biological_Process_2018"]][["PCG.LoF"]][["plot"]] -->
+<!-- #  -->
+<!-- # basis.pcg.lof.go.bp.plot <- -->
+<!-- # basis.pcg.lof.go.bp + -->
+<!-- #   scale_x_discrete(limits = gene.names) + -->
+<!-- # scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- # guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- # labs(title = "PCG.LoF - GO-BP") + -->
+<!-- # theme(text = element_text(size = 110), -->
+<!-- #           axis.text.x = element_text(hjust=1, size = 110), -->
+<!-- #           axis.text.y = element_text(hjust=1, size = 110)) + -->
+<!-- #         theme( -->
+<!-- #         panel.background = element_rect(fill = "white"), -->
+<!-- #         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!-- #         plot.background = element_rect( -->
+<!-- #           fill = "#fefefe", -->
+<!-- #           colour = "white", -->
+<!-- #           size = 1)) -->
+<!-- ################## -->
+<!-- ## Panther 2016 ## -->
+<!-- ################## -->
+<!-- ## Panther TFBS PCG -->
+<!-- gene.names <- GSEA.enrich.plots[["Panther_2016"]][["PCG.TFBS"]][["gene_names"]] -->
+<!-- basis.pcg.tfbs.panther <- GSEA.enrich.plots[["Panther_2016"]][["PCG.TFBS"]][["plot"]] -->
+<!-- basis.pcg.tfbs.panther.plot <- -->
+<!-- basis.pcg.tfbs.panther + -->
+<!--   scale_x_discrete(limits = gene.names) + -->
+<!-- scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- labs(title = "PCG.TFBS - Panther") + -->
+<!-- theme(text = element_text(size = 110), -->
+<!--           axis.text.x = element_text(hjust=1, size = 110), -->
+<!--           axis.text.y = element_text(hjust=1, size = 110)) + -->
+<!--         theme( -->
+<!--         panel.background = element_rect(fill = "white"), -->
+<!--         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!--         plot.background = element_rect( -->
+<!--           fill = "#fefefe", -->
+<!--           colour = "white", -->
+<!--           size = 1)) -->
+<!-- ## Panther LoF -->
+<!-- # gene.names <- GSEA.enrich.plots[["Panther_2016"]][["PCG.LoF"]][["gene_names"]] -->
+<!-- # basis.pcg.lof.panther <- GSEA.enrich.plots[["Panther_2016"]][["PCG.LoF"]][["plot"]] -->
+<!-- #  -->
+<!-- # basis.pcg.lof.panther.plot <- -->
+<!-- # basis.pcg.lof.panther + -->
+<!-- #   scale_x_discrete(limits = gene.names) + -->
+<!-- # scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- # guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- # labs(title = "PCG.LoF - Panther") + -->
+<!-- # theme(text = element_text(size = 110), -->
+<!-- #           axis.text.x = element_text(hjust=1, size = 110), -->
+<!-- #           axis.text.y = element_text(hjust=1, size = 110)) + -->
+<!-- #         theme( -->
+<!-- #         panel.background = element_rect(fill = "white"), -->
+<!-- #         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!-- #         plot.background = element_rect( -->
+<!-- #           fill = "#fefefe", -->
+<!-- #           colour = "white", -->
+<!-- #           size = 1)) -->
+<!-- ## Panther TFBS miRNA -->
+<!-- # gene.names <- GSEA.enrich.plots[["Panther_2016"]][["premiRNA.TFBS"]][["gene_names"]] -->
+<!-- # basis.premiRNA.tfbs.panther <- GSEA.enrich.plots[["Panther_2016"]][["premiRNA.TFBS"]][["plot"]] -->
+<!-- #  -->
+<!-- # basis.premiRNA.tfbs.panther.plot <- -->
+<!-- # basis.premiRNA.tfbs.panther + -->
+<!-- #   scale_x_discrete(limits = gene.names) + -->
+<!-- # scale_fill_distiller(palette = "Blues", direction = +1) + -->
+<!-- # guides(fill = guide_colourbar(barwidth = 9, barheight = 30)) + -->
+<!-- # labs(title = "miRNA.TFBS- Panther") + -->
+<!-- # theme(text = element_text(size = 110), -->
+<!-- #           axis.text.x = element_text(hjust=1, size = 110), -->
+<!-- #           axis.text.y = element_text(hjust=1, size = 110)) + -->
+<!-- #         theme( -->
+<!-- #         panel.background = element_rect(fill = "white"), -->
+<!-- #         plot.margin = margin(0.25, 0.25, 0.25, 0.25, "cm"), -->
+<!-- #         plot.background = element_rect( -->
+<!-- #           fill = "#fefefe", -->
+<!-- #           colour = "white", -->
+<!-- #           size = 1)) -->
+<!-- enriched.terms.gg <- plot_grid(basis.pcg.tfbs.go.bp.plot, -->
+<!--                                basis.pcg.tfbs.kegg.plot, -->
+<!--                                # NULL,NULL, -->
+<!--                                basis.pcg.tfbs.wiki.plot, -->
+<!--                                basis.pcg.tfbs.panther.plot, -->
+<!--                                ncol = 2, align = "hv", labels = c('A)', 'B)', "C)", "D)"), label_size = 150, -->
+<!--                                label_colour = "black", hjust = -5, vjust = 1, -->
+<!--                                rel_heights = c(1, 1, 1, 1)) -->
+<!-- ## Combine plots -->
+<!-- enriched.terms.gg -->
+<!-- rm(GSEA.enrich.plots) -->
+<!-- rm(enriched.terms.gg) -->
+<!-- ``` -->
+<!-- \end{landscape} -->
+
 
 
 <!-- \pagebreak -->
