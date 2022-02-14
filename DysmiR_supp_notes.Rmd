@@ -446,7 +446,7 @@ tfbs.vs.exon.mutations <- tfbs.vs.exon.mutations + add_space
 suppressMessages(tfbs.vs.exon.mutations )
 
 ## NOTE: the variable barplots$C has the plot displayed in Figure 2B
-## 
+## barplots$C 
 ```
 
 
@@ -1079,18 +1079,30 @@ enriched.terms.gg
 rm(heatmap.GSEA.list)
 rm(enriched.terms.gg)
 ```
+\end{landscape}
 
 
+```{r Breast_Cancer_agg_net, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network representing the predicted protein-coding genes in BASIS (all samples), BASIS ER+, ER- and BRCA-US cohorts. The name of the genes predicted in two or more cohorts are displayed many times with different colors.", fig.height = 14, fig.width = 18, fig.align = "center", message=FALSE, warning=FALSE}
+# Taken from: ~/Documents/PostDoc/Mathelier_lab/Projects/R_utilities/R-scripts/Draw_network.R
+# knitr::include_graphics("BASIS_vs_TCGA/BRCA_agg_net.jpeg", dpi = 100)
+load("BASIS_vs_TCGA/RData/BRCA_BASIS_agg_net.RData")
+# agg.net
 
-\pagebreak
-```{r Breast_Cancer_agg_net, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Network representing the predicted protein-coding genes in BASIS (all samples), BASIS ER+, ER- and BRCA-US cohorts. The name of the genes predicted in two or more cohorts are displayed many times with different colors.", out.width = "700pt", out.height="470pt", fig.align = "center"}
-
-knitr::include_graphics("BASIS_vs_TCGA/BRCA_agg_net.jpeg", dpi = 100)
-
+## Figure 6 in the main manuscript
 ```
 
 
 
+\pagebreak
+\begin{landscape}
+```{r miRNA_brca_ER_plot, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Predicted miRNA drivers in breast cancer cohorts. Predicted miRNAs in TCGA (BRCA-US) and BASIS (all samples and ER- samples only). The pie plots represent the distribution of samples with ER-/+ status.", out.width = "675pt", out.height = "900pt", fig.align = "center", message=FALSE, warning=FALSE}
+
+knitr::include_graphics("BASIS_vs_TCGA/BRCA_miRNAs_pie.jpeg", dpi = 100)
+```
+
+
+
+\pagebreak
 ```{r FEA_breast_cancer_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated target genes of predicted miRNAs in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A), WikiPathways (B), and Panther (C). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 70, fig.width = 115, fig.align = "center"}
 
 ## From: /storage/mathelierarea/processed/jamondra/Projects/dysmir/R_scripts/BASIS/Heatmap_enriched_terms_breast_cancer.R
