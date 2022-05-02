@@ -210,7 +210,6 @@ xseq.net.mirna <- xseq.net.to.df(xseq.net.mirna)
 
 # Biotin -> Laptop
 # rsync -rptuvl jamondra@biotin2.hpc.uio.no:/storage/mathelierarea/processed/jamondra/Projects/dysmir/Manuscript/Supp_Material /home/jamondra/Documents/PostDoc/Mathelier_lab/Manuscript
-
 ```
 
 
