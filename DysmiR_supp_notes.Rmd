@@ -97,25 +97,25 @@ agg.net.fun <- function(df           = NULL,
                         project.name = NULL,
                         clusters     = NULL) {
 
-  ggplot(df, aes(x = x, y = y, xend = xend, yend = yend, color = Nb_samples, fill = TF_gene)) +
-        geom_edges(color = "grey50") +
-        geom_nodelabel_repel(aes(label = vertex.names),
-                             fontface = "plain", box.padding = unit(1, "lines"), color = "black", force = 0.85, size = 6) +
-        scale_fill_manual(values = c("#fdbb84", "white"),
-                          breaks = c("TF", "non_TF")) + ##
-        # geom_edges(arrow = arrow(length = unit(7, "pt"), type = "closed")) +
-        geom_edges(size = 1, colour = "#6baed6") +
+  ggplot(df, aes(x = x, y = y, xend = xend, yend = yend, color = Nb_samples, fill = TF_gene), arrow.gap = 0) +
+        geom_edges(size = 1, colour = "#6baed6", ) +
         geom_nodes(size = 8) +
+        geom_nodetext(aes(label = Nb_samples), fontface = "bold", color = "white", size = 5) +
         scale_color_distiller(palette = "PuBu", direction = +1, limits = c(1 ,max(df$Nb_samples)), name = "Samples    ") + 
         theme_blank() +
+        scale_fill_manual(values = c("#fdbb84", "white"),
+                          breaks = c("TF", "non_TF")) + ##
         labs(title = paste("Aggregated network ", project.name, " - Genes: ", sum(clusters$csize), " - Subgraphs: ", clusters$no)) +
-        guides(fill = FALSE) +
+        guides(fill = "none") +
+        geom_nodelabel_repel(aes(label = vertex.names), fontface = "plain", box.padding = unit(1, "lines"), color = "black", force = 5, size = 6, point.padding = unit(1.5, "lines")) +
         theme(plot.title = element_text(hjust = 0.5, size=12),
               legend.text=element_text(size=10),
               legend.title=element_text(size=10),
               legend.position = "bottom",
               legend.box = "vertical") +
-        guides(colour = guide_colourbar(barwidth = 7.5, barheight = 2))
+    guides(colour = "none")
+        # guides(colour = guide_colourbar(barwidth = 7, barheight = 2))
+    
 }
 
 
@@ -316,7 +316,7 @@ suppressMessages(suppressWarnings(plot_grid(mut.rate.distrib.comp.gg.brca,
 
 
 \pagebreak
-```{r Mutation_rates_paired_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Paired comparisons (wilcoxon tests) of mutation rates in A) STAD samples (n = 35), B) LUAD (n = 37), and D) LUSC (n = 42) at TFBS, exonic, flanking, and random regions.", fig.height = 19, fig.width = 15, fig.align = "center"}
+```{r Mutation_rates_paired_2, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Paired comparisons (wilcoxon tests) of mutation rates in A) STAD samples (n = 35), B) LUAD (n = 37), and C) LUSC (n = 42) at TFBS, exonic, flanking, and random regions.", fig.height = 19, fig.width = 15, fig.align = "center"}
 
 load("Mutation_rate/Paired_Comparison_Mutation_rates_STAD-US.RData")
 mut.rate.distrib.comp.gg.stad <- mut.rate.distrib.comp.gg + add_space
@@ -873,10 +873,10 @@ rm(enriched.terms.gg)
 
 \pagebreak
 \begin{landscape}
-```{r miRNAs_predicted_pancancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNAs predicted by xseq in the seven TCGA cohorts. Cell colors indicate the posterior probability computed over the corresponding cohort. Red stars indicate that the miRNA is annotated as a cancer-associated miRNA in miRCancer. Blue stars indicate that the miRNA was reported as a cancer-associated miRNA in the specific cancer type where it is predicted by xseq, according to miRCancer annotation.", out.width = "675pt", out.height = "700pt", fig.align = "center"}
+```{r miRNAs_predicted_pancancer, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="miRNAs predicted by xseq in the seven TCGA cohorts. Cell colors indicate the posterior probability computed over the corresponding cohort. Red stars indicate that the miRNA is annotated as a cancer-associated miRNA in miRCancer. Blue stars indicate that the miRNA was reported as a cancer-associated miRNA in the specific cancer type where it is predicted by xseq, according to miRCancer annotation.", out.width = "695pt", out.height = "700pt", fig.align = "center"}
 
 ## This plot is generated in this script:summary_xseq_trans_ICGC_primiRNA_genes_ALL_projects_Fig5.R
-knitr::include_graphics("Highlighted_genes_pancancer/Mature_miRNAs_pancancer.jpeg", dpi = 100)
+knitr::include_graphics("miRNA_pancancer/Mature_miRNAs_pancancer.jpeg", dpi = 100)
 ```
 \end{landscape}
 
@@ -1115,7 +1115,7 @@ knitr::include_graphics("BASIS_vs_TCGA/BRCA_miRNAs_pie.jpeg", dpi = 100)
 
 
 \pagebreak
-```{r FEA_breast_cancer_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated target genes of predicted miRNAs in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A), WikiPathways (B), and Panther (C). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 70, fig.width = 115, fig.align = "center"}
+```{r FEA_breast_cancer_miRNAs, cache=TRUE, include=TRUE, echo=FALSE, eval=TRUE, fig.cap="Functional enrichment analysis considering dysregulated target genes of predicted miRNAs in the breast cancer cohorts (columns). The heatmaps represent the significance (-log$_{10}$(P-value)) of the top-10 most enriched terms (rows) associated to the dysregulated genes for GO biological processes (GO-BP; A) and WikiPathways (B). Terms (rows) are ordered by their mean rank across all cohorts.", fig.height = 70, fig.width = 115, fig.align = "center"}
 
 ## From: /storage/mathelierarea/processed/jamondra/Projects/dysmir/R_scripts/BASIS/Heatmap_enriched_terms_breast_cancer.R
 
