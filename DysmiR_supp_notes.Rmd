@@ -526,6 +526,7 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
 
 <!--   nb.subgraphs.per.cohort.gg <- ggplot(nb.subgraphs.per.cohort.df, aes(y = Cluster, x = Cohort, fill = as.numeric(N))) + -->
 <!--                                   geom_tile(aes(width = 0.95, height = 0.95)) + -->
+<!--                                   geom_text(aes(label = N), size = 5) + -->
 <!--                                   theme_classic() + -->
 <!--                                   coord_equal() + -->
 <!--                                   scale_x_discrete(limits = paste0(cohorts, "-US")) + -->
@@ -540,7 +541,8 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
 <!--                                                                           hjust = 1, -->
 <!--                                                                           size  = 15), -->
 <!--                                         legend.position    = "bottom") + -->
-<!--                                   labs(y = "Number of subgraphs", x = "") -->
+<!--                                   labs(y = "Number of subgraphs", x = "") + -->
+<!--                                   guides(fill = "none") -->
 
 
 <!--   agg.nets.fig <- -->
@@ -548,9 +550,10 @@ suppressMessages(plot_grid(net.list[["BRCA"]],
 <!--             nb.subgraphs.per.cohort.gg, -->
 <!--             nrow = 1, labels = c('A)', 'B)'), -->
 <!--             align = "hv", -->
-<!--             label_size = 30, vjust = 1.25, hjust = -1, rel_widths = c(1, 1)) -->
+<!--             label_size = 20, vjust = 1.7, hjust = -1, rel_widths = c(1, 1)) -->
 
 <!--   agg.nets.fig -->
+<!--   # 11.5 * 6 -->
 
 
 <!-- ``` -->
